@@ -77,7 +77,8 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
    ```
 
     We also provide some commands that might be helpful when dealing with DPDK hugepages in [setupHuge.sh](./setupHuge.sh).
-
+    
+    **Note**: when you switch between local deployment and container deployment, you need to ```make clean``` to rebuild the dependencies in native/ (especially .make.dep).  
 
 ## Creating a Developer environment with `vagrant`
 
