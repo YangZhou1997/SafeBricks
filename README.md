@@ -16,18 +16,47 @@ If you use our vagrant-based Developer environment, all DPDK configuration is
 done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen) traffic generator and the
 [Containernet](//github.com/containernet/containernet) virtual network simulator for testing and development.
 
-## Creating a Developer environment with `vagrant`
+## Set up your local Ubuntu-16.04 environment
 
-1. Clone our [utils](//github.com/williamofockham/utils) and [moonGen](//github.com/williamofockham/MoonGen)
+1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
    repositories into the same parent directory.
    ```shell
    host$ for repo in utils moonGen; do \
-           git clone --recurse-submodules git@github.com:williamofockham/${repo}.git; \
+           git clone --recurse-submodules git@github.com:YangZhou1997/${repo}.git; \
+         done
+   ```
+2. Upgrade the kernel and install packages. 
+    ```shell
+    host$ sudo bash ../utils/vm-kernel-upgrade.sh #require rebooting
+    host$ sudo shutdown -r now
+    host$ sudo bash ../utils/vm-setup.sh
+    ```
+3. Run the `sandbox` container from NetBricks/:
+   ```shell
+   host$ make -f docker.mk run
+   ```
+
+4. After step 4, you'll be in the container and then can compile and test NetBricks via
+   ```shell
+   docker$ cd netbricks
+   docker$ make build
+   ...
+   docker$ make test
+   ...
+   ```
+
+## Creating a Developer environment with `vagrant`
+
+1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
+   repositories into the same parent directory.
+   ```shell
+   host$ for repo in utils moonGen; do \
+           git clone --recurse-submodules git@github.com:YangZhou1997/${repo}.git; \
          done
    ```
 
 2. [Install Vagrant](https://www.vagrantup.com/docs/installation/) and
-   [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
+   [VirtualBox](https://www.virtualbox.org/wiki/Downloads). You can check this [Google Doc](https://docs.google.com/document/d/1_QD0dZPr8JploJ-0CrKMJVc1TbGH7HhAFG96mzDXhPc/edit?usp=sharing) if any error happens.
 
 3. Install the `vagrant-disksize` (required) and `vagrant-vbguest` (recommended)
    `vagrant-reload` (required) plugins:
@@ -53,7 +82,7 @@ VM settings within the `Vagrantfile` once it has been symlinked.
    host$ vagrant ssh
    ```
 
-7. Once you're within the Vagrant instance, run the `sandbox` container from within Vagrant:
+7. Once you're within the Vagrant instance, run the `sandbox` container from NetBricks/ within Vagrant:
    ```shell
    vagrant$ make -f docker.mk run
    ```
@@ -84,7 +113,7 @@ repositories will be shared into the VM at `/vagrant/utils` and
 
 For development of NFs with NetBricks, we use a set of Docker containers to
 install and bind ports use with DPDK, as well other dependencies. All of this
-exists in our [utils sandbox](//github.com/williamofockham/utils), which can be
+exists in our [utils sandbox](//github.com/YangZhou1997/utils), which can be
 cloned accordingly and is part of our Developer environment above. As mentioned
 in steps 6 and 7 above, you can run our sandbox container and develop and test
 NetBricks via

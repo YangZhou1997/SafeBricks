@@ -1,4 +1,4 @@
-PORT ?= "0000:00:09.0"
+PORT ?= "0000:81:00.1"
 CORE ?= 0
 BASE_DIR = $(shell git rev-parse --show-toplevel)
 POOL_SIZE ?= 512
