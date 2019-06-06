@@ -8,6 +8,8 @@ CFLAGS=-g3 -Wno-error=maybe-uninitialized -fPIC
 
 curl -sSf https://fast.dpdk.org/rel/dpdk-17.08.1.tar.xz | tar -xJv
 
+cp ../utils/dpdk/common_linuxapp-17.08 $DPDK_HOME/config/common_linuxapp
+
 cd $DPDK_HOME
 
 make config T=x86_64-native-linuxapp-gcc EXTRA_CFLAGS="${CFLAGS}"
