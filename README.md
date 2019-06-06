@@ -16,7 +16,7 @@ If you use our vagrant-based Developer environment, all DPDK configuration is
 done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen) traffic generator and the
 [Containernet](//github.com/containernet/containernet) virtual network simulator for testing and development.
 
-## Set up your local Ubuntu-16.04 environment
+## Setting up your local Ubuntu-16.04 environment
 
 1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
    repositories into the same parent directory.
@@ -25,18 +25,20 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
            git clone --recurse-submodules git@github.com:YangZhou1997/${repo}.git; \
          done
    ```
+
 2. Upgrade the kernel and install packages. 
     ```shell
     host$ sudo bash ../utils/vm-kernel-upgrade.sh #require rebooting
     host$ sudo shutdown -r now
     host$ sudo bash ../utils/vm-setup.sh
     ```
+
 3. Run the `sandbox` container from NetBricks/:
    ```shell
    host$ make -f docker.mk run
    ```
 
-4. After step 4, you'll be in the container and then can compile and test NetBricks via
+4. After step 3, you'll be in the container and then can compile and test NetBricks via
    ```shell
    docker$ cd netbricks
    docker$ make build
@@ -44,6 +46,31 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
    docker$ make test
    ...
    ```
+
+## Developing in local Ubuntu-16.04 environment
+
+1. After step 2 of last section, you machine has the basic requirement of running NetBricks. Now you need to build and bind DPDK. 
+    ```shell
+    host$ ./setupDpdk.sh
+    ```
+
+2. As far as I know, NetBricks assumes you are root during running it. So you need to switch to root now. 
+    ```shell
+    host$ sudo su
+    root$ ./setupDpdk.sh 
+    ```
+setupDpdk.sh will install the rust nightly, clang, and etc for running NetBricks. 
+
+3. After step 2, you'll be able to compile and test NetBricks via
+   ```shell
+   root$ cd netbricks
+   root$ make build
+   ...
+   root$ make test
+   ...
+   ```
+We also provide some commands that might be helpful when dealing with DPDK hugepages in [setupHuge.sh](./setupHuge.sh).
+
 
 ## Creating a Developer environment with `vagrant`
 
