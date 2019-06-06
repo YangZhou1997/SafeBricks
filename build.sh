@@ -21,7 +21,7 @@ export CARGO=${CARGO_PATH-"${CARGO_LOC}"}
 CLIPPY_ARGS="--all-targets --all-features -- -D clippy::wildcard_dependencies -D clippy::cargo_common_metadata -D warnings"
 
 DPDK_VER=17.08
-DPDK_HOME="/users/yangzhou/tools/dpdk/dpdk-stable-${DPDK_VER}"
+DPDK_HOME="/opt/dpdk/dpdk-stable-${DPDK_VER}"
 DPDK_LD_PATH="${DPDK_HOME}/build/lib"
 DPDK_CONFIG_FILE=${DPDK_CONFIG_FILE-"${DPDK_HOME}/config/common_linuxapp"}
 
