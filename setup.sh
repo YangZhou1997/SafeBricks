@@ -9,15 +9,12 @@
 DPDK_HOME=/users/yangzhou/tools/dpdk-stable-17.08.1
 CFLAGS="-g3 -Wno-error=maybe-uninitialized -fPIC"
 
-
 sudo apt-get -y install build-essential ca-certificates curl \
     libnuma-dev libpcap-dev xz-utils
 
-curl -sSf https://fast.dpdk.org/rel/dpdk-17.08.1.tar.xz | tar -xJv
-
-cp ../utils/dpdk/common_linuxapp-17.08 $DPDK_HOME/config/common_linuxapp
-
 cd $DPDK_HOME
+curl -sSf https://fast.dpdk.org/rel/dpdk-17.08.1.tar.xz | tar -xJv
+cp /users/yangzhou/utils/dpdk/common_linuxapp-17.08 $DPDK_HOME/config/common_linuxapp
 
 make config T=x86_64-native-linuxapp-gcc EXTRA_CFLAGS="${CFLAGS}"
 make -j8 EXTRA_CFLAGS="${CFLAGS}"
