@@ -21,7 +21,7 @@ export CARGO=${CARGO_PATH-"${CARGO_LOC}"}
 CLIPPY_ARGS="--all-targets --all-features -- -D clippy::wildcard_dependencies -D clippy::cargo_common_metadata -D warnings"
 
 DPDK_VER=17.08
-DPDK_HOME="/opt/dpdk/dpdk-stable-${DPDK_VER}"
+DPDK_HOME="/users/yangzhou/tools/dpdk/dpdk-stable-${DPDK_VER}"
 DPDK_LD_PATH="${DPDK_HOME}/build/lib"
 DPDK_CONFIG_FILE=${DPDK_CONFIG_FILE-"${DPDK_HOME}/config/common_linuxapp"}
 
@@ -325,7 +325,7 @@ case $TASK in
           debug: Debug one of the examples (Must specify example name and examples).
           doc: Run rustdoc and produce documentation
           env: Environment variables, run as eval \`./build.sh env\`.
-          fmt: Format all files via rustfmt. 
+          fmt: Format all files via rustfmt.
           lint: Run clippy to lint all files.
           run: Run one of the examples (Must specify example name and arguments).
           run_rel: Run one of the examples in release mode (Must specify example name and arguments).

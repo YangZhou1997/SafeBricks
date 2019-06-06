@@ -177,8 +177,7 @@ Dependencies
 Building NetBricks requires the following dependency packages (on Debian):
 
 ```
-apt-get install libcurl4-gnutls-dev, libgnutls30 libgnutls-openssl-dev,
-tcpdump, libclang-dev, libpcap-dev (for dpdk), libnuma-dev (for dpdk)
+apt-get install libcurl4-gnutls-dev libgnutls30 libgnutls-openssl-dev tcpdump libclang-dev libpcap-dev libnuma-dev
 ```
 
 NetBricks also supports using SCTP as a control protocol. SCTP support requires
