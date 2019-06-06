@@ -57,9 +57,10 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 2. As far as I know, NetBricks assumes you are root during running it. So you need to switch to root now. 
     ```shell
     host$ sudo su
-    root$ ./setupDpdk.sh 
+    root$ ./setupBuild.sh 
     ```
-setupDpdk.sh will install the rust nightly, clang, and etc for running NetBricks. 
+    
+    [setupBuild.sh](./setupBuild.sh) will install the rust nightly, clang, and etc for running NetBricks. 
 
 3. After step 2, you'll be able to compile and test NetBricks via
    ```shell
@@ -69,7 +70,8 @@ setupDpdk.sh will install the rust nightly, clang, and etc for running NetBricks
    root$ make test
    ...
    ```
-We also provide some commands that might be helpful when dealing with DPDK hugepages in [setupHuge.sh](./setupHuge.sh).
+
+    We also provide some commands that might be helpful when dealing with DPDK hugepages in [setupHuge.sh](./setupHuge.sh).
 
 
 ## Creating a Developer environment with `vagrant`
