@@ -8,5 +8,5 @@ rustup install nightly
 rustup default nightly
 
 #dependencies for netbricks
-sudo apt-get install clang libclang-dev libsctp-dev
+sudo apt-get -y install clang libclang-dev libsctp-dev
 

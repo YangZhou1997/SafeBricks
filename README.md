@@ -58,7 +58,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
 ## Developing in local Ubuntu-16.04 environment
 
-1. Current version of NetBricks will read some DPDK lib from /opt/dpdk/build/ during runtime, you need to copy include/ and lib/ directory from $RTE_SET/build to /opt/dpdk/build/. Note that soft links need to be considered carefully. We provide [setupDpdkCopy.sh](./setupDpdkCopy.sh) for that: 
+1. Make sure that you have gone though step 1-3 of last section successfully. Current version of NetBricks will read some DPDK lib from /opt/dpdk/build/ during runtime, you need to copy include/ and lib/ directory from $RTE_SDK/build to /opt/dpdk/build/. Note that soft links need to be considered carefully. We provide [setupDpdkCopy.sh](./setupDpdkCopy.sh) for that: 
     ```shell
     host$ ./setupDpdkCopy.sh
     ```
@@ -71,18 +71,18 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     
     [setupBuild.sh](./setupBuild.sh) will install the rust nightly, clang, and etc for running NetBricks. 
 
-3. After step 2, you'll be able to compile and test NetBricks via
+3. After step 2, you need to set ```RTE_SDK``` to the dpdk directory. Then you'll be able to compile and test NetBricks:
    ```shell
-   root$ cd netbricks
-   root$ make build
-   ...
-   root$ make test
-   ...
+    root$ export RTE_SDK=/home/yangz/tools/dpdk-stable-17.08.1 # for instance.
+    root$ make build
+    ...
+    root$ make test
+    ...
    ```
 
     We also provide some commands that might be helpful when dealing with DPDK hugepages in [setupHuge.sh](./setupHuge.sh).
     
-    **Note**: when you switch between local deployment and container deployment, you need to ```make clean``` to rebuild the dependencies in native/ (especially .make.dep).  
+    **Note**: when you switch between local deployment and container deployment, you need to ```sudo make clean``` to rebuild the dependencies in native/ (especially .make.dep).  
 
 ## Creating a Developer environment with `vagrant`
 

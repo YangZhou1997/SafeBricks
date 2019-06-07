@@ -2,13 +2,13 @@
 
 sudo mkdir -p /opt/dpdk/build
 
-src="~/tools/dpdk-stable-17.08.1/build/lib"
-dst="/opt/dpdk/build/lib"
+src=~/tools/dpdk-stable-17.08.1/build/lib
+dst=/opt/dpdk/build/lib
 
 sudo cp -r $src $dst
 
-src="~/tools/dpdk-stable-17.08.1/build/include"
-dst="/opt/dpdk/build/include"
+src=~/tools/dpdk-stable-17.08.1/build/include
+dst=/opt/dpdk/build/include
 
 #clean destination
 if [ -d $dst ]; then
@@ -30,8 +30,8 @@ for i in `ls $src`; do
 done
 
 
-src="~/tools/dpdk-stable-17.08.1/build/include/exec-env"
-dst="/opt/dpdk/build/include/exec-env"
+src=~/tools/dpdk-stable-17.08.1/build/include/exec-env
+dst=/opt/dpdk/build/include/exec-env
 
 #clean destination
 if [ -d $dst ]; then
@@ -53,8 +53,8 @@ for i in `ls $src`; do
 done
 
 
-src="~/tools/dpdk-stable-17.08.1/build/include/generic"
-dst="/opt/dpdk/build/include/generic"
+src=~/tools/dpdk-stable-17.08.1/build/include/generic
+dst=/opt/dpdk/build/include/generic
 #clean destination
 if [ -d $dst ]; then
    echo "Cleaning target directory $dst"
