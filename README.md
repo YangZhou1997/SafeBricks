@@ -37,6 +37,8 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     ```shell
     host$ ./setupDpdk.sh
     ```
+    
+    **Note**: you need to change the dpdk device number in the last line of setupDpdk.sh.
 
 4. Run the `sandbox` container from NetBricks/:
    ```shell
@@ -51,6 +53,8 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
    docker$ make test
    ...
    ```
+
+   **Note**: you need to change the dpdk device number in the first line of [Makefile](./Makefile).
 
 ## Developing in local Ubuntu-16.04 environment
 
