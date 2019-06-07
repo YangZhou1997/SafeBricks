@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#sudo chown -R yangzhou:lambda-mpi-PG0 /users/yangzhou/NetBricks
+#sudo chown -R yangzhou:lambda-mpi-PG0 ~/NetBricks
 
 curl https://sh.rustup.rs -sSf | sh  # Install rustup
 source $HOME/.cargo/env

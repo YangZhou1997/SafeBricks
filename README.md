@@ -33,12 +33,17 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     host$ sudo bash ../utils/vm-setup.sh
     ```
 
-3. Run the `sandbox` container from NetBricks/:
+3. After step 2, you machine meets the basic requirements of running NetBricks. Now you need to build and bind DPDK using [setupDpdk.sh](./setupDpdk.sh). 
+    ```shell
+    host$ ./setupDpdk.sh
+    ```
+
+4. Run the `sandbox` container from NetBricks/:
    ```shell
    host$ make -f docker.mk run
    ```
 
-4. After step 3, you'll be in the container and then can compile and test NetBricks via
+5. After step 4, you'll be in the container and then can compile and test NetBricks via
    ```shell
    docker$ cd netbricks
    docker$ make build
@@ -49,17 +54,12 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
 ## Developing in local Ubuntu-16.04 environment
 
-1. After step 2 of last section, you machine has the basic requirement of running NetBricks. Now you need to build and bind DPDK using [setupDpdk.sh](./setupDpdk.sh). 
-    ```shell
-    host$ ./setupDpdk.sh
-    ```
-    
-2. Current version of NetBricks will read some DPDK lib from /opt/dpdk/build/ during runtime, you need to copy include/ and lib/ directory from $RTE_SET/build to /opt/dpdk/build/. Note that soft links need to be considered carefully. We provide [setupDpdkCopy.sh](./setupDpdkCopy.sh) for that: 
+1. Current version of NetBricks will read some DPDK lib from /opt/dpdk/build/ during runtime, you need to copy include/ and lib/ directory from $RTE_SET/build to /opt/dpdk/build/. Note that soft links need to be considered carefully. We provide [setupDpdkCopy.sh](./setupDpdkCopy.sh) for that: 
     ```shell
     host$ ./setupDpdkCopy.sh
     ```
 
-3. As far as I know, NetBricks assumes you are root during running it. So you need to switch to root now. 
+2. As far as I know, NetBricks assumes you are root during running it. So you need to switch to root now. 
     ```shell
     host$ sudo su
     root$ ./setupBuild.sh 
@@ -67,7 +67,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     
     [setupBuild.sh](./setupBuild.sh) will install the rust nightly, clang, and etc for running NetBricks. 
 
-4. After step 3, you'll be able to compile and test NetBricks via
+3. After step 2, you'll be able to compile and test NetBricks via
    ```shell
    root$ cd netbricks
    root$ make build

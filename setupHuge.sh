@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo chown -R yangzhou:lambda-mpi-PG0 /users/yangzhou/NetBricks
+sudo chown -R yangzhou:lambda-mpi-PG0 ~/NetBricks
 sudo chown -R yangzhou:lambda-mpi-PG0 /dev/hugepages/
 
 echo 1024 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages

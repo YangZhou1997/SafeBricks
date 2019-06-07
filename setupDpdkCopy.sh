@@ -2,12 +2,12 @@
 
 sudo mkdir -p /opt/dpdk/build
 
-src="/users/yangzhou/tools/dpdk-stable-17.08.1/build/lib"
+src="~/tools/dpdk-stable-17.08.1/build/lib"
 dst="/opt/dpdk/build/lib"
 
 sudo cp -r $src $dst
 
-src="/users/yangzhou/tools/dpdk-stable-17.08.1/build/include"
+src="~/tools/dpdk-stable-17.08.1/build/include"
 dst="/opt/dpdk/build/include"
 
 #clean destination
@@ -30,7 +30,7 @@ for i in `ls $src`; do
 done
 
 
-src="/users/yangzhou/tools/dpdk-stable-17.08.1/build/include/exec-env"
+src="~/tools/dpdk-stable-17.08.1/build/include/exec-env"
 dst="/opt/dpdk/build/include/exec-env"
 
 #clean destination
@@ -53,7 +53,7 @@ for i in `ls $src`; do
 done
 
 
-src="/users/yangzhou/tools/dpdk-stable-17.08.1/build/include/generic"
+src="~/tools/dpdk-stable-17.08.1/build/include/generic"
 dst="/opt/dpdk/build/include/generic"
 #clean destination
 if [ -d $dst ]; then
