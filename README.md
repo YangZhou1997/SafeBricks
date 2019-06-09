@@ -71,9 +71,10 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     
     [setupBuild.sh](./setupBuild.sh) will install the rust nightly, clang, and etc for running NetBricks. 
 
-3. After step 2, you need to set ```RTE_SDK``` to the dpdk directory. Then you'll be able to compile and test NetBricks:
+3. After step 2, you need to set ```RTE_SDK``` to the dpdk directory, and load cargo environment. Then you'll be able to compile and test NetBricks:
    ```shell
     root$ export RTE_SDK=/home/yangz/tools/dpdk-stable-17.08.1 # for instance.
+    root$ source /home/yangz/.cargo/env
     root$ make build
     ...
     root$ make test
