@@ -1,0 +1,1913 @@
+desc: (none)
+cmd: /users/yangzhou/NetBricks/target/debug/macswap -p dpdk:eth_pcap0,rx_pcap=data/http_lemmy.pcap,tx_pcap=/tmp/out.pcap -c 1 -d 1
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=1762128
+mem_heap_B=552
+mem_heap_extra_B=16
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=2
+#-----------
+time=2434092
+mem_heap_B=1405
+mem_heap_extra_B=667
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=3
+#-----------
+time=3235773
+mem_heap_B=2814
+mem_heap_extra_B=802
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=4
+#-----------
+time=3623773
+mem_heap_B=5032
+mem_heap_extra_B=1168
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=5
+#-----------
+time=4242634
+mem_heap_B=5830
+mem_heap_extra_B=1074
+mem_stacks_B=0
+heap_tree=detailed
+n9: 5830 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n2: 3840 0x61197A: alloc::alloc::alloc::h2de9a41fb6f0b6d5 (alloc.rs:81)
+  n1: 3648 0x609058: hashbrown::raw::RawTable$LT$T$GT$::new_uninitialized::h5b7effa4f595de2f (mod.rs:379)
+   n1: 3648 0x609C81: hashbrown::raw::RawTable$LT$T$GT$::try_with_capacity::hdab25cebe29e0964 (mod.rs:403)
+    n1: 3648 0x60C2A7: hashbrown::raw::RawTable$LT$T$GT$::resize::h78a9bc4d0a993094 (mod.rs:776)
+     n1: 3648 0x605696: hashbrown::raw::RawTable$LT$T$GT$::reserve_rehash::hce1c02894c1f69f2 (mod.rs:661)
+      n1: 3648 0x60D2A3: hashbrown::raw::RawTable$LT$T$GT$::reserve::hc6f4eea9b1b9d4f0 (mod.rs:621)
+       n1: 3648 0x60B991: hashbrown::raw::RawTable$LT$T$GT$::insert::h4897776dfd4c6764 (mod.rs:821)
+        n1: 3648 0x623C94: hashbrown::map::HashMap$LT$K$C$V$C$S$GT$::insert::h3f34c764173d164a (map.rs:848)
+         n3: 3648 0x640174: std::collections::hash::map::HashMap$LT$K$C$V$C$S$GT$::insert::hb6292927908ffbe2 (map.rs:823)
+          n1: 1824 0x631378: _$LT$config..value..ValueKind$u20$as$u20$core..convert..From$LT$std..collections..hash..map..HashMap$LT$alloc..string..String$C$T$GT$$GT$$GT$::from::h5d8fec6f0f3556f0 (value.rs:78)
+           n1: 1824 0x640EA9: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h36e4b3af1dddfe34 (convert.rs:540)
+            n1: 1824 0x631EA5: config::value::Value::new::h534538c5609c7b0a (value.rs:149)
+             n1: 1824 0x6147E1: config::file::format::toml::from_toml_value::hf76091508884a891 (toml.rs:35)
+              n1: 1824 0x614137: config::file::format::toml::parse::h491a72b3d28f87cb (toml.rs:13)
+               n1: 1824 0x61A522: config::file::format::FileFormat::parse::hcac832ee395df009 (mod.rs:92)
+                n1: 1824 0x4333AE: _$LT$config..file..File$LT$T$GT$$u20$as$u20$config..source..Source$GT$::collect::h49ccda5078ea45b2 (mod.rs:120)
+                 n1: 1824 0x4323C6: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:17)
+                  n1: 1824 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+                   n1: 1824 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+                    n1: 1824 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+                     n1: 1824 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+                      n1: 1824 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                       n1: 1824 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                        n1: 1824 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                         n1: 1824 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                          n1: 1824 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                           n1: 1824 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                            n1: 1824 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                             n0: 1824 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+          n1: 1824 0x645E20: config::path::Expression::set::hf86aaef1fba61f42 (mod.rs:217)
+           n1: 1824 0x4326E8: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:27)
+            n1: 1824 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+             n1: 1824 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+              n1: 1824 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+               n1: 1824 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+                n1: 1824 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                 n1: 1824 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                  n1: 1824 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 1824 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                    n1: 1824 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                     n1: 1824 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                      n1: 1824 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                       n0: 1824 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+          n0: 0 in 1 place, below massif's threshold (1.00%)
+  n3: 192 0x611760: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::h755af8fef0b63761 (alloc.rs:169)
+   n1: 88 0x63C517: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve_internal::h232499098a75ff29 (raw_vec.rs:668)
+    n1: 88 0x63EC70: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve::hf58084df2a28dfb9 (raw_vec.rs:491)
+     n1: 88 0x6272B0: alloc::vec::Vec$LT$T$GT$::reserve::h549e9e6d934ae676 (vec.rs:457)
+      n2: 88 0x6268D2: alloc::vec::Vec$LT$T$GT$::push::hf01f75c7575c7ca8 (vec.rs:1102)
+       n1: 88 0x63187E: _$LT$config..value..ValueKind$u20$as$u20$core..convert..From$LT$alloc..vec..Vec$LT$T$GT$$GT$$GT$::from::hd434158ab648735b (value.rs:93)
+        n1: 88 0x62559F: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h5f98ff037b305b6f (convert.rs:540)
+         n1: 88 0x63211D: config::value::Value::new::ha49b9a218056df0c (value.rs:149)
+          n1: 88 0x614A18: config::file::format::toml::from_toml_value::hf76091508884a891 (toml.rs:45)
+           n1: 88 0x614843: config::file::format::toml::from_toml_value::hf76091508884a891 (toml.rs:32)
+            n1: 88 0x614137: config::file::format::toml::parse::h491a72b3d28f87cb (toml.rs:13)
+             n1: 88 0x61A522: config::file::format::FileFormat::parse::hcac832ee395df009 (mod.rs:92)
+              n1: 88 0x4333AE: _$LT$config..file..File$LT$T$GT$$u20$as$u20$config..source..Source$GT$::collect::h49ccda5078ea45b2 (mod.rs:120)
+               n1: 88 0x4323C6: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:17)
+                n1: 88 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+                 n1: 88 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+                  n1: 88 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+                   n1: 88 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+                    n1: 88 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                     n1: 88 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                      n1: 88 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                       n1: 88 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                        n1: 88 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                         n1: 88 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                          n1: 88 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                           n0: 88 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+       n0: 0 in 1 place, below massif's threshold (1.00%)
+   n1: 88 0x63B3CF: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::habcb921452d23c5c (raw_vec.rs:95)
+    n1: 88 0x63ADE4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h785ddd9809d5aac2 (raw_vec.rs:139)
+     n1: 88 0x625B32: alloc::vec::Vec$LT$T$GT$::with_capacity::h456b1dcb733325a4 (vec.rs:355)
+      n1: 88 0x62DCDF: alloc::slice::hack::to_vec::h71f30392ac6ee9f2 (slice.rs:158)
+       n1: 88 0x630F23: alloc::slice::_$LT$impl$u20$$u5b$T$u5d$$GT$::to_vec::h2889572557909654 (slice.rs:379)
+        n1: 88 0x62781F: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$core..clone..Clone$GT$::clone::ha798418c50305293 (vec.rs:1721)
+         n1: 88 0x4B571F: _$LT$config..value..ValueKind$u20$as$u20$core..clone..Clone$GT$::clone::h3215ff50caa9d136 (value.rs:16)
+          n1: 88 0x4B5422: _$LT$config..value..Value$u20$as$u20$core..clone..Clone$GT$::clone::hb0dd85d44ce78f01 (value.rs:138)
+           n1: 88 0x4326C8: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:27)
+            n1: 88 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+             n1: 88 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+              n1: 88 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+               n1: 88 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+                n1: 88 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                 n1: 88 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                  n1: 88 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 88 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                    n1: 88 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                     n1: 88 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                      n1: 88 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                       n0: 88 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+   n0: 16 in 1 place, below massif's threshold (1.00%)
+ n2: 544 0x5216EAA: rte_log_register (eal_common_log.c:240)
+  n1: 544 0x50B4293: i40e_init_log (i40e_ethdev.c:10999)
+   n1: 544 0x40106C8: call_init.part.0 (dl-init.c:72)
+    n1: 544 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 544 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 544 0x5: ???
+       n1: 544 0xFFF000409: ???
+        n1: 544 0xFFF000438: ???
+         n1: 544 0xFFF00043B: ???
+          n1: 544 0xFFF00047D: ???
+           n1: 544 0xFFF000480: ???
+            n1: 544 0xFFF000482: ???
+             n0: 544 0xFFF000485: ???
+  n0: 0 in 1 place, below massif's threshold (1.00%)
+ n5: 536 0x4E34AA1: numa_bitmask_alloc (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n1: 128 0x4E341FD: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E3420E: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E34356: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E34376: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n0: 24 in 4 places, all below massif's threshold (1.00%)
+ n0: 221 in 17 places, all below massif's threshold (1.00%)
+ n2: 195 0x62E8488: strdup (strdup.c:42)
+  n1: 165 0x50B3AD3: rte_log_init (eal_common_log.c:218)
+   n1: 165 0x40106C8: call_init.part.0 (dl-init.c:72)
+    n1: 165 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 165 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 165 0x5: ???
+       n1: 165 0xFFF000409: ???
+        n1: 165 0xFFF000438: ???
+         n1: 165 0xFFF00043B: ???
+          n1: 165 0xFFF00047D: ???
+           n1: 165 0xFFF000480: ???
+            n1: 165 0xFFF000482: ???
+             n0: 165 0xFFF000485: ???
+  n0: 30 in 1 place, below massif's threshold (1.00%)
+ n2: 175 0x95014A: alloc::alloc::alloc::h2e938a4023a259c6 (alloc.rs:81)
+  n2: 175 0x94F0B0: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::had4d49aa008a5977 (alloc.rs:169)
+   n1: 175 0x9808EF: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h2456c37053ab2763 (raw_vec.rs:95)
+    n1: 175 0x9804E4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h13370c42acb3ed97 (raw_vec.rs:139)
+     n1: 175 0x948BA2: alloc::vec::Vec$LT$T$GT$::with_capacity::hefe90f340b52f3eb (vec.rs:355)
+      n1: 175 0x98E44F: alloc::slice::hack::to_vec::hac19f683acd40613 (slice.rs:158)
+       n1: 175 0x950433: alloc::slice::_$LT$impl$u20$$u5b$T$u5d$$GT$::to_vec::h514e0be85a8100d7 (slice.rs:379)
+        n1: 175 0x950493: alloc::slice::_$LT$impl$u20$alloc..borrow..ToOwned$u20$for$u20$$u5b$T$u5d$$GT$::to_owned::h809be9aa787b642d (slice.rs:647)
+         n2: 175 0x973D68: alloc::str::_$LT$impl$u20$alloc..borrow..ToOwned$u20$for$u20$str$GT$::to_owned::hddacdfde415264c7 (str.rs:206)
+          n1: 175 0x98A482: _$LT$alloc..string..String$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::h47518352efa7370a (string.rs:2188)
+           n2: 175 0x971C32: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h6612a606ec1272f3 (convert.rs:540)
+            n1: 175 0x6175A0: _$LT$config..file..source..string..FileSourceString$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::hfa0f0f25ea6c53ee (string.rs:14)
+             n1: 175 0x644133: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h1367ab591e175819 (convert.rs:540)
+              n1: 175 0x61774F: config::file::File$LT$config..file..source..string..FileSourceString$GT$::from_str::h0a4b4643cccb5e8b (mod.rs:35)
+               n1: 175 0x454050: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                n1: 175 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                 n1: 175 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 175 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                   n1: 175 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                    n1: 175 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                     n1: 175 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                      n0: 175 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n0: 0 in 1 place, below massif's threshold (1.00%)
+          n0: 0 in 1 place, below massif's threshold (1.00%)
+   n0: 0 in 6 places, all below massif's threshold (1.00%)
+  n0: 0 in 1 place, below massif's threshold (1.00%)
+ n1: 127 0xBDBF03: _$LT$alloc..string..String$u20$as$u20$core..clone..Clone$GT$::clone::hd0d3c758611d8b7f (alloc.rs:81)
+  n0: 127 in 6 places, all below massif's threshold (1.00%)
+ n1: 112 0x4E34A84: numa_bitmask_alloc (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n0: 112 in 8 places, all below massif's threshold (1.00%)
+ n1: 80 0xBBB10E: std::thread::Thread::new::h92be663e08de1d10 (alloc.rs:81)
+  n1: 80 0xBC5ABD: std::rt::lang_start_internal::heb8c7d701c7d4328 (rt.rs:40)
+   n1: 80 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+    n0: 80 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+#-----------
+snapshot=6
+#-----------
+time=4605793
+mem_heap_B=4851
+mem_heap_extra_B=1117
+mem_stacks_B=0
+heap_tree=detailed
+n10: 4851 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n2: 2848 0x61197A: alloc::alloc::alloc::h2de9a41fb6f0b6d5 (alloc.rs:81)
+  n1: 2744 0x609058: hashbrown::raw::RawTable$LT$T$GT$::new_uninitialized::h5b7effa4f595de2f (mod.rs:379)
+   n1: 2744 0x609C81: hashbrown::raw::RawTable$LT$T$GT$::try_with_capacity::hdab25cebe29e0964 (mod.rs:403)
+    n1: 2744 0x60C2A7: hashbrown::raw::RawTable$LT$T$GT$::resize::h78a9bc4d0a993094 (mod.rs:776)
+     n1: 2744 0x605696: hashbrown::raw::RawTable$LT$T$GT$::reserve_rehash::hce1c02894c1f69f2 (mod.rs:661)
+      n1: 2744 0x60D2A3: hashbrown::raw::RawTable$LT$T$GT$::reserve::hc6f4eea9b1b9d4f0 (mod.rs:621)
+       n1: 2744 0x60B991: hashbrown::raw::RawTable$LT$T$GT$::insert::h4897776dfd4c6764 (mod.rs:821)
+        n1: 2744 0x623C94: hashbrown::map::HashMap$LT$K$C$V$C$S$GT$::insert::h3f34c764173d164a (map.rs:848)
+         n2: 2744 0x640174: std::collections::hash::map::HashMap$LT$K$C$V$C$S$GT$::insert::hb6292927908ffbe2 (map.rs:823)
+          n2: 2744 0x645E20: config::path::Expression::set::hf86aaef1fba61f42 (mod.rs:217)
+           n1: 1824 0x4326E8: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:27)
+            n1: 1824 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+             n1: 1824 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+              n1: 1824 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+               n1: 1824 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+                n1: 1824 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                 n1: 1824 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                  n1: 1824 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 1824 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                    n1: 1824 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                     n1: 1824 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                      n1: 1824 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                       n0: 1824 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+           n1: 920 0x629728: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:27)
+            n1: 920 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+             n1: 920 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+              n1: 920 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+               n1: 920 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                n1: 920 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                 n1: 920 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                  n1: 920 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                   n1: 920 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                    n1: 920 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                     n0: 920 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+          n0: 0 in 2 places, all below massif's threshold (1.00%)
+  n2: 104 0x611760: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::h755af8fef0b63761 (alloc.rs:169)
+   n1: 88 0x63B3CF: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::habcb921452d23c5c (raw_vec.rs:95)
+    n1: 88 0x63ADE4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h785ddd9809d5aac2 (raw_vec.rs:139)
+     n1: 88 0x625B32: alloc::vec::Vec$LT$T$GT$::with_capacity::h456b1dcb733325a4 (vec.rs:355)
+      n1: 88 0x62DCDF: alloc::slice::hack::to_vec::h71f30392ac6ee9f2 (slice.rs:158)
+       n1: 88 0x630F23: alloc::slice::_$LT$impl$u20$$u5b$T$u5d$$GT$::to_vec::h2889572557909654 (slice.rs:379)
+        n1: 88 0x62781F: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$core..clone..Clone$GT$::clone::ha798418c50305293 (vec.rs:1721)
+         n1: 88 0x4B571F: _$LT$config..value..ValueKind$u20$as$u20$core..clone..Clone$GT$::clone::h3215ff50caa9d136 (value.rs:16)
+          n1: 88 0x4B5422: _$LT$config..value..Value$u20$as$u20$core..clone..Clone$GT$::clone::hb0dd85d44ce78f01 (value.rs:138)
+           n1: 88 0x4326C8: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:27)
+            n1: 88 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+             n1: 88 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+              n1: 88 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+               n1: 88 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+                n1: 88 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                 n1: 88 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                  n1: 88 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 88 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                    n1: 88 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                     n1: 88 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                      n1: 88 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                       n0: 88 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+   n0: 16 in 2 places, all below massif's threshold (1.00%)
+ n2: 544 0x5216EAA: rte_log_register (eal_common_log.c:240)
+  n1: 544 0x50B4293: i40e_init_log (i40e_ethdev.c:10999)
+   n1: 544 0x40106C8: call_init.part.0 (dl-init.c:72)
+    n1: 544 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 544 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 544 0x5: ???
+       n1: 544 0xFFF000409: ???
+        n1: 544 0xFFF000438: ???
+         n1: 544 0xFFF00043B: ???
+          n1: 544 0xFFF00047D: ???
+           n1: 544 0xFFF000480: ???
+            n1: 544 0xFFF000482: ???
+             n0: 544 0xFFF000485: ???
+  n0: 0 in 1 place, below massif's threshold (1.00%)
+ n5: 536 0x4E34AA1: numa_bitmask_alloc (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n1: 128 0x4E341FD: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E3420E: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E34356: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E34376: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n0: 24 in 4 places, all below massif's threshold (1.00%)
+ n2: 195 0x62E8488: strdup (strdup.c:42)
+  n1: 165 0x50B3AD3: rte_log_init (eal_common_log.c:218)
+   n1: 165 0x40106C8: call_init.part.0 (dl-init.c:72)
+    n1: 165 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 165 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 165 0x5: ???
+       n1: 165 0xFFF000409: ???
+        n1: 165 0xFFF000438: ???
+         n1: 165 0xFFF00043B: ???
+          n1: 165 0xFFF00047D: ???
+           n1: 165 0xFFF000480: ???
+            n1: 165 0xFFF000482: ???
+             n0: 165 0xFFF000485: ???
+  n0: 30 in 1 place, below massif's threshold (1.00%)
+ n2: 175 0x95014A: alloc::alloc::alloc::h2e938a4023a259c6 (alloc.rs:81)
+  n2: 175 0x94F0B0: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::had4d49aa008a5977 (alloc.rs:169)
+   n1: 175 0x9808EF: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h2456c37053ab2763 (raw_vec.rs:95)
+    n1: 175 0x9804E4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h13370c42acb3ed97 (raw_vec.rs:139)
+     n1: 175 0x948BA2: alloc::vec::Vec$LT$T$GT$::with_capacity::hefe90f340b52f3eb (vec.rs:355)
+      n1: 175 0x98E44F: alloc::slice::hack::to_vec::hac19f683acd40613 (slice.rs:158)
+       n1: 175 0x950433: alloc::slice::_$LT$impl$u20$$u5b$T$u5d$$GT$::to_vec::h514e0be85a8100d7 (slice.rs:379)
+        n1: 175 0x950493: alloc::slice::_$LT$impl$u20$alloc..borrow..ToOwned$u20$for$u20$$u5b$T$u5d$$GT$::to_owned::h809be9aa787b642d (slice.rs:647)
+         n2: 175 0x973D68: alloc::str::_$LT$impl$u20$alloc..borrow..ToOwned$u20$for$u20$str$GT$::to_owned::hddacdfde415264c7 (str.rs:206)
+          n1: 175 0x98A482: _$LT$alloc..string..String$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::h47518352efa7370a (string.rs:2188)
+           n2: 175 0x971C32: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h6612a606ec1272f3 (convert.rs:540)
+            n1: 175 0x6175A0: _$LT$config..file..source..string..FileSourceString$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::hfa0f0f25ea6c53ee (string.rs:14)
+             n1: 175 0x644133: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h1367ab591e175819 (convert.rs:540)
+              n1: 175 0x61774F: config::file::File$LT$config..file..source..string..FileSourceString$GT$::from_str::h0a4b4643cccb5e8b (mod.rs:35)
+               n1: 175 0x454050: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                n1: 175 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                 n1: 175 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 175 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                   n1: 175 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                    n1: 175 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                     n1: 175 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                      n0: 175 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n0: 0 in 1 place, below massif's threshold (1.00%)
+          n0: 0 in 1 place, below massif's threshold (1.00%)
+   n0: 0 in 6 places, all below massif's threshold (1.00%)
+  n0: 0 in 1 place, below massif's threshold (1.00%)
+ n0: 165 in 16 places, all below massif's threshold (1.00%)
+ n2: 132 0xBDBF03: _$LT$alloc..string..String$u20$as$u20$core..clone..Clone$GT$::clone::hd0d3c758611d8b7f (alloc.rs:81)
+  n2: 114 0x645D86: config::path::Expression::set::hf86aaef1fba61f42 (mod.rs:217)
+   n1: 68 0x4326E8: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:27)
+    n1: 68 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+     n1: 68 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+      n1: 68 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+       n1: 68 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+        n1: 68 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+         n1: 68 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+          n1: 68 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+           n1: 68 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+            n1: 68 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+             n1: 68 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+              n1: 68 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+               n0: 68 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+   n0: 46 in 1 place, below massif's threshold (1.00%)
+  n0: 18 in 6 places, all below massif's threshold (1.00%)
+ n1: 112 0x4E34A84: numa_bitmask_alloc (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n0: 112 in 8 places, all below massif's threshold (1.00%)
+ n1: 80 0xBBB10E: std::thread::Thread::new::h92be663e08de1d10 (alloc.rs:81)
+  n1: 80 0xBC5ABD: std::rt::lang_start_internal::heb8c7d701c7d4328 (rt.rs:40)
+   n1: 80 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+    n0: 80 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n1: 64 0x52A266C: rte_cryptodev_allocate_driver (rte_cryptodev.c:1406)
+  n0: 64 in 2 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=7
+#-----------
+time=5243043
+mem_heap_B=13524
+mem_heap_extra_B=1284
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=8
+#-----------
+time=5683198
+mem_heap_B=5049
+mem_heap_extra_B=1239
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=6160888
+mem_heap_B=5608
+mem_heap_extra_B=1456
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=10
+#-----------
+time=6655706
+mem_heap_B=7472
+mem_heap_extra_B=1528
+mem_stacks_B=0
+heap_tree=detailed
+n9: 7472 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n2: 4832 0x61197A: alloc::alloc::alloc::h2de9a41fb6f0b6d5 (alloc.rs:81)
+  n1: 4568 0x609058: hashbrown::raw::RawTable$LT$T$GT$::new_uninitialized::h5b7effa4f595de2f (mod.rs:379)
+   n1: 4568 0x609C81: hashbrown::raw::RawTable$LT$T$GT$::try_with_capacity::hdab25cebe29e0964 (mod.rs:403)
+    n1: 4568 0x60C2A7: hashbrown::raw::RawTable$LT$T$GT$::resize::h78a9bc4d0a993094 (mod.rs:776)
+     n1: 4568 0x605696: hashbrown::raw::RawTable$LT$T$GT$::reserve_rehash::hce1c02894c1f69f2 (mod.rs:661)
+      n1: 4568 0x60D2A3: hashbrown::raw::RawTable$LT$T$GT$::reserve::hc6f4eea9b1b9d4f0 (mod.rs:621)
+       n1: 4568 0x60B991: hashbrown::raw::RawTable$LT$T$GT$::insert::h4897776dfd4c6764 (mod.rs:821)
+        n1: 4568 0x623C94: hashbrown::map::HashMap$LT$K$C$V$C$S$GT$::insert::h3f34c764173d164a (map.rs:848)
+         n3: 4568 0x640174: std::collections::hash::map::HashMap$LT$K$C$V$C$S$GT$::insert::hb6292927908ffbe2 (map.rs:823)
+          n2: 2744 0x645E20: config::path::Expression::set::hf86aaef1fba61f42 (mod.rs:217)
+           n1: 1824 0x629728: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:27)
+            n1: 1824 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+             n1: 1824 0x44D81D: config::config::Config::merge::hda417235087f0155 (config.rs:78)
+              n1: 1824 0x454070: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+               n1: 1824 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                n1: 1824 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                 n1: 1824 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                  n1: 1824 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                   n1: 1824 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                    n1: 1824 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                     n0: 1824 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+           n1: 920 0x4326E8: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:27)
+            n1: 920 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+             n1: 920 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+              n2: 920 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+               n1: 920 0x44D6D0: config::config::Config::merge::h8761bb1c47eed66c (config.rs:78)
+                n1: 920 0x454494: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:235)
+                 n1: 920 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                  n1: 920 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 920 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                    n1: 920 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                     n1: 920 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                      n1: 920 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                       n0: 920 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+               n0: 0 in 1 place, below massif's threshold (1.00%)
+          n1: 1824 0x631378: _$LT$config..value..ValueKind$u20$as$u20$core..convert..From$LT$std..collections..hash..map..HashMap$LT$alloc..string..String$C$T$GT$$GT$$GT$::from::h5d8fec6f0f3556f0 (value.rs:78)
+           n1: 1824 0x640EA9: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h36e4b3af1dddfe34 (convert.rs:540)
+            n1: 1824 0x631EA5: config::value::Value::new::h534538c5609c7b0a (value.rs:149)
+             n1: 1824 0x6147E1: config::file::format::toml::from_toml_value::hf76091508884a891 (toml.rs:35)
+              n1: 1824 0x614137: config::file::format::toml::parse::h491a72b3d28f87cb (toml.rs:13)
+               n1: 1824 0x61A522: config::file::format::FileFormat::parse::hcac832ee395df009 (mod.rs:92)
+                n1: 1824 0x4333AE: _$LT$config..file..File$LT$T$GT$$u20$as$u20$config..source..Source$GT$::collect::h49ccda5078ea45b2 (mod.rs:120)
+                 n1: 1824 0x4323C6: config::source::Source::collect_to::h92bec0d27a3069f7 (source.rs:17)
+                  n1: 1824 0x629A96: _$LT$alloc..vec..Vec$LT$alloc..boxed..Box$LT$dyn$u20$config..source..Source$u2b$core..marker..Sync$u2b$core..marker..Send$GT$$GT$$u20$as$u20$config..source..Source$GT$::collect::h36ee53628d1b48e8 (source.rs:53)
+                   n1: 1824 0x629406: config::source::Source::collect_to::hf66bb2f7ce9b143e (source.rs:17)
+                    n2: 1824 0x612927: config::config::Config::refresh::h5b3bc51881132f33 (config.rs:102)
+                     n1: 1824 0x44D6D0: config::config::Config::merge::h8761bb1c47eed66c (config.rs:78)
+                      n1: 1824 0x454494: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:235)
+                       n1: 1824 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                        n1: 1824 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                         n1: 1824 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                          n1: 1824 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                           n1: 1824 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                            n1: 1824 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                             n0: 1824 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+                     n0: 0 in 1 place, below massif's threshold (1.00%)
+          n0: 0 in 1 place, below massif's threshold (1.00%)
+  n2: 264 0x611760: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::h755af8fef0b63761 (alloc.rs:169)
+   n1: 176 0x63B3CF: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::habcb921452d23c5c (raw_vec.rs:95)
+    n1: 176 0x63ADE4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h785ddd9809d5aac2 (raw_vec.rs:139)
+     n1: 176 0x625B32: alloc::vec::Vec$LT$T$GT$::with_capacity::h456b1dcb733325a4 (vec.rs:355)
+      n1: 176 0x62DCDF: alloc::slice::hack::to_vec::h71f30392ac6ee9f2 (slice.rs:158)
+       n1: 176 0x630F23: alloc::slice::_$LT$impl$u20$$u5b$T$u5d$$GT$::to_vec::h2889572557909654 (slice.rs:379)
+        n1: 176 0x62781F: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$core..clone..Clone$GT$::clone::ha798418c50305293 (vec.rs:1721)
+         n0: 176 in 2 places, all below massif's threshold (1.00%)
+   n0: 88 in 2 places, all below massif's threshold (1.00%)
+ n2: 544 0x5216EAA: rte_log_register (eal_common_log.c:240)
+  n1: 544 0x50B4293: i40e_init_log (i40e_ethdev.c:10999)
+   n1: 544 0x40106C8: call_init.part.0 (dl-init.c:72)
+    n1: 544 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 544 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 544 0x5: ???
+       n1: 544 0xFFF000409: ???
+        n1: 544 0xFFF000438: ???
+         n1: 544 0xFFF00043B: ???
+          n1: 544 0xFFF00047D: ???
+           n1: 544 0xFFF000480: ???
+            n1: 544 0xFFF000482: ???
+             n0: 544 0xFFF000485: ???
+  n0: 0 in 1 place, below massif's threshold (1.00%)
+ n5: 536 0x4E34AA1: numa_bitmask_alloc (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n1: 128 0x4E341FD: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E3420E: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E34356: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n1: 128 0x4E34376: ??? (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 128 0x4010688: call_init.part.0 (dl-init.c:58)
+    n1: 128 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 128 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 128 0x5: ???
+       n1: 128 0xFFF000409: ???
+        n1: 128 0xFFF000438: ???
+         n1: 128 0xFFF00043B: ???
+          n1: 128 0xFFF00047D: ???
+           n1: 128 0xFFF000480: ???
+            n1: 128 0xFFF000482: ???
+             n0: 128 0xFFF000485: ???
+  n0: 24 in 4 places, all below massif's threshold (1.00%)
+ n0: 504 in 25 places, all below massif's threshold (1.00%)
+ n2: 384 0xADEA8A: alloc::alloc::alloc::h770202cecb80fa54 (alloc.rs:81)
+  n1: 312 0xAE57C8: hashbrown::raw::RawTable$LT$T$GT$::new_uninitialized::h7352d25e6bc0f00a (mod.rs:379)
+   n1: 312 0xAE5BE1: hashbrown::raw::RawTable$LT$T$GT$::try_with_capacity::heaa63b4f90543773 (mod.rs:403)
+    n1: 312 0xAE8377: hashbrown::raw::RawTable$LT$T$GT$::resize::hfa74d71c977ebc8a (mod.rs:776)
+     n1: 312 0xAE3366: hashbrown::raw::RawTable$LT$T$GT$::reserve_rehash::hf7021fa6c7256729 (mod.rs:661)
+      n1: 312 0xAE8AF3: hashbrown::raw::RawTable$LT$T$GT$::reserve::h255b428643c1e09e (mod.rs:621)
+       n1: 312 0xAE7B41: hashbrown::raw::RawTable$LT$T$GT$::insert::h3bb7b34a24289ac4 (mod.rs:821)
+        n1: 312 0xAE201A: hashbrown::map::HashMap$LT$K$C$V$C$S$GT$::insert::h2a43c96795efc3b5 (map.rs:848)
+         n1: 312 0xAD313F: std::collections::hash::map::HashMap$LT$K$C$V$C$S$GT$::insert::h40369ebc38cf4c37 (map.rs:823)
+          n1: 312 0xB31DDC: clap::args::arg_matcher::ArgMatcher::insert::haa39dceb84ce58a4 (in /users/yangzhou/NetBricks/target/debug/macswap)
+           n1: 312 0xB3218E: clap::args::arg_matcher::ArgMatcher::inc_occurrence_of::h565fb7111de63436 (arg_matcher.rs:162)
+            n1: 312 0xB1E272: clap::app::parser::Parser::parse_opt::h61e5eb297dd6aadc (parser.rs:1778)
+             n1: 312 0xB1CE18: clap::app::parser::Parser::parse_short_arg::hdb2370c83cfa0f91 (parser.rs:1701)
+              n1: 312 0xB114A8: clap::app::parser::Parser::get_matches_with::hbaf49caafed318be (parser.rs:947)
+               n1: 312 0xA7AC23: clap::app::App::get_matches_from_safe_borrow::haa17b1d7b3c64713 (mod.rs:1629)
+                n1: 312 0xA7A102: clap::app::App::get_matches_from::hc85cbbc78873ff37 (mod.rs:1509)
+                 n1: 312 0xA7A03F: clap::app::App::get_matches::h741446e8ad3015a4 (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 312 0x47413A: core::ops::function::FnOnce::call_once::h397677b23256e038 (mod.rs:107)
+                   n1: 312 0x443C25: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::hf9a4dec2676640b1 (inline_lazy.rs:28)
+                    n1: 312 0x4B4C3C: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1dc437b0b61351e5 (in /users/yangzhou/NetBricks/target/debug/macswap)
+                     n1: 312 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                      n1: 312 0x4B496B: std::sync::once::Once::call_once::h1c392223703cfec3 (once.rs:220)
+                       n1: 312 0x45E984: _$LT$netbricks..config..CLI_ARGS$u20$as$u20$core..ops..deref..Deref$GT$::deref::h32fe3c4c90da6a61 (inline_lazy.rs:27)
+                        n1: 312 0x454660: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:231)
+                         n1: 312 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                          n1: 312 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                           n1: 312 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                            n1: 312 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                             n1: 312 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                              n0: 312 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+  n0: 72 in 2 places, all below massif's threshold (1.00%)
+ n2: 195 0x62E8488: strdup (strdup.c:42)
+  n1: 165 0x50B3AD3: rte_log_init (eal_common_log.c:218)
+   n1: 165 0x40106C8: call_init.part.0 (dl-init.c:72)
+    n1: 165 0x40107D9: _dl_init (dl-init.c:30)
+     n1: 165 0x4000C68: ??? (in /lib/x86_64-linux-gnu/ld-2.23.so)
+      n1: 165 0x5: ???
+       n1: 165 0xFFF000409: ???
+        n1: 165 0xFFF000438: ???
+         n1: 165 0xFFF00043B: ???
+          n1: 165 0xFFF00047D: ???
+           n1: 165 0xFFF000480: ???
+            n1: 165 0xFFF000482: ???
+             n0: 165 0xFFF000485: ???
+  n0: 30 in 1 place, below massif's threshold (1.00%)
+ n2: 190 0xBDBF03: _$LT$alloc..string..String$u20$as$u20$core..clone..Clone$GT$::clone::hd0d3c758611d8b7f (alloc.rs:81)
+  n1: 104 0x645D86: config::path::Expression::set::hf86aaef1fba61f42 (mod.rs:217)
+   n0: 104 in 2 places, all below massif's threshold (1.00%)
+  n0: 86 in 6 places, all below massif's threshold (1.00%)
+ n2: 175 0x95014A: alloc::alloc::alloc::h2e938a4023a259c6 (alloc.rs:81)
+  n2: 175 0x94F0B0: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::had4d49aa008a5977 (alloc.rs:169)
+   n1: 175 0x9808EF: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h2456c37053ab2763 (raw_vec.rs:95)
+    n1: 175 0x9804E4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h13370c42acb3ed97 (raw_vec.rs:139)
+     n1: 175 0x948BA2: alloc::vec::Vec$LT$T$GT$::with_capacity::hefe90f340b52f3eb (vec.rs:355)
+      n1: 175 0x98E44F: alloc::slice::hack::to_vec::hac19f683acd40613 (slice.rs:158)
+       n1: 175 0x950433: alloc::slice::_$LT$impl$u20$$u5b$T$u5d$$GT$::to_vec::h514e0be85a8100d7 (slice.rs:379)
+        n1: 175 0x950493: alloc::slice::_$LT$impl$u20$alloc..borrow..ToOwned$u20$for$u20$$u5b$T$u5d$$GT$::to_owned::h809be9aa787b642d (slice.rs:647)
+         n2: 175 0x973D68: alloc::str::_$LT$impl$u20$alloc..borrow..ToOwned$u20$for$u20$str$GT$::to_owned::hddacdfde415264c7 (str.rs:206)
+          n1: 175 0x98A482: _$LT$alloc..string..String$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::h47518352efa7370a (string.rs:2188)
+           n2: 175 0x971C32: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h6612a606ec1272f3 (convert.rs:540)
+            n1: 175 0x6175A0: _$LT$config..file..source..string..FileSourceString$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::hfa0f0f25ea6c53ee (string.rs:14)
+             n1: 175 0x644133: _$LT$T$u20$as$u20$core..convert..Into$LT$U$GT$$GT$::into::h1367ab591e175819 (convert.rs:540)
+              n1: 175 0x61774F: config::file::File$LT$config..file..source..string..FileSourceString$GT$::from_str::h0a4b4643cccb5e8b (mod.rs:35)
+               n1: 175 0x454050: netbricks::config::load_config::h3d1bfd3f72f3dab5 (mod.rs:229)
+                n1: 175 0x407393: macswap::main::h15b9b17ecae20f79 (main.rs:43)
+                 n1: 175 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 175 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                   n1: 175 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                    n1: 175 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                     n1: 175 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                      n0: 175 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n0: 0 in 1 place, below massif's threshold (1.00%)
+          n0: 0 in 1 place, below massif's threshold (1.00%)
+   n0: 0 in 6 places, all below massif's threshold (1.00%)
+  n0: 0 in 1 place, below massif's threshold (1.00%)
+ n1: 112 0x4E34A84: numa_bitmask_alloc (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n0: 112 in 8 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=11
+#-----------
+time=7067653
+mem_heap_B=9236
+mem_heap_extra_B=1828
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=7590643
+mem_heap_B=9744
+mem_heap_extra_B=1816
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=13
+#-----------
+time=8401414
+mem_heap_B=42725
+mem_heap_extra_B=1363
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=10073637
+mem_heap_B=1089773
+mem_heap_extra_B=1347
+mem_stacks_B=0
+heap_tree=detailed
+n2: 1089773 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n3: 1081440 0x63251B8: opendir (opendir.c:247)
+  n1: 1048624 0x520BBCA: eal_hugepage_info_init (eal_hugepage_info.c:206)
+   n1: 1048624 0x520AA5D: rte_eal_init (eal.c:798)
+    n1: 1048624 0x50B82A7: init_eal (init.c:136)
+     n1: 1048624 0x50B86D5: init_system_whitelisted (init.c:184)
+      n1: 1048624 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+       n1: 1048624 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+        n1: 1048624 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+         n1: 1048624 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+          n1: 1048624 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+           n1: 1048624 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n1: 1048624 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n1: 1048624 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+              n1: 1048624 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+               n1: 1048624 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                n0: 1048624 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+  n1: 32816 0x520BA28: eal_hugepage_info_init (eal_hugepage_info.c:285)
+   n1: 32816 0x520AA5D: rte_eal_init (eal.c:798)
+    n1: 32816 0x50B82A7: init_eal (init.c:136)
+     n1: 32816 0x50B86D5: init_system_whitelisted (init.c:184)
+      n1: 32816 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+       n1: 32816 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+        n1: 32816 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+         n1: 32816 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+          n1: 32816 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+           n1: 32816 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n1: 32816 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n1: 32816 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+              n1: 32816 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+               n1: 32816 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                n0: 32816 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+  n0: 0 in 2 places, all below massif's threshold (1.00%)
+ n0: 8333 in 44 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=15
+#-----------
+time=10409575
+mem_heap_B=8506703
+mem_heap_extra_B=5561
+mem_stacks_B=0
+heap_tree=peak
+n2: 8506703 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 8486912 0x520C497: rte_eal_hugepage_init (eal_memory.c:1096)
+  n1: 8486912 0x5218FE2: rte_eal_memory_init (eal_common_memory.c:157)
+   n1: 8486912 0x520A7A5: rte_eal_init (eal.c:841)
+    n1: 8486912 0x50B82A7: init_eal (init.c:136)
+     n1: 8486912 0x50B86D5: init_system_whitelisted (init.c:184)
+      n1: 8486912 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+       n1: 8486912 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+        n1: 8486912 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+         n1: 8486912 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+          n1: 8486912 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+           n1: 8486912 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n1: 8486912 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n1: 8486912 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+              n1: 8486912 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+               n1: 8486912 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                n0: 8486912 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n0: 19791 in 52 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=16
+#-----------
+time=11068035
+mem_heap_B=8506575
+mem_heap_extra_B=5553
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=17
+#-----------
+time=11759011
+mem_heap_B=8506575
+mem_heap_extra_B=5553
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=18
+#-----------
+time=12587550
+mem_heap_B=8506575
+mem_heap_extra_B=5553
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=19
+#-----------
+time=13046686
+mem_heap_B=8506575
+mem_heap_extra_B=5553
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=20
+#-----------
+time=13505822
+mem_heap_B=8506575
+mem_heap_extra_B=5553
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=21
+#-----------
+time=14055117
+mem_heap_B=8506967
+mem_heap_extra_B=5545
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=22
+#-----------
+time=49852129
+mem_heap_B=8506967
+mem_heap_extra_B=5545
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=23
+#-----------
+time=51538731
+mem_heap_B=8506415
+mem_heap_extra_B=5529
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=24
+#-----------
+time=51785856
+mem_heap_B=8506431
+mem_heap_extra_B=5537
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=25
+#-----------
+time=69003499
+mem_heap_B=19503
+mem_heap_extra_B=1489
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=26
+#-----------
+time=69641544
+mem_heap_B=67008
+mem_heap_extra_B=1608
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=27
+#-----------
+time=70125110
+mem_heap_B=94560
+mem_heap_extra_B=1720
+mem_stacks_B=0
+heap_tree=detailed
+n7: 94560 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 41328 0x52112D4: pci_scan_one (eal_pci.c:247)
+  n1: 41328 0x5211AF5: rte_pci_scan (eal_pci.c:479)
+   n1: 41328 0x521A019: rte_bus_scan (eal_common_bus.c:75)
+    n1: 41328 0x520AF48: rte_eal_init (eal.c:897)
+     n1: 41328 0x50B82A7: init_eal (init.c:136)
+      n1: 41328 0x50B86D5: init_system_whitelisted (init.c:184)
+       n1: 41328 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+        n1: 41328 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+         n1: 41328 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+          n1: 41328 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+           n1: 41328 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+            n1: 41328 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+             n1: 41328 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+              n1: 41328 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+               n1: 41328 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                n1: 41328 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                 n0: 41328 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n2: 32816 0x63251B8: opendir (opendir.c:247)
+  n1: 32816 0x52119B4: rte_pci_scan (eal_pci.c:462)
+   n1: 32816 0x521A019: rte_bus_scan (eal_common_bus.c:75)
+    n1: 32816 0x520AF48: rte_eal_init (eal.c:897)
+     n1: 32816 0x50B82A7: init_eal (init.c:136)
+      n1: 32816 0x50B86D5: init_system_whitelisted (init.c:184)
+       n1: 32816 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+        n1: 32816 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+         n1: 32816 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+          n1: 32816 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+           n1: 32816 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+            n1: 32816 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+             n1: 32816 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+              n1: 32816 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+               n1: 32816 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                n1: 32816 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                 n0: 32816 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+  n0: 0 in 4 places, all below massif's threshold (1.00%)
+ n1: 13312 0x62CA1D3: _IO_file_doallocate (filedoalloc.c:127)
+  n3: 13312 0x62D8592: _IO_doallocbuf (genops.c:398)
+   n1: 9216 0x62D78F6: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:820)
+    n2: 9216 0x62D628B: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1331)
+     n1: 8192 0x62AA23F: vfprintf (vfprintf.c:1320)
+      n1: 8192 0x5217188: rte_vlog (eal_common_log.c:387)
+       n1: 8192 0x50B1B08: rte_log (eal_common_log.c:404)
+        n1: 8192 0x52101FF: vfio_enable (eal_vfio.c:493)
+         n1: 8192 0x520A9D3: rte_eal_init (eal.c:720)
+          n1: 8192 0x50B82A7: init_eal (init.c:136)
+           n1: 8192 0x50B86D5: init_system_whitelisted (init.c:184)
+            n1: 8192 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+             n1: 8192 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+              n1: 8192 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+               n1: 8192 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                n1: 8192 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                 n1: 8192 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 8192 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                   n1: 8192 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                    n1: 8192 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                     n1: 8192 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                      n0: 8192 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+     n1: 1024 0x62CB7B9: fwrite (iofwrite.c:39)
+      n1: 1024 0x520F469: console_log_write (eal_log.c:63)
+       n1: 1024 0x62CADDC: _IO_cookie_write (iofopncook.c:68)
+        n1: 1024 0x62D7407: _IO_do_write@@GLIBC_2.2.5 (fileops.c:518)
+         n1: 1024 0x62D53FE: _IO_file_sync@@GLIBC_2.2.5 (fileops.c:874)
+          n1: 1024 0x62CA81D: fflush (iofflush.c:40)
+           n1: 1024 0x5217192: rte_vlog (eal_common_log.c:388)
+            n1: 1024 0x50B1B08: rte_log (eal_common_log.c:404)
+             n1: 1024 0x52101FF: vfio_enable (eal_vfio.c:493)
+              n1: 1024 0x520A9D3: rte_eal_init (eal.c:720)
+               n1: 1024 0x50B82A7: init_eal (init.c:136)
+                n1: 1024 0x50B86D5: init_system_whitelisted (init.c:184)
+                 n1: 1024 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+                  n1: 1024 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+                   n1: 1024 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+                    n1: 1024 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                     n1: 1024 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                      n1: 1024 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                       n1: 1024 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                        n1: 1024 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                         n1: 1024 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                          n1: 1024 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                           n0: 1024 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+   n2: 4096 0x62D769A: _IO_file_underflow@@GLIBC_2.2.5 (fileops.c:556)
+    n2: 4096 0x62D860C: _IO_default_uflow (genops.c:413)
+     n1: 4096 0x62B93E0: _IO_vfscanf (vfscanf.c:454)
+      n1: 4096 0x62C77D5: fscanf (fscanf.c:31)
+       n1: 4096 0x50B7EDF: init_eal (init.c:39)
+        n1: 4096 0x50B86D5: init_system_whitelisted (init.c:184)
+         n1: 4096 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+          n1: 4096 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+           n1: 4096 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+            n1: 4096 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+             n1: 4096 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+              n1: 4096 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+               n1: 4096 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                n1: 4096 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                 n1: 4096 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                  n1: 4096 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                   n0: 4096 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+     n0: 0 in 1 place, below massif's threshold (1.00%)
+    n0: 0 in 1 place, below massif's threshold (1.00%)
+   n0: 0 in 1 place, below massif's threshold (1.00%)
+ n0: 3417 in 53 places, all below massif's threshold (1.00%)
+ n1: 1559 0x631B41A: __tzfile_read (tzfile.c:282)
+  n1: 1559 0x631AD1C: __tz_convert (tzset.c:441)
+   n1: 1559 0x635D108: syslog (syslog.c:199)
+    n1: 1559 0x520F4B2: console_log_write (eal_log.c:76)
+     n1: 1559 0x62CADDC: _IO_cookie_write (iofopncook.c:68)
+      n1: 1559 0x62D7407: _IO_do_write@@GLIBC_2.2.5 (fileops.c:518)
+       n1: 1559 0x62D53FE: _IO_file_sync@@GLIBC_2.2.5 (fileops.c:874)
+        n1: 1559 0x62CA81D: fflush (iofflush.c:40)
+         n1: 1559 0x5217192: rte_vlog (eal_common_log.c:388)
+          n1: 1559 0x50B1B08: rte_log (eal_common_log.c:404)
+           n1: 1559 0x52101FF: vfio_enable (eal_vfio.c:493)
+            n1: 1559 0x520A9D3: rte_eal_init (eal.c:720)
+             n1: 1559 0x50B82A7: init_eal (init.c:136)
+              n1: 1559 0x50B86D5: init_system_whitelisted (init.c:184)
+               n1: 1559 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+                n1: 1559 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+                 n1: 1559 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+                  n1: 1559 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                   n1: 1559 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                    n1: 1559 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                     n1: 1559 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                      n1: 1559 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                       n1: 1559 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                        n1: 1559 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                         n0: 1559 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n1: 1104 0x62CACDB: __fopen_internal (iofopen.c:69)
+  n0: 1104 in 12 places, all below massif's threshold (1.00%)
+ n1: 1024 0xBBD9F5: std::io::stdio::stdout::ha88596b128d4ff26 (alloc.rs:81)
+  n1: 1024 0xBBE736: std::io::stdio::_print::h97a8cc9cdb0d3a10 (stdio.rs:786)
+   n1: 1024 0x40765A: macswap::main::h15b9b17ecae20f79 (main.rs:44)
+    n1: 1024 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+     n1: 1024 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+      n1: 1024 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+       n1: 1024 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+        n1: 1024 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+         n0: 1024 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+#-----------
+snapshot=28
+#-----------
+time=70865293
+mem_heap_B=135888
+mem_heap_extra_B=1888
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=29
+#-----------
+time=71392243
+mem_heap_B=167376
+mem_heap_extra_B=2016
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=30
+#-----------
+time=72095736
+mem_heap_B=206184
+mem_heap_extra_B=2160
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=31
+#-----------
+time=72622567
+mem_heap_B=236256
+mem_heap_extra_B=2296
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=32
+#-----------
+time=72974882
+mem_heap_B=255936
+mem_heap_extra_B=2376
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=33
+#-----------
+time=73502328
+mem_heap_B=285456
+mem_heap_extra_B=2496
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=34
+#-----------
+time=74205998
+mem_heap_B=322848
+mem_heap_extra_B=2648
+mem_stacks_B=0
+heap_tree=detailed
+n4: 322848 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 269616 0x52112D4: pci_scan_one (eal_pci.c:247)
+  n1: 269616 0x5211AF5: rte_pci_scan (eal_pci.c:479)
+   n1: 269616 0x521A019: rte_bus_scan (eal_common_bus.c:75)
+    n1: 269616 0x520AF48: rte_eal_init (eal.c:897)
+     n1: 269616 0x50B82A7: init_eal (init.c:136)
+      n1: 269616 0x50B86D5: init_system_whitelisted (init.c:184)
+       n1: 269616 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+        n1: 269616 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+         n1: 269616 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+          n1: 269616 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+           n1: 269616 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+            n1: 269616 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+             n1: 269616 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+              n1: 269616 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+               n1: 269616 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                n1: 269616 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                 n0: 269616 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n2: 32816 0x63251B8: opendir (opendir.c:247)
+  n1: 32816 0x52119B4: rte_pci_scan (eal_pci.c:462)
+   n1: 32816 0x521A019: rte_bus_scan (eal_common_bus.c:75)
+    n1: 32816 0x520AF48: rte_eal_init (eal.c:897)
+     n1: 32816 0x50B82A7: init_eal (init.c:136)
+      n1: 32816 0x50B86D5: init_system_whitelisted (init.c:184)
+       n1: 32816 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+        n1: 32816 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+         n1: 32816 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+          n1: 32816 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+           n1: 32816 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+            n1: 32816 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+             n1: 32816 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+              n1: 32816 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+               n1: 32816 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                n1: 32816 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                 n0: 32816 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+  n0: 0 in 4 places, all below massif's threshold (1.00%)
+ n1: 13312 0x62CA1D3: _IO_file_doallocate (filedoalloc.c:127)
+  n3: 13312 0x62D8592: _IO_doallocbuf (genops.c:398)
+   n1: 9216 0x62D78F6: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:820)
+    n2: 9216 0x62D628B: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1331)
+     n1: 8192 0x62AA23F: vfprintf (vfprintf.c:1320)
+      n1: 8192 0x5217188: rte_vlog (eal_common_log.c:387)
+       n1: 8192 0x50B1B08: rte_log (eal_common_log.c:404)
+        n1: 8192 0x52101FF: vfio_enable (eal_vfio.c:493)
+         n1: 8192 0x520A9D3: rte_eal_init (eal.c:720)
+          n1: 8192 0x50B82A7: init_eal (init.c:136)
+           n1: 8192 0x50B86D5: init_system_whitelisted (init.c:184)
+            n1: 8192 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+             n1: 8192 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+              n1: 8192 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+               n1: 8192 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                n1: 8192 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                 n1: 8192 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 8192 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                   n1: 8192 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                    n1: 8192 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                     n1: 8192 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                      n0: 8192 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+     n0: 1024 in 1 place, below massif's threshold (1.00%)
+   n2: 4096 0x62D769A: _IO_file_underflow@@GLIBC_2.2.5 (fileops.c:556)
+    n2: 4096 0x62D860C: _IO_default_uflow (genops.c:413)
+     n1: 4096 0x62B93E0: _IO_vfscanf (vfscanf.c:454)
+      n1: 4096 0x62C77D5: fscanf (fscanf.c:31)
+       n1: 4096 0x50B7EDF: init_eal (init.c:39)
+        n1: 4096 0x50B86D5: init_system_whitelisted (init.c:184)
+         n1: 4096 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+          n1: 4096 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+           n1: 4096 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+            n1: 4096 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+             n1: 4096 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+              n1: 4096 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+               n1: 4096 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                n1: 4096 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                 n1: 4096 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                  n1: 4096 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                   n0: 4096 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+     n0: 0 in 1 place, below massif's threshold (1.00%)
+    n0: 0 in 1 place, below massif's threshold (1.00%)
+   n0: 0 in 1 place, below massif's threshold (1.00%)
+ n0: 7104 in 56 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=35
+#-----------
+time=74564368
+mem_heap_B=342528
+mem_heap_extra_B=2728
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=36
+#-----------
+time=75099239
+mem_heap_B=372048
+mem_heap_extra_B=2848
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=37
+#-----------
+time=75636497
+mem_heap_B=401568
+mem_heap_extra_B=2968
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=38
+#-----------
+time=76357110
+mem_heap_B=440928
+mem_heap_extra_B=3128
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=39
+#-----------
+time=80534934
+mem_heap_B=419846
+mem_heap_extra_B=3170
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=40
+#-----------
+time=81147305
+mem_heap_B=423597
+mem_heap_extra_B=3499
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=41
+#-----------
+time=81717094
+mem_heap_B=465644
+mem_heap_extra_B=3652
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=42
+#-----------
+time=82199709
+mem_heap_B=485100
+mem_heap_extra_B=3660
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=43
+#-----------
+time=82582616
+mem_heap_B=484076
+mem_heap_extra_B=3652
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=44
+#-----------
+time=83030109
+mem_heap_B=508684
+mem_heap_extra_B=3660
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=45
+#-----------
+time=83561641
+mem_heap_B=510732
+mem_heap_extra_B=3668
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=46
+#-----------
+time=84060518
+mem_heap_B=507660
+mem_heap_extra_B=3660
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=47
+#-----------
+time=84452802
+mem_heap_B=508652
+mem_heap_extra_B=3652
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=48
+#-----------
+time=85120527
+mem_heap_B=496300
+mem_heap_extra_B=3668
+mem_stacks_B=0
+heap_tree=detailed
+n6: 496300 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 391632 0x52112D4: pci_scan_one (eal_pci.c:247)
+  n1: 391632 0x5211AF5: rte_pci_scan (eal_pci.c:479)
+   n1: 391632 0x521A019: rte_bus_scan (eal_common_bus.c:75)
+    n1: 391632 0x520AF48: rte_eal_init (eal.c:897)
+     n1: 391632 0x50B82A7: init_eal (init.c:136)
+      n1: 391632 0x50B86D5: init_system_whitelisted (init.c:184)
+       n1: 391632 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+        n1: 391632 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+         n1: 391632 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+          n1: 391632 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+           n1: 391632 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+            n1: 391632 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+             n1: 391632 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+              n1: 391632 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+               n1: 391632 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                n1: 391632 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                 n0: 391632 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n2: 65832 0x73E27A: alloc::alloc::alloc::he0f240684ca58ea7 (alloc.rs:81)
+  n3: 65624 0x73E030: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::h4bbcb3819246f0d3 (alloc.rs:169)
+   n1: 39320 0x720397: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve_internal::h4e9f3525441932f1 (raw_vec.rs:668)
+    n1: 39320 0x7288A0: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve::h07b418406105a3f0 (raw_vec.rs:491)
+     n1: 39320 0x6BF2F0: alloc::vec::Vec$LT$T$GT$::reserve::hd301dcdf64866ffc (vec.rs:457)
+      n1: 39320 0x6C3BF2: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..SpecExtend$LT$T$C$I$GT$$GT$::spec_extend::h44b3e68f21a51fa8 (vec.rs:1922)
+       n1: 39320 0x6C6E39: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..SpecExtend$LT$T$C$I$GT$$GT$::from_iter::h3e9ab5dfe6112cba (vec.rs:1909)
+        n1: 39320 0x6C9205: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$core..iter..traits..collect..FromIterator$LT$T$GT$$GT$::from_iter::h870d6e42ce210965 (vec.rs:1796)
+         n1: 39320 0x76B057: core::iter::traits::iterator::Iterator::collect::h32f9ca71eee65f03 (iterator.rs:1466)
+          n1: 39320 0x6DDF38: regex::compile::Compiler::compile_finish::h725ccc7220f979fd (compile.rs:200)
+           n1: 39320 0x6DC3B4: regex::compile::Compiler::compile_one::hb9286a1d00a5abf8 (compile.rs:157)
+            n2: 39320 0x6DBA90: regex::compile::Compiler::compile::h4f500435f6e5e03d (compile.rs:129)
+             n1: 38840 0x797D7F: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:313)
+              n1: 38840 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+               n1: 38840 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+                n1: 38840 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+                 n1: 38840 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+                  n1: 38840 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 38840 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                    n1: 38840 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                     n1: 38840 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                      n1: 38840 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                       n1: 38840 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                        n1: 38840 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                         n1: 38840 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                          n1: 38840 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                           n1: 38840 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                            n1: 38840 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                             n1: 38840 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                              n0: 38840 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n0: 480 in 1 place, below massif's threshold (1.00%)
+   n1: 24000 0x71885F: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::hcff99486559e2434 (raw_vec.rs:95)
+    n1: 24000 0x7159D4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h7b7ee652935718bc (raw_vec.rs:139)
+     n1: 24000 0x6BA122: alloc::vec::Vec$LT$T$GT$::with_capacity::h5f275b8434cda418 (vec.rs:355)
+      n1: 24000 0x6E97F0: regex::compile::SuffixCache::new::h436ae6b88f679771 (compile.rs:973)
+       n2: 24000 0x6DB5E1: regex::compile::Compiler::new::h0212176957276edd (compile.rs:59)
+        n1: 24000 0x798B25: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:313)
+         n1: 24000 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+          n1: 24000 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+           n1: 24000 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+            n1: 24000 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+             n1: 24000 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+              n1: 24000 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+               n1: 24000 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                n1: 24000 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                 n1: 24000 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                  n1: 24000 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                   n1: 24000 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                    n1: 24000 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                     n1: 24000 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                      n1: 24000 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                       n1: 24000 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                        n1: 24000 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                         n1: 24000 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                          n1: 24000 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                           n1: 24000 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                            n1: 24000 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                             n0: 24000 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+        n0: 0 in 1 place, below massif's threshold (1.00%)
+   n0: 2304 in 5 places, all below massif's threshold (1.00%)
+  n0: 208 in 1 place, below massif's threshold (1.00%)
+ n1: 13312 0x62CA1D3: _IO_file_doallocate (filedoalloc.c:127)
+  n2: 13312 0x62D8592: _IO_doallocbuf (genops.c:398)
+   n1: 9216 0x62D78F6: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:820)
+    n2: 9216 0x62D628B: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1331)
+     n1: 8192 0x62AA23F: vfprintf (vfprintf.c:1320)
+      n1: 8192 0x5217188: rte_vlog (eal_common_log.c:387)
+       n1: 8192 0x50B1B08: rte_log (eal_common_log.c:404)
+        n1: 8192 0x52101FF: vfio_enable (eal_vfio.c:493)
+         n1: 8192 0x520A9D3: rte_eal_init (eal.c:720)
+          n1: 8192 0x50B82A7: init_eal (init.c:136)
+           n1: 8192 0x50B86D5: init_system_whitelisted (init.c:184)
+            n1: 8192 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+             n1: 8192 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+              n1: 8192 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+               n1: 8192 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                n1: 8192 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                 n1: 8192 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 8192 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                   n1: 8192 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                    n1: 8192 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                     n1: 8192 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                      n0: 8192 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+     n0: 1024 in 1 place, below massif's threshold (1.00%)
+   n0: 4096 in 2 places, all below massif's threshold (1.00%)
+ n0: 9332 in 63 places, all below massif's threshold (1.00%)
+ n1: 8192 0x4E36948: numa_node_to_cpus (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n1: 8192 0x4E36FA7: numa_run_on_node_mask (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 8192 0x4E37667: numa_bind (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+    n1: 8192 0x50B8331: init_eal (init.c:24)
+     n1: 8192 0x50B86D5: init_system_whitelisted (init.c:184)
+      n1: 8192 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+       n1: 8192 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+        n1: 8192 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+         n1: 8192 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+          n1: 8192 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+           n1: 8192 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n1: 8192 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n1: 8192 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+              n1: 8192 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+               n1: 8192 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                n0: 8192 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n1: 8000 0x73E18A: alloc::alloc::alloc_zeroed::h065c26dab15d5471 (alloc.rs:162)
+  n1: 8000 0x73DFE0: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc_zeroed::h0444195ca9e2d86b (alloc.rs:189)
+   n1: 8000 0x71722C: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h4fae27708b5d9963 (raw_vec.rs:93)
+    n1: 8000 0x715FD7: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity_zeroed::h36e75445a979420f (raw_vec.rs:145)
+     n1: 8000 0x6B724A: _$LT$T$u20$as$u20$alloc..vec..SpecFromElem$GT$::from_elem::h3bf64ef1e3aadb32 (vec.rs:1653)
+      n1: 8000 0x6C0BF3: alloc::vec::from_elem::h5a307a9b6405140f (vec.rs:1614)
+       n1: 8000 0x6E97A8: regex::compile::SuffixCache::new::h436ae6b88f679771 (compile.rs:972)
+        n2: 8000 0x6DB5E1: regex::compile::Compiler::new::h0212176957276edd (compile.rs:59)
+         n1: 8000 0x798B25: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:313)
+          n1: 8000 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+           n1: 8000 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+            n1: 8000 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+             n1: 8000 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+              n1: 8000 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+               n1: 8000 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                n1: 8000 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                 n1: 8000 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                  n1: 8000 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                   n1: 8000 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                    n1: 8000 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                     n1: 8000 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                      n1: 8000 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                       n1: 8000 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                        n1: 8000 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                         n1: 8000 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                          n1: 8000 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                           n1: 8000 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                            n1: 8000 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                             n1: 8000 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                              n0: 8000 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+         n0: 0 in 1 place, below massif's threshold (1.00%)
+#-----------
+snapshot=49
+#-----------
+time=85300489
+mem_heap_B=500236
+mem_heap_extra_B=3740
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=50
+#-----------
+time=85506759
+mem_heap_B=504844
+mem_heap_extra_B=3740
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=51
+#-----------
+time=85791896
+mem_heap_B=511020
+mem_heap_extra_B=3748
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=52
+#-----------
+time=86050797
+mem_heap_B=522284
+mem_heap_extra_B=3748
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=53
+#-----------
+time=86398571
+mem_heap_B=523340
+mem_heap_extra_B=3756
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=54
+#-----------
+time=86695881
+mem_heap_B=525356
+mem_heap_extra_B=3756
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=55
+#-----------
+time=86877259
+mem_heap_B=549932
+mem_heap_extra_B=3756
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=56
+#-----------
+time=87063147
+mem_heap_B=546092
+mem_heap_extra_B=3748
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=57
+#-----------
+time=87320816
+mem_heap_B=547884
+mem_heap_extra_B=3748
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=58
+#-----------
+time=87602985
+mem_heap_B=547916
+mem_heap_extra_B=3756
+mem_stacks_B=0
+heap_tree=detailed
+n7: 547916 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 391632 0x52112D4: pci_scan_one (eal_pci.c:247)
+  n1: 391632 0x5211AF5: rte_pci_scan (eal_pci.c:479)
+   n1: 391632 0x521A019: rte_bus_scan (eal_common_bus.c:75)
+    n1: 391632 0x520AF48: rte_eal_init (eal.c:897)
+     n1: 391632 0x50B82A7: init_eal (init.c:136)
+      n1: 391632 0x50B86D5: init_system_whitelisted (init.c:184)
+       n1: 391632 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+        n1: 391632 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+         n1: 391632 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+          n1: 391632 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+           n1: 391632 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+            n1: 391632 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+             n1: 391632 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+              n1: 391632 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+               n1: 391632 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                n1: 391632 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                 n0: 391632 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n2: 65992 0x73E27A: alloc::alloc::alloc::he0f240684ca58ea7 (alloc.rs:81)
+  n3: 65688 0x73E030: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::h4bbcb3819246f0d3 (alloc.rs:169)
+   n1: 39320 0x720397: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve_internal::h4e9f3525441932f1 (raw_vec.rs:668)
+    n1: 39320 0x7288A0: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve::h07b418406105a3f0 (raw_vec.rs:491)
+     n1: 39320 0x6BF2F0: alloc::vec::Vec$LT$T$GT$::reserve::hd301dcdf64866ffc (vec.rs:457)
+      n1: 39320 0x6C3BF2: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..SpecExtend$LT$T$C$I$GT$$GT$::spec_extend::h44b3e68f21a51fa8 (vec.rs:1922)
+       n1: 39320 0x6C6E39: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..SpecExtend$LT$T$C$I$GT$$GT$::from_iter::h3e9ab5dfe6112cba (vec.rs:1909)
+        n1: 39320 0x6C9205: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$core..iter..traits..collect..FromIterator$LT$T$GT$$GT$::from_iter::h870d6e42ce210965 (vec.rs:1796)
+         n1: 39320 0x76B057: core::iter::traits::iterator::Iterator::collect::h32f9ca71eee65f03 (iterator.rs:1466)
+          n1: 39320 0x6DDF38: regex::compile::Compiler::compile_finish::h725ccc7220f979fd (compile.rs:200)
+           n1: 39320 0x6DC3B4: regex::compile::Compiler::compile_one::hb9286a1d00a5abf8 (compile.rs:157)
+            n2: 39320 0x6DBA90: regex::compile::Compiler::compile::h4f500435f6e5e03d (compile.rs:129)
+             n1: 38840 0x797D7F: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:313)
+              n1: 38840 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+               n1: 38840 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+                n1: 38840 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+                 n1: 38840 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+                  n1: 38840 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 38840 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                    n1: 38840 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                     n1: 38840 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                      n1: 38840 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                       n1: 38840 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                        n1: 38840 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                         n1: 38840 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                          n1: 38840 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                           n1: 38840 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                            n1: 38840 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                             n1: 38840 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                              n0: 38840 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n0: 480 in 1 place, below massif's threshold (1.00%)
+   n1: 24000 0x71885F: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::hcff99486559e2434 (raw_vec.rs:95)
+    n1: 24000 0x7159D4: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h7b7ee652935718bc (raw_vec.rs:139)
+     n1: 24000 0x6BA122: alloc::vec::Vec$LT$T$GT$::with_capacity::h5f275b8434cda418 (vec.rs:355)
+      n1: 24000 0x6E97F0: regex::compile::SuffixCache::new::h436ae6b88f679771 (compile.rs:973)
+       n2: 24000 0x6DB5E1: regex::compile::Compiler::new::h0212176957276edd (compile.rs:59)
+        n1: 24000 0x798C92: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:319)
+         n1: 24000 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+          n1: 24000 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+           n1: 24000 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+            n1: 24000 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+             n1: 24000 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+              n1: 24000 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+               n1: 24000 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                n1: 24000 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                 n1: 24000 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                  n1: 24000 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                   n1: 24000 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                    n1: 24000 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                     n1: 24000 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                      n1: 24000 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                       n1: 24000 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                        n1: 24000 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                         n1: 24000 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                          n1: 24000 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                           n1: 24000 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                            n1: 24000 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                             n0: 24000 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+        n0: 0 in 2 places, all below massif's threshold (1.00%)
+   n0: 2368 in 5 places, all below massif's threshold (1.00%)
+  n0: 304 in 1 place, below massif's threshold (1.00%)
+ n1: 51200 0x73E34B: alloc::alloc::realloc::hae8329f224a13b2c (alloc.rs:125)
+  n2: 51200 0x73E0E4: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::realloc::h1512a81dda6bd376 (alloc.rs:184)
+   n1: 49152 0x71F40D: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve_internal::h3e74649ed283c883 (raw_vec.rs:666)
+    n1: 49152 0x728CB0: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve::h1e050725481cee9b (raw_vec.rs:491)
+     n1: 49152 0x6BF230: alloc::vec::Vec$LT$T$GT$::reserve::hb914485ea8835956 (vec.rs:457)
+      n2: 49152 0x6BDBE9: alloc::vec::Vec$LT$T$GT$::push::h65c9dc9a2817d4cf (vec.rs:1102)
+       n1: 49152 0x6E7000: regex::compile::Compiler::push_split_hole::h10668d1a401a0941 (compile.rs:711)
+        n1: 49152 0x6E84B7: regex::compile::CompileClass::compile::h882f5284b8326600 (compile.rs:868)
+         n1: 49152 0x6E0054: regex::compile::Compiler::c_class::h66abe99eb5816213 (compile.rs:405)
+          n2: 49152 0x6DE8C9: regex::compile::Compiler::c::h0e2806984d5b00f1 (compile.rs:273)
+           n1: 49152 0x6E1CD3: regex::compile::Compiler::c_concat::hcaf3adc3b7f90c11 (compile.rs:467)
+            n1: 49152 0x6E53B7: regex::compile::Compiler::c_repeat_range::hf9566806b10963a2 (compile.rs:597)
+             n1: 49152 0x6E3AB2: regex::compile::Compiler::c_repeat::h52918bc025214c59 (compile.rs:524)
+              n1: 49152 0x6DF2E1: regex::compile::Compiler::c::h0e2806984d5b00f1 (compile.rs:361)
+               n1: 49152 0x6E1343: regex::compile::Compiler::c_concat::hb8a901dc7bc05b56 (compile.rs:467)
+                n1: 49152 0x6DF233: regex::compile::Compiler::c::h0e2806984d5b00f1 (compile.rs:355)
+                 n1: 49152 0x6DF445: regex::compile::Compiler::c_capture::h394ecf6a45c31881 (compile.rs:370)
+                  n1: 49152 0x6DC742: regex::compile::Compiler::compile_one::hb9286a1d00a5abf8 (compile.rs:148)
+                   n1: 49152 0x6DBA90: regex::compile::Compiler::compile::h4f500435f6e5e03d (compile.rs:129)
+                    n1: 49152 0x798049: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:319)
+                     n1: 49152 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+                      n1: 49152 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+                       n1: 49152 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+                        n1: 49152 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+                         n1: 49152 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+                          n1: 49152 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                           n1: 49152 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                            n1: 49152 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                             n1: 49152 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                              n0: 49152 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+           n0: 0 in 2 places, all below massif's threshold (1.00%)
+       n0: 0 in 2 places, all below massif's threshold (1.00%)
+   n0: 2048 in 1 place, below massif's threshold (1.00%)
+ n1: 13312 0x62CA1D3: _IO_file_doallocate (filedoalloc.c:127)
+  n2: 13312 0x62D8592: _IO_doallocbuf (genops.c:398)
+   n1: 9216 0x62D78F6: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:820)
+    n2: 9216 0x62D628B: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1331)
+     n1: 8192 0x62AA23F: vfprintf (vfprintf.c:1320)
+      n1: 8192 0x5217188: rte_vlog (eal_common_log.c:387)
+       n1: 8192 0x50B1B08: rte_log (eal_common_log.c:404)
+        n1: 8192 0x52101FF: vfio_enable (eal_vfio.c:493)
+         n1: 8192 0x520A9D3: rte_eal_init (eal.c:720)
+          n1: 8192 0x50B82A7: init_eal (init.c:136)
+           n1: 8192 0x50B86D5: init_system_whitelisted (init.c:184)
+            n1: 8192 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+             n1: 8192 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+              n1: 8192 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+               n1: 8192 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                n1: 8192 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                 n1: 8192 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                  n1: 8192 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                   n1: 8192 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                    n1: 8192 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                     n1: 8192 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                      n0: 8192 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+     n0: 1024 in 1 place, below massif's threshold (1.00%)
+   n0: 4096 in 2 places, all below massif's threshold (1.00%)
+ n0: 9588 in 62 places, all below massif's threshold (1.00%)
+ n1: 8192 0x4E36948: numa_node_to_cpus (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+  n1: 8192 0x4E36FA7: numa_run_on_node_mask (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+   n1: 8192 0x4E37667: numa_bind (in /usr/lib/x86_64-linux-gnu/libnuma.so.1.0.0)
+    n1: 8192 0x50B8331: init_eal (init.c:24)
+     n1: 8192 0x50B86D5: init_system_whitelisted (init.c:184)
+      n1: 8192 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+       n1: 8192 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+        n1: 8192 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+         n1: 8192 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+          n1: 8192 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+           n1: 8192 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+            n1: 8192 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n1: 8192 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+              n1: 8192 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+               n1: 8192 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                n0: 8192 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n1: 8000 0x73E18A: alloc::alloc::alloc_zeroed::h065c26dab15d5471 (alloc.rs:162)
+  n1: 8000 0x73DFE0: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc_zeroed::h0444195ca9e2d86b (alloc.rs:189)
+   n1: 8000 0x71722C: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h4fae27708b5d9963 (raw_vec.rs:93)
+    n1: 8000 0x715FD7: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity_zeroed::h36e75445a979420f (raw_vec.rs:145)
+     n1: 8000 0x6B724A: _$LT$T$u20$as$u20$alloc..vec..SpecFromElem$GT$::from_elem::h3bf64ef1e3aadb32 (vec.rs:1653)
+      n1: 8000 0x6C0BF3: alloc::vec::from_elem::h5a307a9b6405140f (vec.rs:1614)
+       n1: 8000 0x6E97A8: regex::compile::SuffixCache::new::h436ae6b88f679771 (compile.rs:972)
+        n2: 8000 0x6DB5E1: regex::compile::Compiler::new::h0212176957276edd (compile.rs:59)
+         n1: 8000 0x798C92: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:319)
+          n1: 8000 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+           n1: 8000 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+            n1: 8000 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+             n1: 8000 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+              n1: 8000 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+               n1: 8000 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                n1: 8000 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                 n1: 8000 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                  n1: 8000 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                   n1: 8000 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                    n1: 8000 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                     n1: 8000 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                      n1: 8000 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                       n1: 8000 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                        n1: 8000 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                         n1: 8000 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                          n1: 8000 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                           n1: 8000 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                            n1: 8000 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                             n1: 8000 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                              n0: 8000 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+         n0: 0 in 2 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=59
+#-----------
+time=87899295
+mem_heap_B=549932
+mem_heap_extra_B=3756
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=60
+#-----------
+time=88150784
+mem_heap_B=547884
+mem_heap_extra_B=3748
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=61
+#-----------
+time=88764267
+mem_heap_B=532140
+mem_heap_extra_B=3756
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=62
+#-----------
+time=88981237
+mem_heap_B=504324
+mem_heap_extra_B=3732
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=63
+#-----------
+time=89219461
+mem_heap_B=542691
+mem_heap_extra_B=3757
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=64
+#-----------
+time=89413353
+mem_heap_B=565311
+mem_heap_extra_B=3897
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=65
+#-----------
+time=89653054
+mem_heap_B=565387
+mem_heap_extra_B=3917
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=66
+#-----------
+time=89947781
+mem_heap_B=838306
+mem_heap_extra_B=4094
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=67
+#-----------
+time=90473761
+mem_heap_B=853910
+mem_heap_extra_B=4722
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=68
+#-----------
+time=90664153
+mem_heap_B=867358
+mem_heap_extra_B=5154
+mem_stacks_B=0
+heap_tree=detailed
+n8: 867358 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 391632 0x52112D4: pci_scan_one (eal_pci.c:247)
+  n1: 391632 0x5211AF5: rte_pci_scan (eal_pci.c:479)
+   n1: 391632 0x521A019: rte_bus_scan (eal_common_bus.c:75)
+    n1: 391632 0x520AF48: rte_eal_init (eal.c:897)
+     n1: 391632 0x50B82A7: init_eal (init.c:136)
+      n1: 391632 0x50B86D5: init_system_whitelisted (init.c:184)
+       n1: 391632 0x485279: netbricks::interface::dpdk::init_system_wl_with_mempool::h1533724917cf6191 (dpdk.rs:24)
+        n1: 391632 0x485785: netbricks::interface::dpdk::init_system::h11310a8ef7f826a5 (dpdk.rs:76)
+         n1: 391632 0x42C9D9: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:225)
+          n1: 391632 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+           n1: 391632 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+            n1: 391632 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+             n1: 391632 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+              n1: 391632 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+               n1: 391632 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                n1: 391632 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                 n0: 391632 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n1: 262144 0x694F52D: ??? (in /usr/lib/x86_64-linux-gnu/libpcap.so.1.7.4)
+  n1: 262144 0x694EC77: pcap_fopen_offline_with_tstamp_precision (in /usr/lib/x86_64-linux-gnu/libpcap.so.1.7.4)
+   n1: 262144 0x694EDDB: pcap_open_offline_with_tstamp_precision (in /usr/lib/x86_64-linux-gnu/libpcap.so.1.7.4)
+    n1: 262144 0x526E701: open_rx_pcap (rte_eth_pcap.c:427)
+     n1: 262144 0x50D541E: rte_kvargs_process (rte_kvargs.c:166)
+      n1: 262144 0x5270A00: pmd_pcap_probe (rte_eth_pcap.c:990)
+       n1: 262144 0x5217735: vdev_probe_all_drivers (eal_common_vdev.c:111)
+        n1: 262144 0x5217925: rte_vdev_init (eal_common_vdev.c:188)
+         n1: 262144 0x521A58A: rte_eal_dev_attach (eal_common_dev.c:94)
+          n1: 262144 0x50C9193: rte_eth_dev_attach (rte_ethdev.c:391)
+           n1: 262144 0x50BF839: attach_pmd_device (pmd.c:249)
+            n1: 262144 0x4B08A8: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:324)
+             n1: 262144 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+              n1: 262144 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+               n1: 262144 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                n1: 262144 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                 n1: 262144 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                  n1: 262144 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 262144 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+                    n1: 262144 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                     n1: 262144 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                      n1: 262144 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                       n0: 262144 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+ n2: 110580 0x73E27A: alloc::alloc::alloc::he0f240684ca58ea7 (alloc.rs:81)
+  n3: 109324 0x73E030: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::h4bbcb3819246f0d3 (alloc.rs:169)
+   n1: 74800 0x720397: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve_internal::h4e9f3525441932f1 (raw_vec.rs:668)
+    n1: 74800 0x7288A0: alloc::raw_vec::RawVec$LT$T$C$A$GT$::reserve::h07b418406105a3f0 (raw_vec.rs:491)
+     n1: 74800 0x6BF2F0: alloc::vec::Vec$LT$T$GT$::reserve::hd301dcdf64866ffc (vec.rs:457)
+      n1: 74800 0x6C3BF2: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..SpecExtend$LT$T$C$I$GT$$GT$::spec_extend::h44b3e68f21a51fa8 (vec.rs:1922)
+       n1: 74800 0x6C6E39: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..SpecExtend$LT$T$C$I$GT$$GT$::from_iter::h3e9ab5dfe6112cba (vec.rs:1909)
+        n1: 74800 0x6C9205: _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$core..iter..traits..collect..FromIterator$LT$T$GT$$GT$::from_iter::h870d6e42ce210965 (vec.rs:1796)
+         n1: 74800 0x76B057: core::iter::traits::iterator::Iterator::collect::h32f9ca71eee65f03 (iterator.rs:1466)
+          n1: 74800 0x6DDF38: regex::compile::Compiler::compile_finish::h725ccc7220f979fd (compile.rs:200)
+           n1: 74800 0x6DC3B4: regex::compile::Compiler::compile_one::hb9286a1d00a5abf8 (compile.rs:157)
+            n3: 74800 0x6DBA90: regex::compile::Compiler::compile::h4f500435f6e5e03d (compile.rs:129)
+             n1: 38840 0x797D7F: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:313)
+              n1: 38840 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+               n1: 38840 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+                n1: 38840 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+                 n1: 38840 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+                  n1: 38840 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 38840 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                    n1: 38840 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                     n1: 38840 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                      n1: 38840 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                       n1: 38840 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                        n1: 38840 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                         n1: 38840 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                          n1: 38840 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                           n1: 38840 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                            n1: 38840 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                             n1: 38840 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                              n0: 38840 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n1: 35480 0x798049: regex::exec::ExecBuilder::build::h5e67928e29bbca6c (exec.rs:319)
+              n1: 35480 0x6F335A: regex::re_builder::unicode::RegexBuilder::build::hf9acf9d7bc1f55ea (re_builder.rs:79)
+               n1: 35480 0x74A381: regex::re_unicode::Regex::new::hbf3ba7456b4250e2 (re_unicode.rs:176)
+                n1: 35480 0x47323C: core::ops::function::FnOnce::call_once::h132fbec5eca59a52 (phy_port.rs:450)
+                 n1: 35480 0x443BB5: lazy_static::lazy::Lazy$LT$T$GT$::get::_$u7b$$u7b$closure$u7d$$u7d$::h9b123078fe075dd0 (inline_lazy.rs:28)
+                  n1: 35480 0x4B4BEC: std::sync::once::Once::call_once::_$u7b$$u7b$closure$u7d$$u7d$::h1805ab974996755a (in /users/yangzhou/NetBricks/target/debug/macswap)
+                   n1: 35480 0xBC1F64: std::sync::once::Once::call_inner::hb154c0964ad0bd7a (once.rs:387)
+                    n1: 35480 0x4B4B7B: std::sync::once::Once::call_once::hff8189a37ffd3561 (once.rs:220)
+                     n1: 35480 0x4B22B4: _$LT$netbricks..interface..port..phy_port..PmdPort..cannonicalize_pci..PCI_RE$u20$as$u20$core..ops..deref..Deref$GT$::deref::hdc7cd050f347114b (inline_lazy.rs:27)
+                      n1: 35480 0x4B159F: netbricks::interface::port::phy_port::PmdPort::cannonicalize_pci::had24e0373db5f876 (phy_port.rs:452)
+                       n1: 35480 0x4B0828: netbricks::interface::port::phy_port::PmdPort::new_dpdk_port::h1014d844aa364712 (phy_port.rs:323)
+                        n1: 35480 0x4B14FC: netbricks::interface::port::phy_port::PmdPort::new_port_with_queues_descriptors_offloads::h15e4460cb1e5ba05 (phy_port.rs:398)
+                         n1: 35480 0x4B1052: netbricks::interface::port::phy_port::PmdPort::new_port_from_configuration::he7fa2ddfb1f2d7b6 (phy_port.rs:359)
+                          n1: 35480 0x42CD54: netbricks::scheduler::context::initialize_system::hb9ab2328942ae1a0 (context.rs:234)
+                           n1: 35480 0x4349EF: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:29)
+                            n1: 35480 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+                             n1: 35480 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+                              n0: 35480 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+             n0: 480 in 1 place, below massif's threshold (1.00%)
+   n1: 29728 0x71725F: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h4fae27708b5d9963 (raw_vec.rs:95)
+    n1: 29728 0x715914: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h42b4bd1aa0c50a3e (raw_vec.rs:139)
+     n1: 29728 0x6BA4E2: alloc::vec::Vec$LT$T$GT$::with_capacity::hdb257e2e1bfd7196 (vec.rs:355)
+      n2: 29728 0x6F2227: regex::sparse::SparseSet::new::h67a9233574e164d3 (sparse.rs:29)
+       n1: 14864 0x76145C: regex::dfa::Cache::new::hfedf95a466fdf890 (dfa.rs:440)
+        n0: 14864 in 2 places, all below massif's threshold (1.00%)
+       n1: 14864 0x761492: regex::dfa::Cache::new::hfedf95a466fdf890 (dfa.rs:441)
+        n0: 14864 in 2 places, all below massif's threshold (1.00%)
+   n0: 4796 in 11 places, all below massif's threshold (1.00%)
+  n0: 1256 in 2 places, all below massif's threshold (1.00%)
+ n0: 30058 in 84 places, all below massif's threshold (1.00%)
+ n1: 29728 0x73E18A: alloc::alloc::alloc_zeroed::h065c26dab15d5471 (alloc.rs:162)
+  n1: 29728 0x73DFE0: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc_zeroed::h0444195ca9e2d86b (alloc.rs:189)
+   n1: 29728 0x71722C: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h4fae27708b5d9963 (raw_vec.rs:93)
+    n1: 29728 0x715FD7: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity_zeroed::h36e75445a979420f (raw_vec.rs:145)
+     n1: 29728 0x6B724A: _$LT$T$u20$as$u20$alloc..vec..SpecFromElem$GT$::from_elem::h3bf64ef1e3aadb32 (vec.rs:1653)
+      n2: 29728 0x6C0BF3: alloc::vec::from_elem::h5a307a9b6405140f (vec.rs:1614)
+       n2: 29728 0x6F224C: regex::sparse::SparseSet::new::h67a9233574e164d3 (sparse.rs:30)
+        n1: 14864 0x76145C: regex::dfa::Cache::new::hfedf95a466fdf890 (dfa.rs:440)
+         n0: 14864 in 2 places, all below massif's threshold (1.00%)
+        n1: 14864 0x761492: regex::dfa::Cache::new::hfedf95a466fdf890 (dfa.rs:441)
+         n0: 14864 in 2 places, all below massif's threshold (1.00%)
+       n0: 0 in 1 place, below massif's threshold (1.00%)
+ n1: 21504 0x62CA1D3: _IO_file_doallocate (filedoalloc.c:127)
+  n2: 21504 0x62D8592: _IO_doallocbuf (genops.c:398)
+   n1: 13312 0x62D78F6: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:820)
+    n1: 13312 0x62D628B: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1331)
+     n0: 13312 in 2 places, all below massif's threshold (1.00%)
+   n0: 8192 in 2 places, all below massif's threshold (1.00%)
+ n2: 12688 0x556CDA: alloc::alloc::alloc::hd8a1907dae0bbb21 (alloc.rs:81)
+  n1: 12288 0x556AC0: _$LT$alloc..alloc..Global$u20$as$u20$core..alloc..Alloc$GT$::alloc::h10327164847b7408 (alloc.rs:169)
+   n1: 12288 0x55903F: alloc::raw_vec::RawVec$LT$T$C$A$GT$::allocate_in::h76eca931b23e13c3 (raw_vec.rs:95)
+    n1: 12288 0x558E74: alloc::raw_vec::RawVec$LT$T$GT$::with_capacity::h434b1b5fd60c9fdf (raw_vec.rs:139)
+     n1: 12288 0x5641E2: alloc::vec::Vec$LT$T$GT$::with_capacity::h2a70ca759d2d9cac (vec.rs:355)
+      n1: 12288 0x5603B7: mio::sys::unix::epoll::Events::with_capacity::hf22c21d3478e93b1 (epoll.rs:184)
+       n1: 12288 0x552526: mio::poll::Events::with_capacity::h8e7a98b64355008d (poll.rs:1362)
+        n1: 12288 0x52118D: tokio_reactor::Reactor::new::h7acd715b804138ea (lib.rs:256)
+         n1: 12288 0x50935B: tokio::runtime::current_thread::builder::Builder::build::hbfa84e164a007180 (builder.rs:67)
+          n1: 12288 0x4FDE33: tokio::runtime::current_thread::runtime::Runtime::new::hf5e5a329b6c63459 (runtime.rs:116)
+           n1: 12288 0x434B73: netbricks::runtime::Runtime::init::h7b2f02a6e77eac13 (runtime.rs:31)
+            n1: 12288 0x407675: macswap::main::h15b9b17ecae20f79 (main.rs:45)
+             n1: 12288 0x3FFC1E: std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h0aaba7b229c19d2b (in /users/yangzhou/NetBricks/target/debug/macswap)
+              n1: 12288 0xBC5051: std::panicking::try::do_call::hacdd2210be19d223 (rt.rs:49)
+               n1: 12288 0xBC88D8: __rust_maybe_catch_panic (lib.rs:85)
+                n1: 12288 0xBC5B5B: std::rt::lang_start_internal::heb8c7d701c7d4328 (panicking.rs:272)
+                 n1: 12288 0x3FFBF7: std::rt::lang_start::h77c463cd635c34a2 (rt.rs:64)
+                  n0: 12288 0x4079B8: main (in /users/yangzhou/NetBricks/target/debug/macswap)
+  n0: 400 in 1 place, below massif's threshold (1.00%)
+ n1: 9024 0x49067A: alloc::alloc::alloc::h1f6895d312f169ba (alloc.rs:81)
+  n0: 9024 in 7 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=69
+#-----------
+time=468225163
+mem_heap_B=867038
+mem_heap_extra_B=5082
+mem_stacks_B=0
+heap_tree=empty
