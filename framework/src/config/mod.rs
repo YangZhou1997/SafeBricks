@@ -7,6 +7,8 @@ pub const DEFAULT_POOL_SIZE: u32 = 2048 - 1;
 pub const DEFAULT_CACHE_SIZE: u32 = 32;
 pub const NUM_RXD: i32 = 128;
 pub const NUM_TXD: i32 = 128;
+// pub const NUM_RXD: i32 = 512;
+// pub const NUM_TXD: i32 = 512;
 
 /// NetBricks configuration
 #[derive(Debug, Default, Deserialize, PartialEq)]

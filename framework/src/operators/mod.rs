@@ -13,6 +13,7 @@ pub use self::map_batch::*;
 pub use self::queue_batch::*;
 pub use self::receive_batch::*;
 pub use self::send_batch::*;
+pub use self::sendall_batch::*;
 
 mod emit_batch;
 mod filter_batch;
@@ -23,6 +24,7 @@ mod map_batch;
 mod queue_batch;
 mod receive_batch;
 mod send_batch;
+mod sendall_batch;
 
 /// Error when processing packets
 #[derive(Debug)]
@@ -149,6 +151,19 @@ pub trait Batch {
         Self: Sized,
     {
         SendBatch::new(self, port)
+    }
+
+    /// Appends a sendall operator to the end of the pipeline
+    /// Send all packets not matter whether it has been set to drop in the previous Filter operators.
+    ///
+    /// Sendall marks the end of the pipeline. No more operators can be
+    /// appended after send.
+    #[inline]
+    fn sendall<Tx: PacketTx>(self, port: Tx) -> SendAllBatch<Self, Tx>
+    where
+        Self: Sized,
+    {
+        SendAllBatch::new(self, port)
     }
 }
 

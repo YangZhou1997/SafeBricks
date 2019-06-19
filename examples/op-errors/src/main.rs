@@ -59,7 +59,7 @@ where
                     warn!("v6: {}", p);
                     Ok(())
                 })
-                .send(port.clone())
+                .sendall(port.clone())
         })
         .collect();
     println!("Running {} pipelines", pipelines.len());

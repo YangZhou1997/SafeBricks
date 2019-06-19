@@ -31,7 +31,7 @@ where
         .map(|port| {
             ReceiveBatch::new(port.clone())
                 .filter_map(move |p| chain(p, chain_len, chain_pos))
-                .send(port.clone())
+                .sendall(port.clone())
         })
         .collect();
 
@@ -86,6 +86,11 @@ fn extra_opts() -> (u32, u32) {
         "Chain position (when externally chained)",
         "position",
     );
+
+    opts.optopt("p", "ports", "ports", "ports");
+    opts.optopt("c", "cores", "cores", "cores");
+    opts.optopt("z", "pool-size", "pool-size", "pool-size");
+    
     let args: Vec<String> = env::args().collect();
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,

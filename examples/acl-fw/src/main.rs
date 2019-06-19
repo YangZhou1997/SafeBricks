@@ -40,6 +40,38 @@ lazy_static! {
             dst_port: None,
             established: None,
             drop: false,
+        },
+        Acl {
+            src_prefix: None,
+            dst_prefix: Some(Ipv4Cidr::new(Ipv4Addr::new(0, 0, 0, 0), 0).unwrap()),
+            src_port: None,
+            dst_port: None,
+            established: None,
+            drop: false,
+        },
+        Acl {
+            src_prefix: None,
+            dst_prefix: None,
+            src_port: Some(1338 as u16),
+            dst_port: None,
+            established: None,
+            drop: false,
+        },
+        Acl {
+            src_prefix: None,
+            dst_prefix: None,
+            src_port: None,
+            dst_port: Some(1338 as u16),
+            established: None,
+            drop: false,
+        },
+        Acl {
+            src_prefix: None,
+            dst_prefix: None,
+            src_port: None,
+            dst_port: None,
+            established: Some(true),
+            drop: false,
         }];
         Arc::new(RwLock::new(acl))
     };
@@ -107,7 +139,7 @@ fn install<S: Scheduler + Sized>(ports: Vec<CacheAligned<PortQueue>>, sched: &mu
                     Ok(udp)
                 })
                 .filter(|p| acl_match(p))
-                .send(port.clone())
+                .sendall(port.clone())
         })
         .collect();
 

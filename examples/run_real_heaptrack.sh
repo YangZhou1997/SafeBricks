@@ -2,9 +2,10 @@
 
 PORT=0000:06:00.0
 CORE=0
-POOL_SIZE=2048
+POOL_SIZE=512
+MODE=debug
 
-export LD_LIBRARY_PATH="/home/yangz/NetBricks/native:/opt/dpdk/dpdk-stable-17.08/build/lib:"
+export LD_LIBRARY_PATH="~/NetBricks/native:/opt/dpdk/dpdk-stable-17.08/build/lib:"
 
 TASK=macswap
 
@@ -14,5 +15,5 @@ fi
 
 echo $TASK
 
-heaptrack /home/yangz/NetBricks/target/release/$TASK \
--p $PORT -c $CORE --pool-size=$POOL_SIZE
+heaptrack ~/NetBricks/target/$MODE/$TASK \
+-p $PORT -c $CORE --pool-size=$POOL_SIZE -d 300

@@ -20,6 +20,8 @@ use std::net::{IpAddr, Ipv4Addr};
 use std::sync::atomic::{AtomicU16, Ordering};
 use std::sync::Arc;
 use std::sync::RwLock;
+// use std::io::stdout;
+// use std::io::Write;
 
 const MIN_PORT: u16 = 1024;
 const MAX_PORT: u16 = 65535;
@@ -35,7 +37,7 @@ lazy_static! {
 
 lazy_static! {
     static ref FLOW_VEC: Arc<RwLock<Vec<FlowUsed>>> = {
-        let m = (MIN_PORT..65535).map(|_| Default::default()).collect();
+        let m = (0..65536).map(|_| Default::default()).collect();
         Arc::new(RwLock::new(m))
     };
 }
@@ -96,7 +98,7 @@ where
         .map(move |port| {
             ReceiveBatch::new(port.clone())
                 .map(|p| nat(p, Ipv4Addr::new(10, 0, 0, 1)))
-                .send(port.clone())
+                .sendall(port.clone())
         })
         .collect();
 
@@ -107,39 +109,49 @@ where
 }
 
 fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Tcp<Ipv4>> {
+    // print!("-4");stdout().flush();    
     let ethernet = packet.parse::<Ethernet>()?;
     let v4 = ethernet.parse::<Ipv4>()?;
     let mut tcp = v4.parse::<Tcp<Ipv4>>()?;
     let flow = tcp.flow();
 
-    match PORT_MAP.read().unwrap().get(&flow) {
+    let port_map = PORT_MAP.try_read().unwrap();
+    // let temp_exist_res = port_map.get(&flow); // will return a reference &
+    // let exist_res = temp_exist_res.clone(); // clone the reference; exist_res still relies on port_map
+    // drop(temp_exist_res);
+    // drop(port_map); // exist_res still replies on port_map; so you cannot drop it. 
+    let exist_res = port_map.get(&flow);
+    match exist_res {
         Some(s) => {
+            // drop(port_map);
             let _ = tcp.stamp_flow(*s);
             tcp.cascade();
         }
         None => {
+            drop(port_map);
+
             if NEXT_PORT.load(Ordering::Relaxed) < MAX_PORT {
                 let assigned_port = NEXT_PORT.fetch_add(1, Ordering::Relaxed);
                 let mut flow_vec = FLOW_VEC.write().unwrap();
 
                 flow_vec[assigned_port as usize].flow = flow;
-                flow_vec[assigned_port as usize].used = true;
+                flow_vec[assigned_port as usize].used = true; 
 
                 let mut outgoing_flow = flow;
                 outgoing_flow.set_src_ip(IpAddr::V4(nat_ip));
                 outgoing_flow.set_src_port(assigned_port);
                 let rev_flow = outgoing_flow.reverse();
+                
+                let mut port_map = PORT_MAP.try_write().unwrap();
 
-                let mut port_map = PORT_MAP.write().unwrap();
                 port_map.insert(flow, outgoing_flow);
                 port_map.insert(rev_flow, flow.reverse());
 
                 let _ = tcp.stamp_flow(outgoing_flow);
-                tcp.cascade()
+                tcp.cascade();
             }
         }
     }
-
     Ok(tcp)
 }
 
