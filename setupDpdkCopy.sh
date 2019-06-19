@@ -5,6 +5,12 @@ sudo mkdir -p /opt/dpdk/build
 src=~/tools/dpdk-stable-17.08.1/build/lib
 dst=/opt/dpdk/build/lib
 
+#clean destination
+if [ -d $dst ]; then
+   echo "Cleaning target directory $dst"
+   sudo rm -rf $dst/*
+fi
+
 sudo cp -r $src $dst
 
 src=~/tools/dpdk-stable-17.08.1/build/include
