@@ -6,8 +6,8 @@ export examples=(
         examples/ipv4or6
         examples/macswap
         examples/mtu-too-big
-        examples/op-errors
-        examples/signals
+        # examples/op-errors
+        # examples/signals
         ### Runnable examples | No Tests associated
         ### =======================================
         examples/acl-fw

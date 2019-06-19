@@ -1,11 +1,12 @@
 # !/bin/bash
 
-PORT=0000:06:00.0
+PORT=0000:81:00.1
 CORE=0
 POOL_SIZE=512
 MODE=debug
+HOME=/users/yangzhou
 
-export LD_LIBRARY_PATH="~/NetBricks/native:/opt/dpdk/dpdk-stable-17.08/build/lib:"
+export LD_LIBRARY_PATH="$HOME/NetBricks/native:/opt/dpdk/dpdk-stable-17.08/build/lib:"
 
 TASK=macswap
 
@@ -15,5 +16,5 @@ fi
 
 echo $TASK
 
-env LD_PRELOAD=~/jemalloc/lib/libjemalloc.so ~/NetBricks/target/$MODE/$TASK \
--p $PORT -c $CORE --pool-size=$POOL_SIZE -d 300 2>&1 | grep Tracing --line-buffered > heap.log
+env LD_PRELOAD=$HOME/jemalloc/lib/libjemalloc.so $HOME/NetBricks/target/$MODE/$TASK \
+-p $PORT -c $CORE --pool-size=$POOL_SIZE -d 300

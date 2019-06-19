@@ -9,17 +9,17 @@ use scheduler::Executable;
 /// Send all packets not matter whether it has been set to drop in the previous Filter operators. 
 ///
 /// Marks the end of a pipeline.
-pub struct SendAllatch<B: Batch, Tx: PacketTx> {
+pub struct SendAllBatch<B: Batch, Tx: PacketTx> {
     source: B,
     port: Tx,
     transmit_q: Vec<*mut MBuf>,
     drop_q: Vec<*mut MBuf>,
 }
 
-impl<B: Batch, Tx: PacketTx> SendAllatch<B, Tx> {
+impl<B: Batch, Tx: PacketTx> SendAllBatch<B, Tx> {
     #[inline]
     pub fn new(source: B, port: Tx) -> Self {
-        SendAllatch {
+        SendAllBatch {
             source,
             port,
             transmit_q: Vec::with_capacity(BATCH_SIZE),
@@ -28,7 +28,7 @@ impl<B: Batch, Tx: PacketTx> SendAllatch<B, Tx> {
     }
 }
 
-impl<B: Batch, Tx: PacketTx> Executable for SendAllatch<B, Tx> {
+impl<B: Batch, Tx: PacketTx> Executable for SendAllBatch<B, Tx> {
     fn execute(&mut self) {
         self.source.receive();
 
