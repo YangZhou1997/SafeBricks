@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PORT=0000:06:00.0
+PORT=0000:81:00.1
 CORE=0
 POOL_SIZE=512
 MODE=debug
@@ -17,4 +17,4 @@ fi
 echo $TASK
 
 $HOME/NetBricks/target/$MODE/$TASK \
--p $PORT -c $CORE --pool-size=$POOL_SIZE -d 300
+-p $PORT -c $CORE --pool-size=$POOL_SIZE
