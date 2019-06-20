@@ -8,9 +8,8 @@
 
 DPDK_HOME=~/tools/dpdk-stable-17.08.1
 
-# define HG_MON if you want dpdk to print memzone info.
-# Canno pass HG_MON to the dpdk code ?? 
-CFLAGS="-g3 -Wno-error=maybe-uninitialized -fPIC -DHG_MON=1"
+# add -DHG_MON=1 if you want dpdk to print memzone info.
+CFLAGS="-g3 -Wno-error=maybe-uninitialized -fPIC"
 
 sudo apt-get -y install build-essential ca-certificates curl \
     libnuma-dev libpcap-dev xz-utils
@@ -23,8 +22,9 @@ cp ~/utils/dpdk/common_linuxapp-17.08 $DPDK_HOME/config/common_linuxapp
 
 cd $DPDK_HOME
 
+make clean
 make config T=x86_64-native-linuxapp-gcc EXTRA_CFLAGS="${CFLAGS}"
-make -j8 EXTRA_CFLAGS="${CFLAGS}"
+make -j16 EXTRA_CFLAGS="${CFLAGS}"
 sudo make install
 
 sudo insmod $DPDK_HOME/build/kmod/igb_uio.ko
