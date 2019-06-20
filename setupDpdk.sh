@@ -13,7 +13,8 @@ sudo apt-get -y install build-essential ca-certificates curl \
     libnuma-dev libpcap-dev xz-utils
 
 cd ~/tools
-curl -sSf https://fast.dpdk.org/rel/dpdk-17.08.1.tar.xz | tar -xJv
+git clone git@github.com:YangZhou1997/dpdk-stable-17.08.1.git
+# curl -sSf https://fast.dpdk.org/rel/dpdk-17.08.1.tar.xz | tar -xJv
 cp ~/utils/dpdk/common_linuxapp-17.08 $DPDK_HOME/config/common_linuxapp
 
 cd $DPDK_HOME
