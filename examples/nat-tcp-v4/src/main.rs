@@ -116,7 +116,8 @@ fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Tcp<Ipv4>> {
     let mut tcp = v4.parse::<Tcp<Ipv4>>()?;
     let flow = tcp.flow();
 
-    let port_map = PORT_MAP.try_read().unwrap();
+    let port_map = PORT_MAP.read().unwrap();
+    // let port_map = PORT_MAP.try_read().unwrap();
     // let temp_exist_res = port_map.get(&flow); // will return a reference &
     // let exist_res = temp_exist_res.clone(); // clone the reference; exist_res still relies on port_map
     // drop(temp_exist_res);
@@ -143,7 +144,8 @@ fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Tcp<Ipv4>> {
                 outgoing_flow.set_src_port(assigned_port);
                 let rev_flow = outgoing_flow.reverse();
                 
-                let mut port_map = PORT_MAP.try_write().unwrap();
+                let mut port_map = PORT_MAP.write().unwrap();
+                // let mut port_map = PORT_MAP.try_write().unwrap();
 
                 port_map.insert(flow, outgoing_flow);
                 port_map.insert(rev_flow, flow.reverse());

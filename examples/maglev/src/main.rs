@@ -22,17 +22,20 @@ use std::hash::{BuildHasherDefault, BuildHasher, Hash, Hasher};
 use twox_hash::XxHash;
 use std::slice;
 use std::mem;
+// use std::sync::RwLock;
+// use std::collections::HashMap;
 
 
-const ENTRY_NUM: usize = 65537;
+
+const ENTRY_NUM: u32 = 65537;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 type XxHashFactory = BuildHasherDefault<XxHash>;
 
 struct Maglev {
-    // permutation: Box<Vec<Vec<usize>>>,
-    lut: Box<Vec<usize>>,
-    lut_size: usize,
+    // permutation: Box<Vec<Vec<u32>>>,
+    lut: Box<Vec<u32>>,
+    lut_size: u32,
 }
 
 impl Maglev {
@@ -40,20 +43,20 @@ impl Maglev {
         name: &str,
         h1: &FnvHash,
         h2: &XxHashFactory,
-        lsize: usize,
-    ) -> (usize, usize) {
+        lsize: u32,
+    ) -> (u32, u32) {
         let mut fnv_state = h1.build_hasher();
         name.hash(&mut fnv_state);
-        let hash1 = fnv_state.finish() as usize;
+        let hash1 = fnv_state.finish() as u32;
         let mut xx_state = h2.build_hasher();
         name.hash(&mut xx_state);
-        let hash2 = xx_state.finish() as usize;
+        let hash2 = xx_state.finish() as u32;
         let offset = hash2 % lsize;
         let skip = hash1 % (lsize - 1) + 1;
         (offset, skip)
     }
 
-    pub fn generate_permutations(backends: &[&str], lsize: usize) -> Vec<Vec<usize>> {
+    pub fn generate_permutations(backends: &[&str], lsize: u32) -> Vec<Vec<u32>> {
         println!("Generating permutations");
         let fnv_hasher: FnvHash = Default::default();
         let xx_hasher: XxHashFactory = Default::default();
@@ -64,20 +67,20 @@ impl Maglev {
             .collect()
     }
 
-    fn generate_lut(permutations: &Vec<Vec<usize>>, size: usize) -> Box<Vec<usize>> {
+    fn generate_lut(permutations: &Vec<Vec<u32>>, size: u32) -> Box<Vec<u32>> {
         let mut next: Vec<_> = permutations.iter().map(|_| 0).collect();
-        let mut entry: Box<Vec<usize>> = Box::new((0..size).map(|_| 0x8000).collect());
+        let mut entry: Box<Vec<u32>> = Box::new((0..size).map(|_| 0x8000).collect());
         let mut n = 0;
         println!("Generating LUT");
         while n < size {
             for i in 0..next.len() {
                 let mut c = permutations[i][next[i]];
-                while entry[c] != 0x8000 {
+                while entry[c as usize] != 0x8000 {
                     next[i] += 1;
                     c = permutations[i][next[i]];
                 }
-                if entry[c] == 0x8000 {
-                    entry[c] = i;
+                if entry[c as usize] == 0x8000 {
+                    entry[c as usize] = i as u32;
                     next[i] += 1;
                     n += 1;
                 }
@@ -90,7 +93,7 @@ impl Maglev {
         entry
     }
 
-    pub fn new(name: &[&str], lsize: usize) -> Maglev {
+    pub fn new(name: &[&str], lsize: u32) -> Maglev {
         let permutations = Box::new(Maglev::generate_permutations(name, lsize));
         Maglev {
             lut: Maglev::generate_lut(&*permutations, lsize),
@@ -105,16 +108,16 @@ impl Maglev {
     }
     
     #[inline]
-    fn flow_hash(flow: &Flow) -> usize {
+    fn flow_hash(flow: &Flow) -> u32 {
         let mut hasher = FnvHasher::default();
         hasher.write(Maglev::flow_as_u8(flow));
-        hasher.finish() as usize
+        hasher.finish() as u32
         // farmhash::hash32(flow_as_u8(flow))
     }
 
-    pub fn lookup(&self, flow: &Flow) -> usize {
+    pub fn lookup(&self, flow: &Flow) -> u32 {
         let idx = Maglev::flow_hash(flow) % self.lut_size;
-        self.lut[idx]
+        self.lut[idx as usize]
     }
 }
 
@@ -127,16 +130,21 @@ lazy_static! {
     };
 }
 
+// lazy_static! {
+//     static ref FLOW_CACHE: Arc<RwLock<HashMap<Flow, u32, FnvHash>>> = {
+//         let m = HashMap::with_hasher(Default::default());
+//         Arc::new(RwLock::new(m))
+//     };
+// }
+
 trait Stamper {
-    fn stamp_flow(&mut self, flow: Flow) -> Result<()>;
+    fn stamp_flow(&mut self, dst_ip: u32) -> Result<()>;
 }
 
 impl<E: IpPacket> Stamper for Tcp<E> {
-    fn stamp_flow(&mut self, flow: Flow) -> Result<()> {
-        self.envelope_mut().set_src(flow.src_ip())?;
-        self.envelope_mut().set_dst(flow.dst_ip())?;
-        self.set_src_port(flow.src_port());
-        self.set_dst_port(flow.dst_port());
+    fn stamp_flow(&mut self, dst_ip: u32) -> Result<()> {
+        self.envelope_mut().set_dst(IpAddr::V4(Ipv4Addr::new(((dst_ip >> 24) & 0xFF) as u8,
+             ((dst_ip >> 16) & 0xFF) as u8, ((dst_ip >> 8) & 0xFF) as u8, (dst_ip & 0xFF) as u8)))?;
         Ok(())
     }
 }
@@ -164,20 +172,41 @@ where
 }
 
 fn lb(packet: RawPacket) -> Result<Tcp<Ipv4>> {
+// fn lb(packet: RawPacket) -> Result<Ethernet> {
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
     let v4 = ethernet.parse::<Ipv4>()?;
     let mut tcp = v4.parse::<Tcp<Ipv4>>()?;
-    let mut flow = tcp.flow(); // new a Flow structure
+    let flow = tcp.flow(); // new a Flow structure
 
-    let assigned_server = LUT.lookup(&flow);
-    flow.set_dst_ip(IpAddr::V4(Ipv4Addr::new(((assigned_server >> 24) & 0xFF) as u8,
-     ((assigned_server >> 16) & 0xFF) as u8, ((assigned_server >> 8) & 0xFF) as u8,
-      (assigned_server & 0xFF) as u8)));
-
-    tcp.stamp_flow(flow).unwrap();
+    let assigned_server = LUT.lookup(&flow) as u32;
+    tcp.stamp_flow(assigned_server).unwrap();
     tcp.cascade();
 
+
+    // Using a hashmap as "fast" translation as implemented in NetBricks paper; 
+    // however, results show it hurts performance. 
+
+    // let flow_cache = FLOW_CACHE.read().unwrap();
+    // let exist_res = flow_cache.get(&flow);
+    // match exist_res {
+    //     Some(s) => {
+    //         // drop(port_map);
+    //         let assigned_server = *s;
+    //         tcp.stamp_flow(assigned_server).unwrap();
+    //         tcp.cascade();
+    //     }
+    //     None => {
+    //         drop(flow_cache);
+    //         let assigned_server = LUT.lookup(&flow) as u32;
+            
+    //         tcp.stamp_flow(assigned_server).unwrap();
+    //         tcp.cascade();
+
+    //         let mut flow_cache = FLOW_CACHE.write().unwrap();
+    //         flow_cache.insert(flow, assigned_server);
+    //     }
+    // }
     Ok(tcp)
 }
 
