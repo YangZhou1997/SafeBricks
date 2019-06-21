@@ -11,6 +11,7 @@ members = [
     "examples/lpm",
     "examples/macswap",
     "examples/maglev",
+    "examples/dpi",
     "examples/mtu-too-big",
     "examples/nat-tcp-v4",
     #"examples/op-errors",

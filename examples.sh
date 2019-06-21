@@ -19,5 +19,6 @@ export examples=(
         examples/nat-tcp-v4
         examples/sctp
         examples/maglev
+        examples/dpi
         # examples/tcp-reconstruction
 )

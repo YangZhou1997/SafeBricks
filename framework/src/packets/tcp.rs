@@ -4,6 +4,10 @@ use packets::ip::{Flow, IpPacket, ProtocolNumbers};
 use packets::{buffer, checksum, Fixed, Header, Packet};
 use std::fmt;
 use std::net::IpAddr;
+use std::slice;
+use std::io::stdout;
+use std::io::Write;
+
 
 /*  From https://tools.ietf.org/html/rfc793#section-3.1
     TCP Header Format
@@ -153,6 +157,13 @@ const RST: u8 = 0b0000_0100;
 const SYN: u8 = 0b0000_0010;
 const FIN: u8 = 0b0000_0001;
 
+
+const ETH_HDR_LEN: usize = 14;
+const IP_HDR_LEN: usize = 20;
+const MIN_IP_HDR_LEN: usize = 20;
+const FCS_LEN: usize = 4;
+
+
 /// TCP packet
 #[derive(Debug)]
 pub struct Tcp<E: IpPacket> {
@@ -163,6 +174,41 @@ pub struct Tcp<E: IpPacket> {
 }
 
 impl<E: IpPacket> Tcp<E> {
+
+    // the length of the whole ethernet packet;
+    // does not include the 4-byte FCS part. 
+    #[inline]
+    fn data_len(&self) -> usize {
+        unsafe { (*self.mbuf).data_len() }
+    }
+
+    // the length of the header;
+    #[inline]
+    fn header_len(&self) -> usize {
+        ETH_HDR_LEN + IP_HDR_LEN + (self.data_offset() << 2) as usize
+    }
+
+    #[inline]
+    fn payload_len(&self) -> usize {
+        self.data_len() - self.header_len()
+    }
+
+    #[inline]
+    fn payload(&self) -> *mut u8 {
+        unsafe { (*self.mbuf).data_address(self.header_len()) }
+    }
+
+    #[inline]
+    pub fn get_payload(&self) -> &[u8] {
+        unsafe {
+            println!("{} {} {}", self.data_len(), self.header_len(), self.payload_len());
+            stdout().flush();
+            let len = self.payload_len();
+            slice::from_raw_parts(self.payload(), len)
+        }
+    }
+
+
     #[inline]
     pub fn src_port(&self) -> u16 {
         u16::from_be(self.header().src_port)
