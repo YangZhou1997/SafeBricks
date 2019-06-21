@@ -23,7 +23,7 @@ use std::sync::RwLock;
 // use std::io::stdout;
 // use std::io::Write;
 
-const MIN_PORT: u16 = 1024;
+// const MIN_PORT: u16 = 1024;
 const MAX_PORT: u16 = 65535;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
@@ -110,7 +110,8 @@ where
 
 fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Tcp<Ipv4>> {
     // print!("-4");stdout().flush();    
-    let ethernet = packet.parse::<Ethernet>()?;
+    let mut ethernet = packet.parse::<Ethernet>()?;
+    ethernet.swap_addresses();
     let v4 = ethernet.parse::<Ipv4>()?;
     let mut tcp = v4.parse::<Tcp<Ipv4>>()?;
     let flow = tcp.flow();
