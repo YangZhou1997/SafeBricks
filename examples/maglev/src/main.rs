@@ -26,7 +26,6 @@ use std::mem;
 // use std::collections::HashMap;
 
 
-
 const ENTRY_NUM: u32 = 65537;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;

@@ -6,6 +6,10 @@ use std::collections::HashMap;
 use std::convert::From;
 use std::hash::BuildHasherDefault;
 use std::net::Ipv4Addr;
+use std::sync::Arc;
+use std::sync::RwLock;
+use rand::distributions::Uniform;
+use rand::{thread_rng, Rng};
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
@@ -19,6 +23,7 @@ pub struct IPLookup {
 const TBL24_SIZE: usize = ((1 << 24) + 1);
 const RAW_SIZE: usize = 33;
 const OVERFLOW_MASK: u16 = 0x8000;
+pub const PORT_NUM: u16 = 128;
 
 #[derive(Default, Clone)]
 struct Empty;
@@ -99,9 +104,37 @@ impl IPLookup {
     }
 }
 
+lazy_static! {
+    static ref LOOKUP_TABLE: Arc<RwLock<IPLookup>> = {
+        let mut rng = thread_rng();
+        let mut lpm_table = IPLookup::new();
+
+        for _ in 1..100 {
+            let a: u8 = rng.sample(Uniform::new_inclusive(0, 255));
+            let b: u8 = rng.sample(Uniform::new_inclusive(0, 255));
+            let c: u8 = rng.sample(Uniform::new_inclusive(0, 255));
+            let d: u8 = rng.sample(Uniform::new_inclusive(0, 255));
+            let port: u16 = rng.sample(Uniform::new_inclusive(0, PORT_NUM - 1));
+            lpm_table.insert_ipv4(Ipv4Addr::new(a, b, c, d), 32, port);
+        }
+
+        lpm_table.construct_table();
+        Arc::new(RwLock::new(lpm_table))
+    };
+}
+
+lazy_static!{
+    static ref COUNT_PORTS: Arc<RwLock<Vec<u32>>> = {
+        let count_ports = (0..PORT_NUM).map(|_| 0).collect();
+        Arc::new(RwLock::new(count_ports))
+    };
+}
+
 pub fn lpm(packet: RawPacket) -> Result<Ipv4> {
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
     let v4 = ethernet.parse::<Ipv4>()?;
+    let port = LOOKUP_TABLE.read().unwrap().lookup_entry(v4.src()) as u32;
+    COUNT_PORTS.write().unwrap()[port as usize] += 1;
     Ok(v4)
 }
