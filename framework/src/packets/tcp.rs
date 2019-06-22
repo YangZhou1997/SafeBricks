@@ -5,8 +5,8 @@ use packets::{buffer, checksum, Fixed, Header, Packet};
 use std::fmt;
 use std::net::IpAddr;
 use std::slice;
-use std::io::stdout;
-use std::io::Write;
+// use std::io::stdout;
+// use std::io::Write;
 
 
 /*  From https://tools.ietf.org/html/rfc793#section-3.1

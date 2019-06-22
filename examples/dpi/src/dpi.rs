@@ -3,8 +3,8 @@ use netbricks::common::Result;
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
 use std::str;
-use std::io::stdout;
-use std::io::Write;
+// use std::io::stdout;
+// use std::io::Write;
 use std::sync::Arc;
 use std::sync::RwLock;
 use aho_corasick::AhoCorasick;
@@ -29,10 +29,10 @@ pub fn dpi(packet: RawPacket) -> Result<Tcp<Ipv4>> {
     let tcp = v4.parse::<Tcp<Ipv4>>()?;
     let payload: &[u8] = tcp.get_payload();
     
-    let payload_str = match str::from_utf8(&payload[8..]) {
-        Ok(v) => v,
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
+    // let payload_str = match str::from_utf8(&payload[8..]) {
+    //     Ok(v) => v,
+    //     Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    // };
     // from_utf8_unchecked
 
     // println!("{}", payload_str);
@@ -40,7 +40,7 @@ pub fn dpi(packet: RawPacket) -> Result<Tcp<Ipv4>> {
 
     let mut matches = vec![];
     let ac = AC.read().unwrap();
-    for mat in ac.find_iter(payload_str) {
+    for mat in ac.find_iter(payload) {
         matches.push((mat.pattern(), mat.start(), mat.end()));
     }
     // println!("{:?}", matches);
