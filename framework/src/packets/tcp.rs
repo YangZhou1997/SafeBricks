@@ -201,8 +201,8 @@ impl<E: IpPacket> Tcp<E> {
     #[inline]
     pub fn get_payload(&self) -> &[u8] {
         unsafe {
-            println!("{} {} {}", self.data_len(), self.header_len(), self.payload_len());
-            stdout().flush();
+            // println!("{} {} {}", self.data_len(), self.header_len(), self.payload_len());
+            // stdout().flush();
             let len = self.payload_len();
             slice::from_raw_parts(self.payload(), len)
         }

@@ -1,20 +1,26 @@
-use fnv::FnvHasher;
+extern crate aho_corasick;
 use netbricks::common::Result;
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
-use std::collections::HashMap;
-use std::convert::From;
-use std::hash::BuildHasherDefault;
-use std::net::Ipv4Addr;
 use std::str;
 use std::io::stdout;
 use std::io::Write;
+use std::sync::Arc;
+use std::sync::RwLock;
+use aho_corasick::AhoCorasick;
 
 /* According to my customized pktgen_zeroloss: */
 // set pkt_size: 48 includes the 4B pkt_idx, 2B burst_size, and 2B identifier;
 // int pkt_size = 48 + sizeof(struct ether_hdr); // 48 + 14 = 62 bytes
 const PAYLOAD_OFFSET: usize = 62; // payload offset relative to the ethernet header.
 
+lazy_static! {
+    static ref AC: Arc<RwLock<AhoCorasick>> = {
+        let patterns = &["This is", "Yang", "abcedf"];
+        let m = AhoCorasick::new(patterns);
+        Arc::new(RwLock::new(m))
+    };
+}
 
 pub fn dpi(packet: RawPacket) -> Result<Tcp<Ipv4>> {
     let mut ethernet = packet.parse::<Ethernet>()?;
@@ -29,8 +35,16 @@ pub fn dpi(packet: RawPacket) -> Result<Tcp<Ipv4>> {
     };
     // from_utf8_unchecked
 
-    println!("{}", payload_str);
-    stdout().flush();
+    // println!("{}", payload_str);
+    // stdout().flush().unwrap();
+
+    let mut matches = vec![];
+    let ac = AC.read().unwrap();
+    for mat in ac.find_iter(payload_str) {
+        matches.push((mat.pattern(), mat.start(), mat.end()));
+    }
+    // println!("{:?}", matches);
+    // stdout().flush().unwrap();
 
     Ok(tcp)
 }
