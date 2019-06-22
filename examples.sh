@@ -11,7 +11,7 @@ export examples=(
         ### Runnable examples | No Tests associated
         ### =======================================
         examples/acl-fw
-        examples/chain
+        examples/ttl-chain
         examples/collect-metrics
         examples/embedded-scheduler
         examples/embedded-scheduler-dependency
