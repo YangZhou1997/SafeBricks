@@ -8,6 +8,10 @@ use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
 use std::sync::Arc;
 use std::sync::RwLock;
 use aho_corasick::AhoCorasick;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
+const RULE_NUM: usize = 512; 
 
 /* According to my customized pktgen_zeroloss: */
 // set pkt_size: 48 includes the 4B pkt_idx, 2B burst_size, and 2B identifier;
@@ -16,7 +20,20 @@ use aho_corasick::AhoCorasick;
 
 lazy_static! {
     static ref AC: Arc<RwLock<AhoCorasick>> = {
-        let patterns = &["This is", "Yang", "abcedf"];
+        let mut rules = vec![];
+
+        let file = File::open("./dpi/word.rules").expect("cannot open file");
+        let file = BufReader::new(file);
+        for line in file.lines().filter_map(|result| result.ok()){
+            // println!("{}", line);
+            rules.push(line);
+            if rules.len() == RULE_NUM {
+                break;
+            }
+        }
+
+        //let patterns = &["This is", "Yang", "abcedf"];
+        let patterns = &rules;
         let m = AhoCorasick::new(patterns);
         Arc::new(RwLock::new(m))
     };
