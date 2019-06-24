@@ -27,6 +27,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
    ```
 
 2. Upgrade the kernel and install packages. 
+    
     ```shell
     host$ sudo bash ../utils/vm-kernel-upgrade.sh #require rebooting
     host$ sudo shutdown -r now
@@ -58,12 +59,10 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
 ## Developing in local Ubuntu-16.04 environment
 
-1. Make sure that you have gone though step 1-3 of last section successfully. Current version of NetBricks will read some DPDK lib from /opt/dpdk/build/ during runtime, you need to copy include/ and lib/ directory from $RTE_SDK/build to /opt/dpdk/build/. Note that soft links need to be considered carefully. We provide [setupDpdkCopy.sh](./setupDpdkCopy.sh) (executing again if fails) for that: 
+1. Make sure that you have gone though step 1-3 of last section successfully. Current version of NetBricks will read some DPDK lib from /opt/dpdk/build/ during runtime, you need to copy include/ and lib/ directory from $RTE_SDK/build to /opt/dpdk/build/. Note that soft links need to be considered carefully. We provide [setupDpdkCopy.sh](./setupDpdkCopy.sh) for that (actually, `setupDpdkCopy.sh` has been executed in `setupDpdk.sh`): 
     ```shell
     host$ ./setupDpdkCopy.sh
-    host$ ./setupDpdkCopy.sh
     ```
-    
 
 2. As far as I know, NetBricks assumes you are root when running it. So you need to switch to root now. 
     ```shell
@@ -75,7 +74,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
 3. After step 2, you need to set ```RTE_SDK``` to the dpdk directory, and load cargo environment. Then you'll be able to compile and test NetBricks:
    ```shell
-    root$ export RTE_SDK=/users/yangzhou/tools/dpdk-stable-17.08.1 # for instance.
+    root$ export RTE_SDK=/home/yangz/tools/dpdk-stable-17.08.1 # for instance.
     root$ source $HOME/.cargo/env
     root$ make build
     ...
