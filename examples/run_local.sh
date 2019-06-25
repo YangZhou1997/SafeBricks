@@ -1,7 +1,5 @@
 # !/bin/bash
-
-HOME=/users/yangzhou
-export LD_LIBRARY_PATH="$HOME/NetBricks/native:/opt/dpdk/dpdk-stable-17.08/build/lib:"
+source ./config.sh
 
 TASK=macswap
 
