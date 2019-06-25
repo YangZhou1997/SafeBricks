@@ -26,13 +26,16 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
          done
    ```
 
-2. Upgrade the kernel and install packages. 
-    
+2. Update and install packages. Any kernel should be generally okay -- we have tested on 4.4.0-131-generic, 4.4.0-142-generic, 4.4.0-145-generic, and 4.15.0-15-generic. 
+     
     ```shell
+    host$ sudo bash ../utils/vm-setup.sh
+    ```
+    <!-- ```shell
     host$ sudo bash ../utils/vm-kernel-upgrade.sh #require rebooting
     host$ sudo shutdown -r now
     host$ sudo bash ../utils/vm-setup.sh
-    ```
+    ``` -->
 
 3. After step 2, you machine meets the basic requirements of running NetBricks. Now you need to build and bind DPDK using [setupDpdk.sh](./setupDpdk.sh). 
     ```shell
