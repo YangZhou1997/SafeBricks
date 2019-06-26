@@ -12,4 +12,4 @@ fi
 echo $TASK
 
 valgrind --tool=massif $HOME/NetBricks/target/$MODE/$TASK \
--p $PORT -c $CORE --pool-size=$POOL_SIZE -d 300
+-p $PORT -c $CORE --pool-size=$POOL_SIZE -d $TIME

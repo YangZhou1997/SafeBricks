@@ -10,4 +10,5 @@ export LD_LIBRARY_PATH="$HOME/NetBricks/native:/opt/dpdk/dpdk-stable-17.08/build
 PORT=0000:06:00.0
 CORE=0
 POOL_SIZE=512
-MODE=debug
+MODE=release
+TIME=60
