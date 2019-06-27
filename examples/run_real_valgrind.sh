@@ -11,5 +11,5 @@ fi
 
 echo $TASK
 
-valgrind --tool=massif $HOME/NetBricks/target/$MODE/$TASK \
+valgrind --tool=massif --stacks=yes $HOME/NetBricks/target/$MODE/$TASK \
 -p $PORT -c $CORE --pool-size=$POOL_SIZE -d $TIME
