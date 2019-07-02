@@ -20,5 +20,6 @@ export examples=(
         examples/sctp
         examples/maglev
         examples/dpi
+        examples/monitoring
         # examples/tcp-reconstruction
 )

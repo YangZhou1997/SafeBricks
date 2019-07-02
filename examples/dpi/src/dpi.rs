@@ -11,7 +11,7 @@ use aho_corasick::AhoCorasick;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-const RULE_NUM: usize = 512; 
+const RULE_NUM: usize = (1 << 30); 
 
 /* According to my customized pktgen_zeroloss: */
 // set pkt_size: 48 includes the 4B pkt_idx, 2B burst_size, and 2B identifier;
@@ -22,7 +22,7 @@ lazy_static! {
     static ref AC: Arc<RwLock<AhoCorasick>> = {
         let mut rules = vec![];
 
-        let file = File::open("./dpi/word.rules").expect("cannot open file");
+        let file = File::open("./dpi/wordrules/word.rules").expect("cannot open file");
         let file = BufReader::new(file);
         for line in file.lines().filter_map(|result| result.ok()){
             // println!("{}", line);
