@@ -3,9 +3,9 @@ use netbricks::common::Result;
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
 use netbricks::utils::ipsec::*;
-// use std::str;
-// use std::io::stdout;
-// use std::io::Write;
+use std::str;
+use std::io::stdout;
+use std::io::Write;
 use std::sync::Arc;
 use std::sync::RwLock;
 use aho_corasick::AhoCorasick;
@@ -40,32 +40,38 @@ lazy_static! {
     };
 }
 
-pub fn dpi(packet: RawPacket) -> Result<Tcp<Ipv4>> {
+pub fn dpi(packet: RawPacket) -> Result<Ipv4> {
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
     let v4 = ethernet.parse::<Ipv4>()?;
-    let tcp = v4.parse::<Tcp<Ipv4>>()?;
-    let payload: &[u8] = tcp.get_payload(); // payload.len()
-    let decrypted_pkt: &mut [u8] = &mut [0u8; 1500];
-    // let payload_str = match str::from_utf8(&payload[8..]) {
-    //     Ok(v) => v,
-    //     Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    // };
-    // from_utf8_unchecked
+    let payload: &mut [u8] = v4.get_payload_mut(); // payload.len()
 
-    // println!("{}", payload_str);
-    // stdout().flush().unwrap();
-    let k = AES_cbc_sha256_encrypt(payload, decrypted_pkt).unwrap();
-    println!("{}", k);
-    
+    let payload_str = match str::from_utf8(&payload[20..]) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+    println!("{}", payload_str);
+    stdout().flush().unwrap();
 
-    let mut matches = vec![];
-    let ac = AC.read().unwrap();
-    for mat in ac.find_iter(payload) {
-        matches.push((mat.pattern(), mat.start(), mat.end()));
-    }
-    // println!("{:?}", matches);
+    // let esp_hdr: &mut [u8] = &mut [0u8; 8];
+    // esp_hdr.copy_from_slice(&payload[0..ESP_HEADER_LENGTH]);
+
+    // let decrypted_pkt: &mut [u8] = &mut [0u8; 2000];
+    // let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, true).unwrap();
+    // println!("decrypted_pkt_len: {}", decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH);
     // stdout().flush().unwrap();
 
-    Ok(tcp)
+    // let mut matches = vec![];
+    // let ac = AC.read().unwrap();
+    // for mat in ac.find_iter(&decrypted_pkt[40..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)]) {
+    //     matches.push((mat.pattern(), mat.start(), mat.end()));
+    // }
+    // // println!("{:?}", matches);
+    // // stdout().flush().unwrap();
+
+    // let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    // println!("encrypted_pkt_len: {}", encrypted_pkt_len);
+    // stdout().flush().unwrap();
+
+    Ok(v4)
 }

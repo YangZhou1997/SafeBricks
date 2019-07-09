@@ -205,10 +205,20 @@ impl Ipv4 {
     #[inline]
     pub fn get_payload(&self) -> &[u8] {
         unsafe {
-            // println!("{} {} {}", self.data_len(), self.ipv4_header_len(), self.payload_len());
+            // println!("{} {} {} {}", self.data_len(), self.offset, self.ipv4_header_len(), self.payload_len());
             // stdout().flush();
             let len = self.payload_len();
             slice::from_raw_parts(self.payload(), len)
+        }
+    }
+
+    #[inline]
+    pub fn get_payload_mut(&self) -> &mut [u8] {
+        unsafe {
+            // println!("{} {} {} {}", self.data_len(), self.offset, self.ipv4_header_len(), self.payload_len());
+            // stdout().flush();
+            let len = self.payload_len();
+            slice::from_raw_parts_mut(self.payload(), len)
         }
     }
 
