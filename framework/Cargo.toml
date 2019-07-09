@@ -35,6 +35,9 @@ serde_derive = ">= 1.0"
 tokio = "0.1"
 tokio-signal = "0.2"
 twox-hash = ">= 1.2"
+# using openssl for crypto.
+openssl-sys = "0.9"
+openssl = "0.10"
 
 [features]
 default = []

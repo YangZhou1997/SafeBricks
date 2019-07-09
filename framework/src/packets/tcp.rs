@@ -169,7 +169,7 @@ const FCS_LEN: usize = 4;
 pub struct Tcp<E: IpPacket> {
     envelope: E,
     mbuf: *mut MBuf,
-    offset: usize,
+    offset: usize, // this offset is the tcp header offset relative to the ethernet header
     header: *mut TcpHeader,
 }
 
@@ -179,29 +179,37 @@ impl<E: IpPacket> Tcp<E> {
     // does not include the 4-byte FCS part. 
     #[inline]
     fn data_len(&self) -> usize {
-        unsafe { (*self.mbuf).data_len() }
+        unsafe { (*self.mbuf).pkt_len() }
     }
 
-    // the length of the header;
+    // the length of the tcp header;
     #[inline]
-    fn header_len(&self) -> usize {
-        ETH_HDR_LEN + IP_HDR_LEN + (self.data_offset() << 2) as usize
+    fn tcp_header_len(&self) -> usize {
+        (self.data_offset() << 2) as usize
     }
 
+    // // the real offset of the tcp header;
+    // #[inline]
+    // fn real_offset(&self) -> usize {
+    //     self.envelope().ipv4_header_len()
+    // }
+
+    // the length of the tcp payload
     #[inline]
     fn payload_len(&self) -> usize {
-        self.data_len() - self.header_len()
+        // println!("eth pkt size: {}, tcp hdr offset: {}, tcp hdr size: {}", self.data_len(), self.offset, self.tcp_header_len());
+        self.data_len() - self.offset - self.tcp_header_len()
     }
 
     #[inline]
     fn payload(&self) -> *mut u8 {
-        unsafe { (*self.mbuf).data_address(self.header_len()) }
+        unsafe { (*self.mbuf).data_address(self.offset) }
     }
 
     #[inline]
     pub fn get_payload(&self) -> &[u8] {
         unsafe {
-            // println!("{} {} {}", self.data_len(), self.header_len(), self.payload_len());
+            // println!("{} {} {}", self.data_len(), self.tcp_header_len(), self.payload_len());
             // stdout().flush();
             let len = self.payload_len();
             slice::from_raw_parts(self.payload(), len)
@@ -548,6 +556,7 @@ impl<E: IpPacket> Packet for Tcp<E> {
     #[inline]
     fn header_len(&self) -> usize {
         Self::Header::size()
+        // (self.data_offset() << 2) as usize
     }
 
     #[doc(hidden)]
@@ -556,7 +565,8 @@ impl<E: IpPacket> Packet for Tcp<E> {
         let mbuf = envelope.mbuf();
         let offset = envelope.payload_offset();
         let header = buffer::read_item::<Self::Header>(mbuf, offset)?;
-
+        // let option_data = buffer::read_slice::<u8>(mbuf, offset + Header::size(), )?;
+        
         Ok(Tcp {
             envelope,
             mbuf,

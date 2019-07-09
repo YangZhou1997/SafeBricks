@@ -5,6 +5,9 @@ use packets::ip::{IpAddrMismatchError, IpPacket, ProtocolNumber};
 use packets::{buffer, Ethernet, Fixed, Header, Packet};
 use std::fmt;
 use std::net::{IpAddr, Ipv4Addr};
+use std::io::stdout;
+use std::io::Write;
+use std::slice;
 
 /*  From https://tools.ietf.org/html/rfc791#section-3.1
     Internet Datagram Header
@@ -170,11 +173,45 @@ impl Header for Ipv4Header {}
 pub struct Ipv4 {
     envelope: Ethernet,
     mbuf: *mut MBuf,
-    offset: usize,
+    offset: usize,// this offset is the ipv4 header offset relative to the ethernet header
     header: *mut Ipv4Header,
 }
 
 impl Ipv4 {
+    // the length of the whole ethernet packet;
+    // does not include the 4-byte FCS part. 
+    #[inline]
+    fn data_len(&self) -> usize {
+        unsafe { (*self.mbuf).data_len() }
+    }
+
+    // the length of the ipv4 header;
+    #[inline]
+    fn ipv4_header_len(&self) -> usize {
+        (self.ihl() << 2) as usize
+    }
+
+    // the length of the ipv4 payload
+    #[inline]
+    fn payload_len(&self) -> usize {
+        self.data_len() - self.offset - self.ipv4_header_len()
+    }
+
+    #[inline]
+    fn payload(&self) -> *mut u8 {
+        unsafe { (*self.mbuf).data_address(self.offset) }
+    }
+
+    #[inline]
+    pub fn get_payload(&self) -> &[u8] {
+        unsafe {
+            println!("{} {} {}", self.data_len(), self.ipv4_header_len(), self.payload_len());
+            stdout().flush();
+            let len = self.payload_len();
+            slice::from_raw_parts(self.payload(), len)
+        }
+    }
+
     #[inline]
     pub fn version(&self) -> u8 {
         // Protocol Version, should always be `4`
@@ -397,6 +434,7 @@ impl Packet for Ipv4 {
     #[inline]
     fn header_len(&self) -> usize {
         Self::Header::size()
+        // (self.ihl() << 2) as usize
     }
 
     #[doc(hidden)]

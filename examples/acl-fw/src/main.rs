@@ -34,6 +34,7 @@ lazy_static! {
 lazy_static! {
     static ref ACLS: Arc<RwLock<Vec<Acl>>> = {
         let acl = vec![Acl {
+            // 0 and 32 means exactly match. 
             src_prefix: Some(Ipv4Cidr::new(Ipv4Addr::new(0, 0, 0, 0), 0).unwrap()),
             dst_prefix: None,
             src_port: None,
@@ -89,6 +90,7 @@ pub struct Acl {
 }
 
 impl Acl {
+    // self.prefix == (self.mask & u32::from_be_bytes(address.octets()))
     fn contains(&self, ip: IpAddr) -> bool {
         if let Some(ref prefix) = self.src_prefix {
             prefix.contains_ip(ip)

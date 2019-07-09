@@ -4,22 +4,30 @@
 export examples=(
         examples/echo-reply
         examples/ipv4or6
-        examples/macswap
         examples/mtu-too-big
         # examples/op-errors
         # examples/signals
         ### Runnable examples | No Tests associated
         ### =======================================
-        examples/acl-fw
         examples/ttl-chain
         examples/collect-metrics
         examples/embedded-scheduler
         examples/embedded-scheduler-dependency
+        examples/sctp
+        # examples/tcp-reconstruction
+        ### NFs for experiments
+        examples/macswap
+        examples/acl-fw
         examples/lpm
         examples/nat-tcp-v4
-        examples/sctp
         examples/maglev
         examples/dpi
         examples/monitoring
-        # examples/tcp-reconstruction
+        examples/macswap-ipsec
+        # examples/acl-fw-ipsec
+        # examples/lpm-ipsec
+        # examples/nat-tcp-v4-ipsec
+        # examples/maglev-ipsec
+        examples/dpi-ipsec
+        # examples/monitoring-ipsec
 )

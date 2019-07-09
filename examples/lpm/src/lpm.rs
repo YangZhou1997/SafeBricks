@@ -23,7 +23,7 @@ pub struct IPLookup {
 const TBL24_SIZE: usize = ((1 << 24) + 1);
 const RAW_SIZE: usize = 33;
 const OVERFLOW_MASK: u16 = 0x8000;
-pub const PORT_NUM: u16 = 128;
+pub const GATE_NUM: u16 = 256;
 
 #[derive(Default, Clone)]
 struct Empty;
@@ -114,7 +114,7 @@ lazy_static! {
             let b: u8 = rng.sample(Uniform::new_inclusive(0, 255));
             let c: u8 = rng.sample(Uniform::new_inclusive(0, 255));
             let d: u8 = rng.sample(Uniform::new_inclusive(0, 255));
-            let port: u16 = rng.sample(Uniform::new_inclusive(0, PORT_NUM - 1));
+            let port: u16 = rng.sample(Uniform::new_inclusive(0, GATE_NUM - 1));
             lpm_table.insert_ipv4(Ipv4Addr::new(a, b, c, d), 32, port);
         }
 
@@ -125,7 +125,7 @@ lazy_static! {
 
 lazy_static!{
     static ref COUNT_PORTS: Arc<RwLock<Vec<u32>>> = {
-        let count_ports = (0..PORT_NUM).map(|_| 0).collect();
+        let count_ports = (0..GATE_NUM).map(|_| 0).collect();
         Arc::new(RwLock::new(count_ports))
     };
 }

@@ -1,24 +1,33 @@
 [workspace]
 members = [
     "framework",
-    "examples/acl-fw",
     "examples/ttl-chain",
     "examples/collect-metrics",
     "examples/echo-reply",
     "examples/embedded-scheduler",
     "examples/embedded-scheduler-dependency",
     "examples/ipv4or6",
-    "examples/lpm",
+    "examples/mtu-too-big",
+    "examples/sctp",
+    # "examples/op-errors",
+    # "examples/signals",
+    # "examples/tcp-reconstruction",
+    # 
     "examples/macswap",
+    "examples/acl-fw",
+    "examples/lpm",
     "examples/maglev",
     "examples/dpi",
-    "examples/mtu-too-big",
     "examples/nat-tcp-v4",
-    "examples/sctp",
     "examples/monitoring",
-    #"examples/op-errors",
-    #"examples/signals",
-    #"examples/tcp-reconstruction"
+    # 
+    "examples/macswap-ipsec",
+    # "examples/acl-fw-ipsec",
+    # "examples/lpm-ipsec",
+    # "examples/maglev-ipsec",
+    "examples/dpi-ipsec",
+    # "examples/nat-tcp-v4-ipsec",
+    # "examples/monitoring-ipsec",
 ]
 
 [profile.release]

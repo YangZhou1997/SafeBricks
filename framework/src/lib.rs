@@ -45,6 +45,8 @@ extern crate twox_hash;
 #[macro_use]
 extern crate proptest;
 
+extern crate openssl;
+
 // need these first so other modules in netbricks can use the macros
 #[macro_use]
 pub mod common;
