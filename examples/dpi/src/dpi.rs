@@ -46,14 +46,17 @@ pub fn dpi(packet: RawPacket) -> Result<Tcp<Ipv4>> {
     let tcp = v4.parse::<Tcp<Ipv4>>()?;
     let payload: &[u8] = tcp.get_payload();
 
-    let payload_str = match str::from_utf8(&payload[..]) {
-        Ok(v) => v,
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
+    // println!("{}", payload.len());
+    // stdout().flush().unwrap();
+    
+    // let payload_str = match str::from_utf8(&payload[..]) {
+    //     Ok(v) => v,
+    //     Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    // };
     // from_utf8_unchecked
 
-    println!("{}", payload_str);
-    stdout().flush().unwrap();
+    // println!("{}", payload_str);
+    // stdout().flush().unwrap();
 
     let mut matches = vec![];
     let ac = AC.read().unwrap();

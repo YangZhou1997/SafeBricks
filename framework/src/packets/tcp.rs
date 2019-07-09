@@ -203,7 +203,7 @@ impl<E: IpPacket> Tcp<E> {
 
     #[inline]
     fn payload(&self) -> *mut u8 {
-        unsafe { (*self.mbuf).data_address(self.offset) }
+        unsafe { (*self.mbuf).data_address(self.offset + self.tcp_header_len()) }
     }
 
     #[inline]

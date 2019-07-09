@@ -5,8 +5,8 @@ use packets::ip::{IpAddrMismatchError, IpPacket, ProtocolNumber};
 use packets::{buffer, Ethernet, Fixed, Header, Packet};
 use std::fmt;
 use std::net::{IpAddr, Ipv4Addr};
-use std::io::stdout;
-use std::io::Write;
+// use std::io::stdout;
+// use std::io::Write;
 use std::slice;
 
 /*  From https://tools.ietf.org/html/rfc791#section-3.1
@@ -182,7 +182,7 @@ impl Ipv4 {
     // does not include the 4-byte FCS part. 
     #[inline]
     fn data_len(&self) -> usize {
-        unsafe { (*self.mbuf).data_len() }
+        unsafe { (*self.mbuf).pkt_len() }
     }
 
     // the length of the ipv4 header;
@@ -199,14 +199,14 @@ impl Ipv4 {
 
     #[inline]
     fn payload(&self) -> *mut u8 {
-        unsafe { (*self.mbuf).data_address(self.offset) }
+        unsafe { (*self.mbuf).data_address(self.offset + self.ipv4_header_len()) }
     }
 
     #[inline]
     pub fn get_payload(&self) -> &[u8] {
         unsafe {
-            println!("{} {} {}", self.data_len(), self.ipv4_header_len(), self.payload_len());
-            stdout().flush();
+            // println!("{} {} {}", self.data_len(), self.ipv4_header_len(), self.payload_len());
+            // stdout().flush();
             let len = self.payload_len();
             slice::from_raw_parts(self.payload(), len)
         }
