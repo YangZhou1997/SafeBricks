@@ -10,7 +10,7 @@ use netbricks::interface::*;
 use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::ip::Flow;
-use netbricks::packets::{Ethernet, Packet, Tcp};
+use netbricks::packets::{Ethernet, Packet, Tcp, RawPacket};
 use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
 use netbricks::utils::cidr::v4::Ipv4Cidr;
@@ -21,6 +21,7 @@ use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::sync::RwLock;
+use netbricks::utils::ipsec::*;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
@@ -133,14 +134,7 @@ fn install<S: Scheduler + Sized>(ports: Vec<CacheAligned<PortQueue>>, sched: &mu
         .iter()
         .map(|port| {
             ReceiveBatch::new(port.clone())
-                .map(|p| {
-                    let mut ethernet = p.parse::<Ethernet>()?;
-                    ethernet.swap_addresses();
-                    let v4 = ethernet.parse::<Ipv4>()?;
-                    let tcp = v4.parse::<Tcp<Ipv4>>()?;
-                    Ok(tcp)
-                })
-                .filter(|p| acl_match(p))
+                .filter_map(acl_match)
                 .sendall(port.clone())
         })
         .collect();
@@ -151,19 +145,36 @@ fn install<S: Scheduler + Sized>(ports: Vec<CacheAligned<PortQueue>>, sched: &mu
     }
 }
 
-fn acl_match(p: &Tcp<Ipv4>) -> bool {
-    let flow = p.flow();
+fn acl_match(packet: RawPacket) -> Result<Option<Ipv4>> {
+    let mut ethernet = packet.parse::<Ethernet>()?;
+    ethernet.swap_addresses();
+    let v4 = ethernet.parse::<Ipv4>()?;
+    let payload: &mut [u8] = v4.get_payload_mut(); // payload.len()
+
+    let esp_hdr: &mut [u8] = &mut [0u8; 8];
+    esp_hdr.copy_from_slice(&payload[0..ESP_HEADER_LENGTH]);
+
+    let decrypted_pkt: &mut [u8] = &mut [0u8; 2000];
+    let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
+
+    let flow = get_flow(decrypted_pkt);
+    
     let acls = ACLS.read().unwrap();
     let matches = acls.iter().find(|ref acl| acl.matches(&flow));
-
     if let Some(acl) = matches {
         if !acl.drop {
             FLOW_CACHE.write().unwrap().insert(flow);
         }
-        true
+        return Ok(Some(v4));
+        // true
     } else {
-        false
+        return Ok(None);
+        // false 
     }
+
+    let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+
+    Ok(Some(v4))
 }
 
 fn main() -> Result<()> {

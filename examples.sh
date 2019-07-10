@@ -24,10 +24,10 @@ export examples=(
         examples/dpi
         examples/monitoring
         examples/macswap-ipsec
-        # examples/acl-fw-ipsec
-        # examples/lpm-ipsec
-        # examples/nat-tcp-v4-ipsec
-        # examples/maglev-ipsec
+        examples/acl-fw-ipsec
+        examples/lpm-ipsec
+        examples/nat-tcp-v4-ipsec
+        examples/maglev-ipsec
         examples/dpi-ipsec
-        # examples/monitoring-ipsec
+        examples/monitoring-ipsec
 )

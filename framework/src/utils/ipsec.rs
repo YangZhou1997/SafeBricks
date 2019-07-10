@@ -8,6 +8,12 @@ use openssl::error::ErrorStack;
 use std::io::stdout;
 use std::io::Write;
 
+use packets::ip::Flow;
+use packets::buffer;
+use packets::TcpHeader;
+use packets::ip::ProtocolNumbers;
+use packets::ip::v4::Ipv4Header;
+use std::net::{IpAddr, Ipv4Addr};
 
 
 #[derive(Debug)]
@@ -236,4 +242,55 @@ pub fn aes_cbc_sha256_decrypt_opt(pktptr: &mut [u8], compdigest: bool) -> Result
     pktptr[..(cleartext_len)].copy_from_slice(&cleartext[..]);
 
     Ok(cleartext_len + ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)
+}
+
+
+pub fn get_flow(pkt: &[u8]) -> Flow{
+    unsafe {
+        let ip_hdr: *const Ipv4Header = (&pkt[0] as *const u8) as *const Ipv4Header;
+        let tcp_hdr: *const TcpHeader = (&pkt[0] as *const u8).offset(20) as *const TcpHeader;
+        Flow::new(
+            IpAddr::V4((*ip_hdr).src()),
+            IpAddr::V4((*ip_hdr).dst()),
+            (*tcp_hdr).src_port(),
+            (*tcp_hdr).dst_port(),
+            ProtocolNumbers::Tcp,
+        )
+    }
+}
+
+
+pub fn get_src_ip(pkt: &[u8]) -> Ipv4Addr{
+    unsafe {
+        let ip_hdr: *const Ipv4Header = (&pkt[0] as *const u8) as *const Ipv4Header;
+        (*ip_hdr).src()
+    }
+}
+
+
+// for 
+pub fn set_dst_ip(pkt: &mut [u8], dst_ip: u32){
+    unsafe {
+        let ip_hdr: *mut Ipv4Header = (&mut pkt[0] as *mut u8) as *mut Ipv4Header;
+        (*ip_hdr).set_dst(Ipv4Addr::new(((dst_ip >> 24) & 0xFF) as u8,
+             ((dst_ip >> 16) & 0xFF) as u8, ((dst_ip >> 8) & 0xFF) as u8, (dst_ip & 0xFF) as u8));
+    }
+}
+
+
+pub fn set_flow(pkt: &mut [u8], flow: Flow){
+    unsafe {
+        let ip_hdr: *mut Ipv4Header = (&mut pkt[0] as *mut u8) as *mut Ipv4Header;
+        let tcp_hdr: *mut TcpHeader = (&mut pkt[0] as *mut u8).offset(20) as *mut TcpHeader;
+        
+        if let IpAddr::V4(ipv4) = flow.src_ip() {
+            (*ip_hdr).set_src(ipv4);
+        }
+        if let IpAddr::V4(ipv4) = flow.dst_ip() {
+            (*ip_hdr).set_dst(ipv4);
+        }
+        (*tcp_hdr).set_src_port(flow.src_port());
+        (*tcp_hdr).set_dst_port(flow.dst_port());
+        (*ip_hdr).set_protocol(ProtocolNumbers::Tcp);
+    }
 }

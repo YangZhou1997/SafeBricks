@@ -130,6 +130,29 @@ pub struct TcpHeader {
     urgent_pointer: u16,
 }
 
+impl TcpHeader{
+    #[inline]
+    pub fn src_port(&self) -> u16 {
+        u16::from_be(self.src_port)
+    }
+
+    #[inline]
+    pub fn set_src_port(&mut self, src_port: u16) {
+        self.src_port = u16::to_be(src_port);
+    }
+
+    #[inline]
+    pub fn dst_port(&self) -> u16 {
+        u16::from_be(self.dst_port)
+    }
+
+    #[inline]
+    pub fn set_dst_port(&mut self, dst_port: u16) {
+        self.dst_port = u16::to_be(dst_port);
+    }
+}
+
+
 impl Default for TcpHeader {
     fn default() -> TcpHeader {
         TcpHeader {

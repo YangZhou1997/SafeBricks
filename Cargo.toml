@@ -22,12 +22,12 @@ members = [
     "examples/monitoring",
     # 
     "examples/macswap-ipsec",
-    # "examples/acl-fw-ipsec",
-    # "examples/lpm-ipsec",
-    # "examples/maglev-ipsec",
+    "examples/acl-fw-ipsec",
+    "examples/lpm-ipsec",
+    "examples/maglev-ipsec",
     "examples/dpi-ipsec",
-    # "examples/nat-tcp-v4-ipsec",
-    # "examples/monitoring-ipsec",
+    "examples/nat-tcp-v4-ipsec",
+    "examples/monitoring-ipsec",
 ]
 
 [profile.release]

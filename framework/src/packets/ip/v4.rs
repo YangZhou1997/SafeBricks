@@ -165,6 +165,38 @@ impl Default for Ipv4Header {
         }
     }
 }
+impl Ipv4Header{
+
+    #[inline]
+    pub fn protocol(&self) -> ProtocolNumber {
+        ProtocolNumber::new(self.protocol)
+    }
+
+    #[inline]
+    pub fn set_protocol(&mut self, protocol: ProtocolNumber) {
+        self.protocol = protocol.0;
+    }
+
+    #[inline]
+    pub fn src(&self) -> Ipv4Addr {
+        self.src
+    }
+
+    #[inline]
+    pub fn set_src(&mut self, src: Ipv4Addr) {
+        self.src = src;
+    }
+
+    #[inline]
+    pub fn dst(&self) -> Ipv4Addr {
+        self.dst
+    }
+
+    #[inline]
+    pub fn set_dst(&mut self, dst: Ipv4Addr) {
+        self.dst = dst;
+    }
+}
 
 impl Header for Ipv4Header {}
 
