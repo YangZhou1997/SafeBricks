@@ -16,3 +16,4 @@ else
     -p $PORT -c $CORE --pool-size=$POOL_SIZE
 fi
 
+unset RUST_BACKTRACE

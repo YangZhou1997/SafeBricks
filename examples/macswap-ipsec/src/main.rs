@@ -7,6 +7,9 @@ use netbricks::packets::{Ethernet, Packet, RawPacket};
 use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
 use std::fmt::Display;
+use netbricks::packets::ip::v4::Ipv4;
+use netbricks::utils::ipsec::*;
+
 
 fn install<T, S>(ports: Vec<T>, sched: &mut S)
 where
@@ -32,11 +35,33 @@ where
     }
 }
 
-fn macswap(packet: RawPacket) -> Result<Ethernet> {
-    assert!(packet.refcnt() == 1);
+fn macswap(packet: RawPacket) -> Result<Ipv4> {
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
-    Ok(ethernet)
+    let v4 = ethernet.parse::<Ipv4>()?;
+    let payload: &mut [u8] = v4.get_payload_mut(); // payload.len()
+
+    // let payload_str = match str::from_utf8(&payload[20..]) {
+    //     Ok(v) => v,
+    //     Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    // };
+    // println!("{}", payload_str);
+    // stdout().flush().unwrap();
+
+    let esp_hdr: &mut [u8] = &mut [0u8; 8];
+    esp_hdr.copy_from_slice(&payload[0..ESP_HEADER_LENGTH]);
+
+    let decrypted_pkt: &mut [u8] = &mut [0u8; 2000];
+    let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
+    // println!("decrypted_pkt_len: {}", decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH);
+    // stdout().flush().unwrap();
+
+
+    let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    // println!("encrypted_pkt_len: {}", encrypted_pkt_len);
+    // stdout().flush().unwrap();
+
+    Ok(v4)
 }
 
 fn main() -> Result<()> {
