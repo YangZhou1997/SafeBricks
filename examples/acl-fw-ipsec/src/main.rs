@@ -159,20 +159,26 @@ fn acl_match(packet: RawPacket) -> Result<Option<Ipv4>> {
 
     let flow = get_flow(decrypted_pkt);
     
+    let mut match_res: bool = false;
     let acls = ACLS.read().unwrap();
     let matches = acls.iter().find(|ref acl| acl.matches(&flow));
     if let Some(acl) = matches {
         if !acl.drop {
             FLOW_CACHE.write().unwrap().insert(flow);
         }
-        return Ok(Some(v4));
-        // true
+        match_res = true;
     } else {
-        return Ok(None);
-        // false 
+        match_res = false;
     }
 
     let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+
+    if match_res{   
+        return Ok(Some(v4));
+    }
+    else{
+        return Ok(None);
+    }
 
     Ok(Some(v4))
 }

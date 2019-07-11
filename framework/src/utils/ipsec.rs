@@ -123,6 +123,7 @@ pub fn aes_cbc_sha256_encrypt_opt(pktptr: &mut [u8], esphdr: &[u8]) -> Result<us
 }
 
 
+#[inline]
 fn my_cipher(
     t: Cipher,
     mode: Mode,
@@ -140,6 +141,7 @@ fn my_cipher(
 }
 
 
+#[inline]
 pub fn my_decrypt(
     t: Cipher,
     key: &[u8],
@@ -149,6 +151,7 @@ pub fn my_decrypt(
     my_cipher(t, Mode::Decrypt, key, iv, data)
 }
 
+#[inline]
 pub fn my_encrypt(
     t: Cipher,
     key: &[u8],
@@ -244,7 +247,7 @@ pub fn aes_cbc_sha256_decrypt_opt(pktptr: &mut [u8], compdigest: bool) -> Result
     Ok(cleartext_len + ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)
 }
 
-
+#[inline]
 pub fn get_flow(pkt: &[u8]) -> Flow{
     unsafe {
         let ip_hdr: *const Ipv4Header = (&pkt[0] as *const u8) as *const Ipv4Header;
@@ -260,6 +263,7 @@ pub fn get_flow(pkt: &[u8]) -> Flow{
 }
 
 
+#[inline]
 pub fn get_src_ip(pkt: &[u8]) -> Ipv4Addr{
     unsafe {
         let ip_hdr: *const Ipv4Header = (&pkt[0] as *const u8) as *const Ipv4Header;
@@ -268,7 +272,7 @@ pub fn get_src_ip(pkt: &[u8]) -> Ipv4Addr{
 }
 
 
-// for 
+#[inline]
 pub fn set_dst_ip(pkt: &mut [u8], dst_ip: u32){
     unsafe {
         let ip_hdr: *mut Ipv4Header = (&mut pkt[0] as *mut u8) as *mut Ipv4Header;
@@ -278,6 +282,7 @@ pub fn set_dst_ip(pkt: &mut [u8], dst_ip: u32){
 }
 
 
+#[inline]
 pub fn set_flow(pkt: &mut [u8], flow: Flow){
     unsafe {
         let ip_hdr: *mut Ipv4Header = (&mut pkt[0] as *mut u8) as *mut Ipv4Header;
