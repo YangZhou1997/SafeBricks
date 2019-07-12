@@ -95,6 +95,8 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     
     **Note**: when you switch between local deployment and container deployment, you need to ```sudo make clean``` to rebuild the dependencies in native/ (especially .make.dep).  
 
+    **Note**: if you find numerous error printed during `make build`, it is caused by the bindgen (generating rust binding for dpdk); you can solve it by deleting `~/tools/dpdk-stable-17.08.1` and run `./setupDpdk.sh`. The specific reason is that you might download my hacked version of dpdk, which will fail the bindgen binding. 
+
 ## Creating a Developer environment with `vagrant`
 
 1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
