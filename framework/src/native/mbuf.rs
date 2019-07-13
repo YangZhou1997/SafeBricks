@@ -1,32 +1,22 @@
-use super::super::native_include as ldpdk;
-pub type MBuf = ldpdk::rte_mbuf;
+
+pub const MAX_MBUF_SIZE: u32 = 2048;
+
+/* 
+In our simulated MBuf: 
+    pkt_len = data_len: is the length of the ethernet packet. 
+    buf_len = MAX_MBUF_SIZE;
+    data_off = 0: is the packet starting address in buf_addr
+    buf_addr array stores the ethernet packet data.
+*/
+pub struct MBuf{
+    data_off: u32,
+    buf_len: u32,
+    data_len: u32,
+    pkt_len: u32,
+    buf_addr: &[u8; MAX_MBUF_SIZE],
+}
 
 impl MBuf {
-    #[inline]
-    pub fn read_metadata_slot(mbuf: *mut MBuf, slot: usize) -> usize {
-        unsafe {
-            let ptr = (mbuf.offset(1) as *mut usize).add(slot);
-            *ptr
-        }
-    }
-
-    #[inline]
-    pub fn write_metadata_slot(mbuf: *mut MBuf, slot: usize, value: usize) {
-        unsafe {
-            let ptr = (mbuf.offset(1) as *mut usize).add(slot);
-            *ptr = value;
-        }
-    }
-
-    #[inline]
-    pub unsafe fn metadata_as<T: Sized>(mbuf: *const MBuf, slot: usize) -> *const T {
-        (mbuf.offset(1) as *const usize).add(slot) as *const T
-    }
-
-    #[inline]
-    pub unsafe fn mut_metadata_as<T: Sized>(mbuf: *mut MBuf, slot: usize) -> *mut T {
-        (mbuf.offset(1) as *mut usize).add(slot) as *mut T
-    }
 
     #[inline]
     pub fn data_address(&self, offset: usize) -> *mut u8 {
@@ -109,18 +99,6 @@ impl MBuf {
             self.data_len -= len as u16;
             self.pkt_len -= len as u32;
             len
-        }
-    }
-
-    #[inline]
-    pub fn refcnt(&self) -> u16 {
-        unsafe { self.__bindgen_anon_1.refcnt }
-    }
-
-    #[inline]
-    pub fn reference(&mut self) {
-        unsafe {
-            self.__bindgen_anon_1.refcnt += 1;
         }
     }
 }
