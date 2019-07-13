@@ -13,10 +13,18 @@ pub struct MBuf{
     buf_len: u32,
     data_len: u32,
     pkt_len: u32,
-    buf_addr: &[u8; MAX_MBUF_SIZE],
+    buf_addr: &[u8],
 }
 
+
 impl MBuf {
+
+    #[inline]
+    pub fn new(&self, pkt_len: u32) -> u32 {
+        assert!(pkt_len <= MAX_MBUF_SIZE);
+        self.buf_addr = [0u8; pkt_len];
+        pkt_len
+    }
 
     #[inline]
     pub fn data_address(&self, offset: usize) -> *mut u8 {
