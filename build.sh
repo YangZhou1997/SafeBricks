@@ -18,6 +18,7 @@ echo "Current Rust Backtrace Setting: ${RUST_BACKTRACE}"
 
 CARGO_LOC=`which cargo || true`
 export CARGO=${CARGO_PATH-"${CARGO_LOC}"}
+CARGO_FLAGS="--target x86_64-fortanix-unknown-sgx"
 CLIPPY_ARGS="--all-targets --all-features -- -D clippy::wildcard_dependencies -D clippy::cargo_common_metadata -D warnings"
 
 DPDK_VER=17.08
@@ -92,7 +93,7 @@ build_fmwk () {
     native
 
     pushd $BASE_DIR/framework
-    ${CARGO} build
+    ${CARGO} build $CARGO_FLAGS
     popd
 }
 
@@ -112,7 +113,7 @@ case $TASK in
         for example in ${examples[@]}; do
             if [ -f $BASE_DIR/$example/check.sh ]; then
                 pushd ${BASE_DIR}/${example}
-                ${CARGO} build
+                ${CARGO} build $CARGO_FLAGS
                 popd
             fi
         done
@@ -122,7 +123,7 @@ case $TASK in
 
         for example in ${examples[@]}; do
             pushd ${BASE_DIR}/${example}
-            ${CARGO} build
+            ${CARGO} build $CARGO_FLAGS
             popd
         done
         ;;
@@ -144,7 +145,7 @@ case $TASK in
             echo "No Cargo.toml, not valid"
         fi
         pushd ${BASE_DIR}/examples/${build_dir}
-        ${CARGO} build
+        ${CARGO} build $CARGO_FLAGS
         popd
         ;;
     build_example_rel)
@@ -162,7 +163,7 @@ case $TASK in
             echo "No Cargo.toml, not valid"
         fi
         pushd ${BASE_DIR}/examples/${build_dir}
-        ${CARGO} build --release
+        ${CARGO} build --release $CARGO_FLAGS
         popd
         ;;
     build_rel)
@@ -170,12 +171,12 @@ case $TASK in
         native
 
         pushd $BASE_DIR/framework
-        ${CARGO} build --release
+        ${CARGO} build --release $CARGO_FLAGS
         popd
 
         for example in ${examples[@]}; do
             pushd ${BASE_DIR}/${example}
-            ${CARGO} build --release
+            ${CARGO} build --release $CARGO_FLAGS
             popd
         done
         ;;
@@ -293,7 +294,7 @@ case $TASK in
 
             pushd $BASE_DIR/framework
             export LD_LIBRARY_PATH="${NATIVE_LIB_PATH}:${DPDK_LD_PATH}:${LD_LIBRARY_PATH}"
-            ${CARGO} test
+            ${CARGO} test $CARGO_FLAGS
             popd
 
             for testname in ${examples[@]}; do
