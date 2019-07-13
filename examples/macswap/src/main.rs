@@ -32,13 +32,13 @@ where
             })
             .collect();
         let (rx, tx) = main_port.stats();
-        // println!("{} vs. {}", rx, tx);
+        println!("{} vs. {}", rx, tx);
     }
 }
 
 fn macswap(packet: RawPacket) -> Result<Ethernet> {
     // assert!(packet.refcnt() == 1);
-    println!("macswap"); stdout().flush().unwrap();
+    // println!("macswap"); stdout().flush().unwrap();
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
     Ok(ethernet)

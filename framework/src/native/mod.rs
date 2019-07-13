@@ -8,7 +8,7 @@ pub fn mbuf_alloc_bulk(array: *mut *mut MBuf, len: u16, cnt: i32) -> i32
             *(array.offset(i as isize)) = &mut MBuf::new(len as u32);
         }
     }
-    cnt
+    0
 }
 pub fn mbuf_free_bulk(array: *mut *mut MBuf, cnt: i32) -> i32
 {
@@ -17,5 +17,5 @@ pub fn mbuf_free_bulk(array: *mut *mut MBuf, cnt: i32) -> i32
             drop(*(array.offset(i as isize)));
         }
     }
-    cnt
+    0
 }

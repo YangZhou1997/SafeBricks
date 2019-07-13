@@ -3,6 +3,9 @@ use native::mbuf::MBuf;
 use packets::RawPacket;
 use interface::PacketRx;
 
+use std::io::stdout;
+use std::io::Write;
+
 pub const BATCH_SIZE: usize = 32;
 
 /// Receive operator
@@ -48,7 +51,10 @@ impl<Rx: PacketRx> Batch for ReceiveBatch<Rx> {
             let capacity = self.buffers.capacity();
             self.buffers.set_len(capacity);
             match self.port.recv(self.buffers.as_mut_slice()) {
-                Ok(received) => self.buffers.set_len(received as usize),
+                Ok(received) => {
+                    // println!("receive0 {}", received); stdout().flush().unwrap();
+                    self.buffers.set_len(received as usize);
+                },
                 // the underlying DPDK method `rte_eth_rx_burst` will
                 // never return an error. The error arm is unreachable
                 _ => unreachable!(),

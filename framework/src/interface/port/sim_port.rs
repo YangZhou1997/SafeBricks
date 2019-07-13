@@ -51,12 +51,9 @@ impl PacketRx for SimulateQueue {
     #[inline]
     fn recv(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
         let len = pkts.len() as i32;
-        println!("recv0"); stdout().flush().unwrap();
-
+        // println!("recv0"); stdout().flush().unwrap();
         let status = mbuf_alloc_bulk(pkts.as_mut_ptr(), MAX_MBUF_SIZE, len);
-        
-        println!("recv1 {}", status); stdout().flush().unwrap();
-
+        // println!("recv1 {}", status); stdout().flush().unwrap();
         let alloced = if status == 0 { len } else { 0 };
         let update = self.stats_rx.stats.load(Ordering::Relaxed) + alloced as usize;
         self.stats_rx.stats.store(update, Ordering::Relaxed);
