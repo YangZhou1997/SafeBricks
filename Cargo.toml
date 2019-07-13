@@ -16,7 +16,7 @@ members = [
     # "examples/tcp-reconstruction",
     # 
     # for our experiments
-    # "examples/macswap",
+    "examples/macswap",
     # "examples/acl-fw",
     # "examples/lpm",
     # "examples/maglev",

@@ -8,9 +8,18 @@ use std::fmt;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
+use std::io::stdout;
+use std::io::Write;
+
 pub struct SimulatePort {
     stats_rx: Arc<CacheAligned<PortStats>>,
     stats_tx: Arc<CacheAligned<PortStats>>,
+}
+
+impl fmt::Debug for SimulatePort {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Simulate port")
+    }
 }
 
 #[derive(Clone)]
@@ -42,7 +51,12 @@ impl PacketRx for SimulateQueue {
     #[inline]
     fn recv(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
         let len = pkts.len() as i32;
+        println!("recv0"); stdout().flush().unwrap();
+
         let status = mbuf_alloc_bulk(pkts.as_mut_ptr(), MAX_MBUF_SIZE, len);
+        
+        println!("recv1 {}", status); stdout().flush().unwrap();
+
         let alloced = if status == 0 { len } else { 0 };
         let update = self.stats_rx.stats.load(Ordering::Relaxed) + alloced as usize;
         self.stats_rx.stats.store(update, Ordering::Relaxed);

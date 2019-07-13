@@ -10,9 +10,9 @@ fi
 echo $TASK
 
 if [ $# == 2 ]; then
-    $HOME/NetBricks/target/$MODE/$TASK --secondary
+    $HOME/SafeBricks/target/$MODE/$TASK --secondary
 else
-    $HOME/NetBricks/target/$MODE/$TASK\
+    $HOME/SafeBricks/target/$MODE/$TASK\
     -p $PORT -c $CORE --pool-size=$POOL_SIZE
 fi
 

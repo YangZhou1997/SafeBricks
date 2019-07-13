@@ -18,7 +18,7 @@ export examples=(
         # 
         # examples/tcp-reconstruction
         ### NFs for experiments
-        # examples/macswap
+        examples/macswap
         # examples/acl-fw
         # examples/lpm
         # examples/nat-tcp-v4
