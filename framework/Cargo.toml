@@ -3,7 +3,6 @@ name = "netbricks"
 version = "0.3.0"
 authors = ["William of Ockham <Occam_Engineering@comcast.com>", "Aurojit Panda <apanda@cs.berkeley.edu>"]
 description = "A network function framework written in Rust and using DPDK"
-build = "build.rs"
 license = "ISC"
 repository = "https://github.com/williamofockham/NetBricks"
 readme = "README.md"

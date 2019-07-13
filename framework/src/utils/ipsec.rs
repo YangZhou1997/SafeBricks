@@ -9,7 +9,6 @@ use std::io::stdout;
 use std::io::Write;
 
 use packets::ip::Flow;
-use packets::buffer;
 use packets::TcpHeader;
 use packets::ip::ProtocolNumbers;
 use packets::ip::v4::Ipv4Header;

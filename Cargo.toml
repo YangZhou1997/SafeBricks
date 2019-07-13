@@ -1,33 +1,36 @@
 [workspace]
 members = [
     "framework",
-    "examples/ttl-chain",
-    "examples/collect-metrics",
-    "examples/echo-reply",
-    "examples/embedded-scheduler",
-    "examples/embedded-scheduler-dependency",
-    "examples/ipv4or6",
-    "examples/mtu-too-big",
-    "examples/sctp",
+    # "examples/ttl-chain",
+    # "examples/collect-metrics",
+    # "examples/echo-reply",
+    # "examples/embedded-scheduler",
+    # "examples/embedded-scheduler-dependency",
+    # "examples/ipv4or6",
+    # "examples/mtu-too-big",
+    # "examples/sctp",
+    # 
+    # does not work now
     # "examples/op-errors",
     # "examples/signals",
     # "examples/tcp-reconstruction",
     # 
-    "examples/macswap",
-    "examples/acl-fw",
-    "examples/lpm",
-    "examples/maglev",
-    "examples/dpi",
-    "examples/nat-tcp-v4",
-    "examples/monitoring",
+    # for our experiments
+    # "examples/macswap",
+    # "examples/acl-fw",
+    # "examples/lpm",
+    # "examples/maglev",
+    # "examples/dpi",
+    # "examples/nat-tcp-v4",
+    # "examples/monitoring",
     # 
-    "examples/macswap-ipsec",
-    "examples/acl-fw-ipsec",
-    "examples/lpm-ipsec",
-    "examples/maglev-ipsec",
-    "examples/dpi-ipsec",
-    "examples/nat-tcp-v4-ipsec",
-    "examples/monitoring-ipsec",
+    # "examples/macswap-ipsec",
+    # "examples/acl-fw-ipsec",
+    # "examples/lpm-ipsec",
+    # "examples/maglev-ipsec",
+    # "examples/dpi-ipsec",
+    # "examples/nat-tcp-v4-ipsec",
+    # "examples/monitoring-ipsec",
 ]
 
 [profile.release]

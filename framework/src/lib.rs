@@ -52,16 +52,12 @@ extern crate openssl;
 pub mod common;
 pub mod allocators;
 pub mod config;
-pub mod control;
 pub mod interface;
+pub mod scheduler;
 #[allow(dead_code)]
 mod native;
-mod native_include;
 pub mod operators;
 pub mod packets;
-pub mod runtime;
-pub mod scheduler;
 pub mod shared_state;
 pub mod state;
-pub mod tests;
 pub mod utils;

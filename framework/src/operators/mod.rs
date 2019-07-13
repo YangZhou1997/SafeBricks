@@ -2,7 +2,7 @@ use failure::Error;
 use native::mbuf::MBuf;
 use packets::Packet;
 use std::collections::HashMap;
-
+use interface::PacketTx;
 pub use self::emit_batch::*;
 pub use self::filter_batch::*;
 pub use self::filtermap_batch::*;
@@ -144,10 +144,8 @@ pub trait Batch {
     ///
     /// Send marks the end of the pipeline. No more operators can be
     /// appended after send.
-    /// 
-    /// Here, in our simulated safebricks, we use u32 to represent a port number. 
     #[inline]
-    fn send<Tx: u32>(self, port: Tx) -> SendBatch<Self, Tx>
+    fn send<Tx: PacketTx>(self, port: Tx) -> SendBatch<Self, Tx>
     where
         Self: Sized,
     {
@@ -160,7 +158,7 @@ pub trait Batch {
     /// Sendall marks the end of the pipeline. No more operators can be
     /// appended after send.
     #[inline]
-    fn sendall<Tx: u32>(self, port: Tx) -> SendAllBatch<Self, Tx>
+    fn sendall<Tx: PacketTx>(self, port: Tx) -> SendAllBatch<Self, Tx>
     where
         Self: Sized,
     {

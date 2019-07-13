@@ -1,5 +1,5 @@
 
-pub const MAX_MBUF_SIZE: u32 = 2048;
+pub const MAX_MBUF_SIZE: u16 = 2048;
 
 /* 
 In our simulated MBuf: 
@@ -9,26 +9,31 @@ In our simulated MBuf:
     buf_addr array stores the ethernet packet data.
 */
 pub struct MBuf{
-    data_off: u32,
-    buf_len: u32,
-    data_len: u32,
+    data_off: u16,
+    buf_len: u16,
+    data_len: u16,
     pkt_len: u32,
-    buf_addr: &[u8],
+    buf_addr: [u8; MAX_MBUF_SIZE as usize],
 }
 
 
 impl MBuf {
 
     #[inline]
-    pub fn new(&self, pkt_len: u32) -> u32 {
-        assert!(pkt_len <= MAX_MBUF_SIZE);
-        self.buf_addr = [0u8; pkt_len];
-        pkt_len
+    pub fn new(pkt_len: u32) -> MBuf {
+        assert!(pkt_len <= (MAX_MBUF_SIZE as u32));
+        MBuf{
+            data_off: 0, 
+            buf_len: MAX_MBUF_SIZE,
+            data_len: pkt_len as u16, 
+            pkt_len, 
+            buf_addr: [0; MAX_MBUF_SIZE as usize],
+        }
     }
 
     #[inline]
-    pub fn data_address(&self, offset: usize) -> *mut u8 {
-        unsafe { (self.buf_addr as *mut u8).offset(self.data_off as isize + offset as isize) }
+    pub fn data_address(&mut self, offset: usize) -> *mut u8 {
+        unsafe { (&mut (self.buf_addr[0]) as *mut u8).offset(self.data_off as isize + offset as isize) }
     }
 
     /// Returns the total allocated size of this mbuf segment.

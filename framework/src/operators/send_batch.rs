@@ -1,7 +1,8 @@
 use super::{Batch, PacketError, BATCH_SIZE};
+use native::mbuf_free_bulk;
 use native::mbuf::MBuf;
 use packets::Packet;
-use scheduler::{Executable, dependencies};
+use scheduler::Executable;
 use interface::PacketTx;
 
 /// Send operator

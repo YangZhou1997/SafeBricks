@@ -2,9 +2,8 @@ use super::super::{PacketRx, PacketTx};
 use super::PortStats;
 use allocators::*;
 use common::*;
-use native::mbuf::MBuf;
-use native::mbuf_alloc_bulk;
-use native::mbuf_free_bulk;
+use native::mbuf::{MBuf, MAX_MBUF_SIZE};
+use native::{mbuf_alloc_bulk, mbuf_free_bulk};
 use std::fmt;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
@@ -32,9 +31,7 @@ impl PacketTx for SimulateQueue {
         let len = pkts.len() as i32;
         let update = self.stats_tx.stats.load(Ordering::Relaxed) + len as usize;
         self.stats_tx.stats.store(update, Ordering::Relaxed);
-        unsafe {
-            mbuf_free_bulk(pkts.as_mut_ptr(), len);
-        }
+        mbuf_free_bulk(pkts.as_mut_ptr(), len);
         Ok(len as u32)
     }
 }
@@ -45,9 +42,7 @@ impl PacketRx for SimulateQueue {
     #[inline]
     fn recv(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
         let len = pkts.len() as i32;
-        // let status = unsafe { mbuf_alloc_bulk(pkts.as_mut_ptr(), 60, len) };
-        let status = unsafe { mbuf_alloc_bulk(pkts.as_mut_ptr(), 60, len) };
-
+        let status = mbuf_alloc_bulk(pkts.as_mut_ptr(), MAX_MBUF_SIZE, len);
         let alloced = if status == 0 { len } else { 0 };
         let update = self.stats_rx.stats.load(Ordering::Relaxed) + alloced as usize;
         self.stats_rx.stats.store(update, Ordering::Relaxed);

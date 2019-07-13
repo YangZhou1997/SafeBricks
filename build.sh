@@ -18,7 +18,7 @@ echo "Current Rust Backtrace Setting: ${RUST_BACKTRACE}"
 
 CARGO_LOC=`which cargo || true`
 export CARGO=${CARGO_PATH-"${CARGO_LOC}"}
-CARGO_FLAGS=""
+# CARGO_FLAGS="--target x86_64-fortanix-unknown-sgx"
 CLIPPY_ARGS="--all-targets --all-features -- -D clippy::wildcard_dependencies -D clippy::cargo_common_metadata -D warnings"
 
 DPDK_VER=17.08
