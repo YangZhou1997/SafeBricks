@@ -1,22 +1,19 @@
 use super::{Batch, PacketError, BATCH_SIZE};
-use interface::PacketTx;
 use native::mbuf::MBuf;
-use native::zcsi::mbuf_free_bulk;
 use packets::Packet;
-use scheduler::Executable;
 
 /// SendAll operator
 /// Send all packets not matter whether it has been set to drop in the previous Filter operators. 
 ///
 /// Marks the end of a pipeline.
-pub struct SendAllBatch<B: Batch, Tx: PacketTx> {
+pub struct SendAllBatch<B: Batch, Tx: u32> {
     source: B,
     port: Tx,
     transmit_q: Vec<*mut MBuf>,
     drop_q: Vec<*mut MBuf>,
 }
 
-impl<B: Batch, Tx: PacketTx> SendAllBatch<B, Tx> {
+impl<B: Batch, Tx: u32> SendAllBatch<B, Tx> {
     #[inline]
     pub fn new(source: B, port: Tx) -> Self {
         SendAllBatch {
@@ -28,7 +25,7 @@ impl<B: Batch, Tx: PacketTx> SendAllBatch<B, Tx> {
     }
 }
 
-impl<B: Batch, Tx: PacketTx> Executable for SendAllBatch<B, Tx> {
+impl<B: Batch, Tx: u32> Executable for SendAllBatch<B, Tx> {
     fn execute(&mut self) {
         self.source.receive();
 
