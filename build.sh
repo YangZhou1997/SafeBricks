@@ -16,17 +16,14 @@ fi
 echo "Current Cargo Incremental Setting: ${CARGO_INCREMENTAL}"
 echo "Current Rust Backtrace Setting: ${RUST_BACKTRACE}"
 
+# CARGO_FLAGS="--target x86_64-fortanix-unknown-sgx"
+# MODE="x86_64-fortanix-unknown-sgx/"
+
 CARGO_LOC=`which cargo || true`
 export CARGO=${CARGO_PATH-"${CARGO_LOC}"}
-# CARGO_FLAGS="--target x86_64-fortanix-unknown-sgx"
 CLIPPY_ARGS="--all-targets --all-features -- -D clippy::wildcard_dependencies -D clippy::cargo_common_metadata -D warnings"
 
-DPDK_VER=17.08
-DPDK_HOME="/opt/dpdk/dpdk-stable-${DPDK_VER}"
-DPDK_LD_PATH="${DPDK_HOME}/build/lib"
-DPDK_CONFIG_FILE=${DPDK_CONFIG_FILE-"${DPDK_HOME}/config/common_linuxapp"}
 
-NATIVE_LIB_PATH="${BASE_DIR}/native"
 export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 source ${BASE_DIR}/examples.sh
@@ -46,22 +43,7 @@ popd () {
 }
 
 
-find_sctp () {
-    set +o errexit
-    gcc -lsctp 2>&1 | grep "cannot find" >/dev/null
-    export SCTP_PRESENT=$?
-    set -o errexit
-    if [ ${SCTP_PRESENT} -eq 1 ]; then
-        echo "SCTP library found"
-    else
-        echo "No SCTP library found, install libsctp ('sudo apt-get install libsctp-dev' on debian)"
-    fi
-}
 
-native () {
-    make -j $proc -C $BASE_DIR/native
-    make -C $BASE_DIR/native install
-}
 
 print_examples () {
     echo "The following examples are available:"
@@ -84,13 +66,10 @@ clean () {
         ${CARGO} clean || true
         popd
     done
-    make clean -C ${BASE_DIR}/native
     rm -rf ${BASE_DIR}/target
 }
 
 build_fmwk () {
-    find_sctp
-    native
 
     pushd $BASE_DIR/framework
     ${CARGO} build $CARGO_FLAGS
@@ -104,9 +83,6 @@ else
 fi
 
 case $TASK in
-    build_native)
-        native
-        ;;
     build)
         build_fmwk
 
@@ -167,9 +143,6 @@ case $TASK in
         popd
         ;;
     build_rel)
-        find_sctp
-        native
-
         pushd $BASE_DIR/framework
         ${CARGO} build --release $CARGO_FLAGS
         popd
@@ -208,14 +181,13 @@ case $TASK in
         fi
         cmd=$1
         shift
-        executable=${BASE_DIR}/target/debug/$cmd
+        executable=${BASE_DIR}/target/${MODE}debug/$cmd
         if [ ! -e ${executable} ]; then
             echo "${executable} not found, building"
             ${BASE_DIR}/${BUILD_SCRIPT} build
         fi
         export PATH="${BIN_DIR}:${PATH}"
-        export LD_LIBRARY_PATH="${NATIVE_LIB_PATH}:${DPDK_LD_PATH}:${LD_LIBRARY_PATH}"
-        sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" LD_PRELOAD="$LD_PRELOAD" \
+        sudo env PATH="$PATH" LD_PRELOAD="$LD_PRELOAD" \
              rust-gdb --args $executable "$@"
         ;;
     doc)
@@ -227,7 +199,6 @@ case $TASK in
         ;;
     env)
         echo "export PATH=\"${BIN_DIR}:${PATH}\""
-        echo "export LD_LIBRARY_PATH=\"${NATIVE_LIB_PATH}:${TOOLS_BASE}:${LD_LIBRARY_PATH}\""
         ;;
     fmt)
         pushd $BASE_DIR/framework
@@ -251,15 +222,14 @@ case $TASK in
         fi
         cmd=$1
         shift
-        executable=${BASE_DIR}/target/debug/$cmd
+        executable=${BASE_DIR}/target/${MODE}debug/$cmd
         if [ ! -e ${executable} ]; then
             echo "${executable} not found, building"
             ${BASE_DIR}/${BUILD_SCRIPT} build
         fi
         export PATH="${BIN_DIR}:${PATH}"
-        export LD_LIBRARY_PATH="${NATIVE_LIB_PATH}:${DPDK_LD_PATH}:${LD_LIBRARY_PATH}"
-        # echo "sudo env PATH=\"$PATH\" LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\" LD_PRELOAD=\"$LD_PRELOAD\" $executable \"$@\""
-        sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" LD_PRELOAD="$LD_PRELOAD" \
+        # echo "sudo env PATH=\"$PATH\" LD_PRELOAD=\"$LD_PRELOAD\" $executable \"$@\""
+        sudo env PATH="$PATH" LD_PRELOAD="$LD_PRELOAD" \
             $executable "$@"
         ;;
     run_rel)
@@ -269,18 +239,14 @@ case $TASK in
         fi
         cmd=$1
         shift
-        executable=${BASE_DIR}/target/release/$cmd
+        executable=${BASE_DIR}/target/${MODE}release/$cmd
         if [ ! -e ${executable} ]; then
             echo "${executable} not found, building"
             ${BASE_DIR}/${BUILD_SCRIPT} build_rel
         fi
         export PATH="${BIN_DIR}:${PATH}"
-        export LD_LIBRARY_PATH="${NATIVE_LIB_PATH}:${DPDK_LD_PATH}:${LD_LIBRARY_PATH}"
-        sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" LD_PRELOAD="$LD_PRELOAD" \
+        sudo env PATH="$PATH" LD_PRELOAD="$LD_PRELOAD" \
              $executable "$@"
-        ;;
-    sctp)
-        find_sctp
         ;;
     test)
         if [ $# -lt 2 ]; then
@@ -293,7 +259,6 @@ case $TASK in
             echo "...and all unit and property-based tests"
 
             pushd $BASE_DIR/framework
-            export LD_LIBRARY_PATH="${NATIVE_LIB_PATH}:${DPDK_LD_PATH}:${LD_LIBRARY_PATH}"
             ${CARGO} test $CARGO_FLAGS
             popd
 
