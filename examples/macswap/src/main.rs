@@ -32,7 +32,7 @@ where
             })
             .collect();
         let (rx, tx) = main_port.stats();
-        println!("{} vs. {}", rx, tx);
+        // println!("{} vs. {}", rx, tx);
     }
 }
 
@@ -48,6 +48,7 @@ fn main() -> Result<()> {
     // let configuration = load_config()?;
     // println!("{}", configuration);
     // let mut runtime = Runtime::init(&configuration)?;
+    println!("hello world"); stdout().flush().unwrap();
     let sim_port = Arc::try_unwrap((SimulatePort::new(1)).unwrap()).unwrap(); // somehow get a vector of ports
     let sim_queue = sim_port.new_simulate_queue(1).unwrap();
     let ports = vec![sim_queue];

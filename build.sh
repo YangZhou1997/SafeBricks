@@ -16,8 +16,8 @@ fi
 echo "Current Cargo Incremental Setting: ${CARGO_INCREMENTAL}"
 echo "Current Rust Backtrace Setting: ${RUST_BACKTRACE}"
 
-# CARGO_FLAGS="--target x86_64-fortanix-unknown-sgx"
-# MODE="x86_64-fortanix-unknown-sgx/"
+CARGO_FLAGS="--target x86_64-fortanix-unknown-sgx"
+MODE="x86_64-fortanix-unknown-sgx/"
 
 CARGO_LOC=`which cargo || true`
 export CARGO=${CARGO_PATH-"${CARGO_LOC}"}
