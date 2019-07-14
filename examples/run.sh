@@ -12,5 +12,3 @@ echo $TASK
 pushd $TASK
 env RUST_BACKTRACE=1 cargo run --target x86_64-fortanix-unknown-sgx
 popd
-
-unset RUST_BACKTRACE
