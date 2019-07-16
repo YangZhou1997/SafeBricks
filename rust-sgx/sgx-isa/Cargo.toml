@@ -1,0 +1,24 @@
+[package]
+name = "sgx-isa"
+version = "0.3.0"
+authors = ["Fortanix, Inc."]
+license = "MPL-2.0"
+description = """
+Constants and structures related to the Intel SGX ISA extension.
+
+These definitions correspond to those found in the Intel Software Developers
+Manual (SDM), volume 3.
+"""
+repository = "https://github.com/fortanix/rust-sgx"
+documentation = "https://edp.fortanix.com/docs/api/sgx_isa/"
+homepage = "https://edp.fortanix.com/"
+keywords = ["sgx", "enclave"]
+categories = ["hardware-support"]
+
+[dependencies]
+# External dependencies
+bitflags = "1" # MIT/Apache-2.0
+
+[features]
+large_array_derive = []
+sgxstd = []

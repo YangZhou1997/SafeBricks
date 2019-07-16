@@ -1,0 +1,29 @@
+branches:
+  only:
+    # This is where pull requests from "bors r+" are built.
+    - staging
+    # This is where pull requests from "bors try" are built.
+    - trying
+    # Not really necessary, just to get a green badge on “master”
+    - master
+language: rust
+dist: xenial
+addons:
+  apt:
+    sources:
+    - sourceline: 'deb https://download.01.org/intel-sgx/sgx_repo/ubuntu xenial main'
+      key_url: 'https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key'
+    packages:
+    - protobuf-compiler
+    - libsgx-dcap-ql-dev
+rust:
+  - nightly
+env:
+  - RUST_BACKTRACE=1
+before_script:
+  - rustup target add x86_64-fortanix-unknown-sgx
+script:
+  - cargo test --verbose --all
+  - cargo test --verbose -p sgx-isa --features sgxstd -Z package-features --target x86_64-fortanix-unknown-sgx --no-run
+  - cargo test --verbose -p sgxs-tools --features pe2sgxs --bin isgx-pe2sgx -Z package-features
+  - cargo test --verbose -p dcap-ql --features link -Z package-features

@@ -1,0 +1,10 @@
+[package]
+name = "runner"
+version = "0.1.0"
+authors = ["Fortanix, Inc."]
+license = "MPL-2.0"
+
+[dependencies]
+aesm-client = { version = "0.1.0", path = "../../../aesm-client", features = ["sgxs"]}
+enclave-runner = { version = "0.1.1", path = "../../../enclave-runner"}
+sgxs-loaders = { version = "0.1.0", path="../../../sgxs-loaders"}

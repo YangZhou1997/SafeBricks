@@ -31,7 +31,10 @@ members = [
     # "examples/dpi-ipsec",
     # "examples/nat-tcp-v4-ipsec",
     # "examples/monitoring-ipsec",
+    # for sgx 
+    "runner",
 ]
+exclude = ["rust-sgx"]
 
 [profile.release]
 opt-level = 3
