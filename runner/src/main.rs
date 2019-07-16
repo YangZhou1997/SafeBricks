@@ -9,6 +9,7 @@ extern crate byteorder;
 extern crate enclave_runner;
 extern crate libc;
 extern crate sgxs_loaders;
+extern crate core_affinity;
 
 use aesm_client::AesmClient;
 use enclave_runner::usercalls::{SyncListener, SyncStream, UsercallExtension};
@@ -367,10 +368,24 @@ fn run_client() -> Result<(), Error> {
 }
 
 fn main() {
+    let core_ids = core_affinity::get_core_ids().unwrap();
+    println!("# cores: {}", core_ids.len());
+    assert!(core_ids.len() >= 2, "# available cores is not enough");
+
+    let server_core = core_ids[0];
+    let client_core = core_ids[1];
+
     let file = parse_args().unwrap();
-    let server = thread::spawn(move || run_server(file));
-    let client = thread::spawn(move || run_client());
+    let server = thread::spawn(move || {
+        core_affinity::set_for_current(server_core);
+        run_server(file);
+    });
+    let client = thread::spawn(move || {
+        core_affinity::set_for_current(client_core);
+        run_client();
+    });
 
     let _ = client.join().unwrap();
     let _ = server.join().unwrap();
+
 }

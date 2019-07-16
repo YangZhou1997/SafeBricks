@@ -10,3 +10,4 @@ enclave-runner = { version = "0.1.1", path = "../rust-sgx/enclave-runner"}
 sgxs-loaders = { version = "0.1.0", path = "../rust-sgx/sgxs-loaders"}
 byteorder = "1.0"
 libc = "0.2"
+core_affinity = "0.5.9"
