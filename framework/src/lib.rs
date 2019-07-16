@@ -13,8 +13,6 @@
 
 // For cache aware allocation
 extern crate alloc;
-#[macro_use]
-extern crate clap;
 extern crate config as config_rs;
 extern crate crossbeam;
 #[cfg_attr(test, macro_use)]

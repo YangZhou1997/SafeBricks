@@ -1,6 +1,6 @@
 use allocators::CacheAligned;
 use common::Result;
-use config::{NetBricksConfiguration, CLI_ARGS};
+use config::{NetBricksConfiguration};
 use interface::SimulateQueue;
 use scheduler::{initialize_system, NetBricksContext, StandaloneScheduler};
 use std::io::{Error, ErrorKind};

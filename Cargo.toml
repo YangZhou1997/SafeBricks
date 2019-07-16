@@ -33,6 +33,7 @@ members = [
     # "examples/monitoring-ipsec",
     # for sgx 
     "runner",
+    "pktpuller"
 ]
 exclude = ["rust-sgx"]
 

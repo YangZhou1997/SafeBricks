@@ -275,7 +275,7 @@ fn usage(name: String) {
 fn parse_args() -> Result<String, ()> {
     let args: Vec<String> = std::env::args().collect();
     match args.len() {
-        2 => Ok(args[1].to_owned()),
+        3 => Ok(args[2].to_owned()),
         _ => {
             usage(args[0].to_owned());
             Err(())
@@ -404,8 +404,6 @@ fn run_client() -> Result<(), Error> {
 fn main() -> PktResult<()> {
     let configuration = load_config()?;
     println!("{}", configuration);
-    
-
 
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("# cores: {}", core_ids.len());

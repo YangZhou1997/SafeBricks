@@ -121,6 +121,7 @@ lazy_static! {
         (@arg cache_size: --("cache-size") +takes_value "per core cache size")
         (@arg dpdk_args: --("dpdk-args") ... +takes_value "custom DPDK arguments")
         (@arg duration: -d --duration +takes_value "test duration")
+        (@arg sgxapp: -s --sgxapp +takes_value "sgx app binary")
     )
     .get_matches();
 }
@@ -234,6 +235,6 @@ pub fn load_config() -> Result<NetBricksConfiguration, ConfigError> {
         config.merge(File::with_name(filename))?;
     }
 
-    config.merge(CommandLine())?;
+    config.merge(CommandLine())?; 
     config.try_into()
 }

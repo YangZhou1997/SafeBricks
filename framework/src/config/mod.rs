@@ -1,4 +1,3 @@
-use clap::ArgMatches;
 use config_rs::{Config, ConfigError, File, FileFormat, Source, Value};
 use std::collections::HashMap;
 use std::fmt;
@@ -105,109 +104,7 @@ impl fmt::Display for PortConfiguration {
     }
 }
 
-lazy_static! {
-    pub(crate) static ref CLI_ARGS: ArgMatches<'static> = clap_app!(app =>
-        (version: "0.3.0")
-        (@arg file: -f --file +takes_value "custom configuration file")
-        (@arg name: -n --name +takes_value "DPDK process name")
-        (@group process_mode =>
-            (@arg primary: --primary conflicts_with[secondary] "run as a primary process")
-            (@arg secondary: --secondary conflicts_with[primary] "run as a secondary process")
-        )
-        (@arg primary_core: --("primary-core") +takes_value "the core to run the main thread on")
-        (@arg cores: -c --core ... +takes_value "core that NetBricks can use")
-        (@arg ports: -p --port ... +takes_value "port to be initialized")
-        (@arg pool_size: --("pool-size") +takes_value "memory pool size")
-        (@arg cache_size: --("cache-size") +takes_value "per core cache size")
-        (@arg dpdk_args: --("dpdk-args") ... +takes_value "custom DPDK arguments")
-        (@arg duration: -d --duration +takes_value "test duration")
-    )
-    .get_matches();
-}
 
-// this struct is used to indirectly implement `Source` for `ArgMatches` and
-// allow for command line args integrated with file based configuration
-#[derive(Clone, Debug)]
-struct CommandLine();
-
-impl Source for CommandLine {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
-        Box::new((*self).clone())
-    }
-
-    // TODO: allow dpdk_args to pass-through and affect EAL
-    fn collect(&self) -> Result<HashMap<String, Value>, ConfigError> {
-        let mut map = HashMap::new();
-        let uri = "the command line".to_string();
-        let uri = Some(&uri);
-
-        if let Some(name) = CLI_ARGS.value_of("name") {
-            map.insert("name".to_string(), Value::new(uri, name));
-        }
-
-        if CLI_ARGS.is_present("process_mode") {
-            let secondary = CLI_ARGS.is_present("secondary");
-            map.insert("secondary".to_string(), Value::new(uri, secondary));
-        }
-
-        if CLI_ARGS.is_present("primary_core") {
-            let core = value_t!(CLI_ARGS, "primary_core", i32)
-                .map_err(|err| ConfigError::Foreign(Box::new(err)))?;
-            map.insert("primary_core".to_string(), Value::new(uri, i64::from(core)));
-        }
-
-        if CLI_ARGS.is_present("pool_size") {
-            let pool_size = value_t!(CLI_ARGS, "pool_size", u32)
-                .map_err(|err| ConfigError::Foreign(Box::new(err)))?;
-            map.insert(
-                "pool_size".to_string(),
-                Value::new(uri, i64::from(pool_size)),
-            );
-        }
-
-        if CLI_ARGS.is_present("cache_size") {
-            let cache_size = value_t!(CLI_ARGS, "cache_size", u32)
-                .map_err(|err| ConfigError::Foreign(Box::new(err)))?;
-            map.insert(
-                "cache_size".to_string(),
-                Value::new(uri, i64::from(cache_size)),
-            );
-        }
-
-        if let Some(ports) = CLI_ARGS.values_of("ports") {
-            let cores = values_t!(CLI_ARGS, "cores", i32)
-                .map_err(|err| ConfigError::Foreign(Box::new(err)))?;
-            let cores = cores
-                .iter()
-                .map(|&core| i64::from(core))
-                .collect::<Vec<_>>();
-
-            let ports = ports
-                .zip(cores.iter())
-                .map(|(port, &core)| {
-                    [
-                        ("name".to_string(), Value::new(uri, port)),
-                        ("rx_queues".to_string(), Value::new(uri, vec![core])),
-                        ("tx_queues".to_string(), Value::new(uri, vec![core])),
-                        ("rxd".to_string(), Value::new(uri, i64::from(NUM_RXD))),
-                        ("txd".to_string(), Value::new(uri, i64::from(NUM_TXD))),
-                        ("loopback".to_string(), Value::new(uri, false)),
-                        ("tso".to_string(), Value::new(uri, false)),
-                        ("csum".to_string(), Value::new(uri, false)),
-                    ]
-                    .iter()
-                    .cloned()
-                    .collect::<HashMap<_, _>>()
-                })
-                .collect::<Vec<_>>();
-
-            map.insert("ports".to_string(), Value::new(uri, ports));
-            map.insert("cores".to_string(), Value::new(uri, cores));
-        }
-
-        Ok(map)
-    }
-}
 
 static DEFAULT_TOML: &'static str = r#"
     name = "netbricks"
@@ -237,11 +134,5 @@ static DEFAULT_TOML: &'static str = r#"
 pub fn load_config() -> Result<NetBricksConfiguration, ConfigError> {
     let mut config = Config::new();
     config.merge(File::from_str(DEFAULT_TOML, FileFormat::Toml))?;
-
-    if let Some(filename) = CLI_ARGS.value_of("file") {
-        config.merge(File::with_name(filename))?;
-    }
-
-    config.merge(CommandLine())?;
     config.try_into()
 }
