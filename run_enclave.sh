@@ -30,4 +30,4 @@ popd
 ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x20000 --stack-size 0x20000 --threads 1 --debug
 
 # Execute
-runner/target/$MODE/runner target/x86_64-fortanix-unknown-sgx/$MODE/${TASK}.sgxs
+env RUST_BACKTRACE=1 target/$MODE/runner target/x86_64-fortanix-unknown-sgx/$MODE/${TASK}.sgxs

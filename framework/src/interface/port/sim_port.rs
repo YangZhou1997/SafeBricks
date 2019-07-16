@@ -11,9 +11,14 @@ use std::sync::Arc;
 use std::io::stdout;
 use std::io::Write;
 
+use std::io::{BufRead, BufReader};
+use std::net::TcpListener;
+
 pub struct SimulatePort {
     stats_rx: Arc<CacheAligned<PortStats>>,
     stats_tx: Arc<CacheAligned<PortStats>>,
+    recvq_addr: u64,
+    sendq_addr: u64,
 }
 
 impl fmt::Debug for SimulatePort {
@@ -62,10 +67,33 @@ impl PacketRx for SimulateQueue {
 }
 
 impl SimulatePort {
-    pub fn new(_queues: i32) -> Result<Arc<SimulatePort>> {
+    pub fn new(_queues: i32) -> Result<Arc<SimulatePort>> {        
+        for _ in 0..3 {
+            let listener = TcpListener::bind("localhost:6010")?;
+            let (stream, peer_addr) = listener.accept()?;
+            let peer_addr = peer_addr.to_string();
+            let local_addr = stream.local_addr()?;
+            eprintln!(
+                "App:: accept  - local address is {}, peer address is {}",
+                local_addr, peer_addr
+            );
+
+            let mut reader = BufReader::new(stream);
+            let mut message = String::new();
+            loop {
+                let read_bytes = reader.read_line(&mut message)?;
+                if read_bytes == 0 {
+                    break;
+                }
+                print!("{}", message);
+            }
+        }
+
         Ok(Arc::new(SimulatePort {
             stats_rx: Arc::new(PortStats::new()),
             stats_tx: Arc::new(PortStats::new()),
+            recvq_addr: 0, 
+            sendq_addr: 0,
         }))
     }
 
