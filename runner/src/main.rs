@@ -10,6 +10,7 @@ extern crate enclave_runner;
 extern crate libc;
 extern crate sgxs_loaders;
 extern crate core_affinity;
+extern crate pktpuller;
 
 use aesm_client::AesmClient;
 use enclave_runner::usercalls::{SyncListener, SyncStream, UsercallExtension};
@@ -23,6 +24,11 @@ use std::mem::size_of;
 use std::net::Shutdown;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, TcpListener, TcpStream};
 use std::thread;
+
+use pktpuller::common::Result as PktResult;
+use pktpuller::config::load_config;
+use pktpuller::runtime::Runtime;
+use pktpuller::scheduler::Scheduler;
 
 /// This example demonstrates use of usercall extensions for bind call.
 /// User call extension allow the enclave code to "bind" to an external service via a customized enclave runner.
@@ -395,7 +401,12 @@ fn run_client() -> Result<(), Error> {
     Ok(())
 }
 
-fn main() {
+fn main() -> PktResult<()> {
+    let configuration = load_config()?;
+    println!("{}", configuration);
+    
+
+
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("# cores: {}", core_ids.len());
     assert!(core_ids.len() >= 2, "# available cores is not enough");
@@ -415,5 +426,5 @@ fn main() {
     run_client();
 
     let _ = server.join().unwrap();
-
+    Ok(())
 }

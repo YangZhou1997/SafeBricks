@@ -7,6 +7,7 @@ use native::{mbuf_alloc_bulk, mbuf_free_bulk};
 use std::fmt;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
+use config::{PortConfiguration, NUM_RXD, NUM_TXD};
 
 use std::io::stdout;
 use std::io::Write;
@@ -79,7 +80,7 @@ fn fib(n: u64) -> u64{
 }
 
 impl SimulatePort {
-    pub fn new(_queues: i32) -> Result<Arc<SimulatePort>> {        
+    pub fn new(port_config: &PortConfiguration) -> Result<Arc<SimulatePort>> {        
         for _ in 0..3 {
             let listener = TcpListener::bind("localhost:6010")?;
             let (stream, peer_addr) = listener.accept()?;

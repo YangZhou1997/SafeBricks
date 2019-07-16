@@ -13,6 +13,8 @@ categories = ["network-functions", "framework"]
 doctest = false
 
 [dependencies]
+clap = "2.33"
+config = "0.9"
 crossbeam = "0.6"
 failure = "0.1"
 fallible-iterator = "0.2"

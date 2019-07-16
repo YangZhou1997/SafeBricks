@@ -1,5 +1,6 @@
 use common::Result;
 use native::mbuf::MBuf;
+use native::zcsi;
 use packets::{buffer, Header, Packet};
 
 /// Unit header
@@ -31,24 +32,24 @@ impl PartialEq for RawPacket {
 
 impl RawPacket {
     /// Creates a new packet by allocating a new buffer
-    // pub fn new() -> Result<Self> {
-    //     unsafe {
-    //         let mbuf = zcsi::mbuf_alloc();
-    //         if mbuf.is_null() {
-    //             Err(buffer::BufferError::FailAlloc.into())
-    //         } else {
-    //             Ok(RawPacket { mbuf })
-    //         }
-    //     }
-    // }
+    pub fn new() -> Result<Self> {
+        unsafe {
+            let mbuf = zcsi::mbuf_alloc();
+            if mbuf.is_null() {
+                Err(buffer::BufferError::FailAlloc.into())
+            } else {
+                Ok(RawPacket { mbuf })
+            }
+        }
+    }
 
     /// Creates a new packet and initialize the buffer with a byte array
-    // pub fn from_bytes(data: &[u8]) -> Result<Self> {
-    //     let packet = RawPacket::new()?;
-    //     buffer::alloc(packet.mbuf, 0, data.len())?;
-    //     buffer::write_slice(packet.mbuf, 0, data)?;
-    //     Ok(packet)
-    // }
+    pub fn from_bytes(data: &[u8]) -> Result<Self> {
+        let packet = RawPacket::new()?;
+        buffer::alloc(packet.mbuf, 0, data.len())?;
+        buffer::write_slice(packet.mbuf, 0, data)?;
+        Ok(packet)
+    }
 
     /// Creates a new packet from a MBuf
     pub fn from_mbuf(mbuf: *mut MBuf) -> Self {
@@ -58,8 +59,7 @@ impl RawPacket {
     /// Returns the reference count of the underlying buffer
     #[inline]
     pub fn refcnt(&self) -> u16 {
-        // unsafe { (*self.mbuf).refcnt() }
-        1
+        unsafe { (*self.mbuf).refcnt() }
     }
 }
 

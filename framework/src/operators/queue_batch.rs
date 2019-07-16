@@ -197,37 +197,3 @@ pub fn mpsc_batch() -> (MpscProducer, QueueBatch<Receiver<RawPacket>>) {
     let (sender, receiver) = channel();
     (MpscProducer::new(sender), QueueBatch::new(receiver))
 }
-
-#[cfg(test)]
-pub mod tests {
-    use super::*;
-    use dpdk_test;
-    use packets::RawPacket;
-
-    #[test]
-    fn single_threaded() {
-        use packets::udp::tests::UDP_PACKET;
-
-        dpdk_test! {
-            let (producer, mut batch) = single_threaded_batch::<RawPacket>(1);
-            producer.enqueue(RawPacket::from_bytes(&UDP_PACKET).unwrap());
-
-            assert!(batch.next().unwrap().is_ok());
-        }
-    }
-
-    #[test]
-    fn mpsc() {
-        use packets::udp::tests::UDP_PACKET;
-
-        dpdk_test! {
-            let (producer, mut batch) = mpsc_batch();
-            producer.enqueue(RawPacket::from_bytes(&UDP_PACKET).unwrap());
-
-            let thread = std::thread::spawn(move || {
-                assert!(batch.next().unwrap().is_ok());
-            });
-            thread.join().unwrap()
-        }
-    }
-}

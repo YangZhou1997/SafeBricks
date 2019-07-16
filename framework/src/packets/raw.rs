@@ -143,25 +143,3 @@ impl Packet for RawPacket {
 // the struct to be not sendable. explicitly implement the `Send`
 // trait to ensure raw packets can go across thread boundaries.
 unsafe impl Send for RawPacket {}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use dpdk_test;
-
-    #[test]
-    fn new_raw_packet() {
-        dpdk_test! {
-            assert!(RawPacket::new().is_ok());
-        }
-    }
-
-    #[test]
-    fn raw_packet_from_bytes() {
-        use packets::udp::tests::UDP_PACKET;
-
-        dpdk_test! {
-            assert!(RawPacket::from_bytes(&UDP_PACKET).is_ok());
-        }
-    }
-}

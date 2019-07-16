@@ -13,6 +13,9 @@
 
 // For cache aware allocation
 extern crate alloc;
+#[macro_use]
+extern crate clap;
+extern crate config as config_rs;
 extern crate crossbeam;
 #[cfg_attr(test, macro_use)]
 extern crate failure;
@@ -22,23 +25,26 @@ extern crate hex;
 #[macro_use]
 extern crate lazy_static;
 extern crate libc;
+#[macro_use]
+extern crate log;
 #[cfg(unix)]
 extern crate regex;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate twox_hash;
-#[macro_use]
-extern crate log;
+
 #[cfg(test)]
 #[macro_use]
-extern crate proptest;
+extern crate proptest; 
+
 // extern crate openssl;
 
 // need these first so other modules in netbricks can use the macros
 #[macro_use]
 pub mod common;
 pub mod allocators;
+pub mod config;
 pub mod interface;
 pub mod scheduler;
 #[allow(dead_code)]
@@ -49,3 +55,4 @@ pub mod packets;
 // pub mod state;
 // pub mod shared_ring;
 pub mod utils;
+pub mod runtime;

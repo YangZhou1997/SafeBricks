@@ -32,6 +32,8 @@ extern crate net2;
 extern crate nix;
 extern crate rayon;
 extern crate regex;
+#[cfg(feature = "sctp")]
+extern crate sctp;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -39,12 +41,27 @@ extern crate tokio;
 extern crate tokio_signal;
 extern crate twox_hash;
 
+#[cfg(test)]
+#[macro_use]
+extern crate proptest;
+
 extern crate openssl;
 
 // need these first so other modules in netbricks can use the macros
 #[macro_use]
 pub mod common;
+pub mod allocators;
+pub mod config;
+pub mod control;
+pub mod interface;
 #[allow(dead_code)]
 mod native;
 mod native_include;
+pub mod operators;
 pub mod packets;
+pub mod runtime;
+pub mod scheduler;
+pub mod shared_state;
+pub mod state;
+pub mod tests;
+pub mod utils;
