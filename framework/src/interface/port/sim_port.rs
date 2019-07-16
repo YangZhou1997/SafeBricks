@@ -66,6 +66,18 @@ impl PacketRx for SimulateQueue {
     }
 }
 
+fn fib(n: u64) -> u64{
+    if n == 0{
+        return 0;
+    }
+    else if n == 1{
+        return 1;
+    }
+    else{
+        return fib(n - 1) + fib(n - 2); 
+    }
+}
+
 impl SimulatePort {
     pub fn new(_queues: i32) -> Result<Arc<SimulatePort>> {        
         for _ in 0..3 {
@@ -86,6 +98,12 @@ impl SimulatePort {
                     break;
                 }
                 print!("{}", message);
+                let queue_addr: Vec<u64> = 
+                     message.trim().split(' ')
+                    .map(|s| s.parse().unwrap())
+                    .collect();
+                println!("{:?}", queue_addr);
+                // fib(30);
             }
         }
 

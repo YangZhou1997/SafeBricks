@@ -307,6 +307,20 @@ impl SimulateHaProxyConfig {
         stream.shutdown(Shutdown::Write).unwrap();
     }
 
+    fn send_queue_addr(recvq_addr: u64, sendq_addr: u64) {
+        thread::sleep(std::time::Duration::from_secs(2));
+        let header = &[
+            0x0d, 0x0a, 0x0d, 0x0a, 0x00, 0x0d, 0x0a, 0x51, 0x55, 0x49, 0x54, 0x0a, 0x21, 0x11,
+            0x00, 0x0c, 0x7f, 0x00, 0x00, 0x01, 0x7f, 0x00, 0x00, 0x01, 0x97, 0x32, 0x1f, 0x43,
+        ];
+        let mut stream = TcpStream::connect(HAPROXY_ADDRESS).unwrap();
+        stream.write_all(header).unwrap();
+        stream
+            .write_all(&format!("{} {}\n", recvq_addr, sendq_addr).as_bytes())
+            .unwrap();
+        stream.shutdown(Shutdown::Write).unwrap();
+    }
+
     fn ipv4() {
         // HAProxy configuration:
         //
@@ -360,10 +374,24 @@ impl SimulateHaProxyConfig {
     }
 }
 
+fn fib(n: u64) -> u64{
+    if n == 0{
+        return 0;
+    }
+    else if n == 1{
+        return 1;
+    }
+    else{
+        return fib(n - 1) + fib(n - 2); 
+    }
+}
+
 fn run_client() -> Result<(), Error> {
-    SimulateHaProxyConfig::ipv4();
-    SimulateHaProxyConfig::ipv6();
-    SimulateHaProxyConfig::local();
+    // SimulateHaProxyConfig::ipv4();
+    // SimulateHaProxyConfig::ipv6();
+    // SimulateHaProxyConfig::local();
+    SimulateHaProxyConfig::send_queue_addr(0x12345678, 0xabcdefff);
+    fib(30000);
     Ok(())
 }
 
@@ -372,20 +400,20 @@ fn main() {
     println!("# cores: {}", core_ids.len());
     assert!(core_ids.len() >= 2, "# available cores is not enough");
 
-    let server_core = core_ids[0];
-    let client_core = core_ids[1];
+    // let server_core = core_ids[0];
+    // let client_core = core_ids[1];
 
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
-        core_affinity::set_for_current(server_core);
+        core_affinity::set_for_current(core_ids[1]);
         run_server(file);
     });
-    let client = thread::spawn(move || {
-        core_affinity::set_for_current(client_core);
-        run_client();
-    });
+    // let client = thread::spawn(move || {
+    //     core_affinity::set_for_current(client_core);
+    //     run_client();
+    // });
+    run_client();
 
-    let _ = client.join().unwrap();
     let _ = server.join().unwrap();
 
 }
