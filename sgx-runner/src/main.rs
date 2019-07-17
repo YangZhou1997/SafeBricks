@@ -12,10 +12,12 @@ use pktpuller::common::Result as PktResult;
 use pktpuller::config::load_config;
 use pktpuller::interface::{PmdPort, PortQueue, PacketRx, PacketTx};
 use pktpuller::operators::{Batch, ReceiveBatch};
+use pktpuller::operators::BATCH_SIZE;
 use pktpuller::packets::{Ethernet, Packet, RawPacket};
 use pktpuller::runtime::Runtime;
 use pktpuller::scheduler::{Scheduler, Executable};
 use pktpuller::heap_ring::*;
+use pktpuller::native::mbuf::*;
 use haproxy::{run_client, run_server, parse_args};
 
 use std::thread;
@@ -78,7 +80,7 @@ where
     
     loop {
         // hostio only used ports[0];
-        let mbufs = Vec::<*mut MBuf>::with_capacity(BATCH_SIZE),
+        let mbufs = Vec::<*mut MBuf>::with_capacity(BATCH_SIZE);
 
         // pull packets; write mbuf pointers to mbufs.     
         let recv_pkt_num = match ports[0].recv(mbufs.as_mut_slice()) {
@@ -91,7 +93,7 @@ where
         // recvq_ring.write_at_tail(data: &[u8])
         let pkt_bufs = mbufs.iter().map(
             |b| {
-                (b as &mut MBuf).data_address(0) // *mut u8;
+                unsafe{(*b).data_address(0)} // *mut u8;
             }
         ).collect();
         

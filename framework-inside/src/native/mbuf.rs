@@ -1,39 +1,72 @@
-
+use super::super::native_include as ldpdk;
+// use self::ldpdk::*;
+pub type MBuf = ldpdk::rte_mbuf;
 pub const MAX_MBUF_SIZE: u16 = 2048;
 
-/* 
-In our simulated MBuf: 
-    pkt_len = data_len: is the length of the ethernet packet. 
-    buf_len = MAX_MBUF_SIZE;
-    data_off = 0: is the packet starting address in buf_addr
-    buf_addr array stores the ethernet packet data.
-*/
-pub struct MBuf{
-    data_off: u16,
-    buf_len: u16,
-    data_len: u16,
-    pkt_len: u32,
-    buf_addr: [u8; MAX_MBUF_SIZE as usize],
-}
-
-
 impl MBuf {
+    #[inline]
+    pub fn read_metadata_slot(mbuf: *mut MBuf, slot: usize) -> usize {
+        unsafe {
+            let ptr = (mbuf.offset(1) as *mut usize).add(slot);
+            *ptr
+        }
+    }
+
+    // #[inline]
+    // pub fn new(pkt_len: u32) -> MBuf {
+    //     assert!(pkt_len <= (MAX_MBUF_SIZE as u32));
+    //     MBuf{
+    //         cacheline0: MARKER,
+    //         buf_addr: *mut ::std::os::raw::c_void,
+    //         buf_physaddr: Default::default(),
+    //         rearm_data: MARKER64,
+    //         data_off: Default::default(),
+    //         __bindgen_anon_1: rte_mbuf__bindgen_ty_1{0},
+    //         nb_segs: Default::default(),
+    //         port: Default::default(),
+    //         ol_flags: Default::default(),
+    //         rx_descriptor_fields1: MARKER,
+    //         __bindgen_anon_2: rte_mbuf__bindgen_ty_2,
+    //         pkt_len: Default::default(),
+    //         data_len: Default::default(),
+    //         vlan_tci: Default::default(),
+    //         hash: rte_mbuf__bindgen_ty_3,
+    //         vlan_tci_outer: Default::default(),
+    //         buf_len: Default::default(),
+    //         timestamp: Default::default(),
+    //         cacheline1: MARKER,
+    //         __bindgen_anon_3: rte_mbuf__bindgen_ty_4,
+    //         pool: *mut rte_mempool,
+    //         next: *mut rte_mbuf,
+    //         __bindgen_anon_4: rte_mbuf__bindgen_ty_5,
+    //         priv_size: Default::default(),
+    //         timesync: Default::default(),
+    //         seqn: Default::default(),
+    //         __bindgen_padding_0: Default::default(),
+    //     }
+    // }
 
     #[inline]
-    pub fn new(pkt_len: u32) -> MBuf {
-        assert!(pkt_len <= (MAX_MBUF_SIZE as u32));
-        MBuf{
-            data_off: 0, 
-            buf_len: MAX_MBUF_SIZE,
-            data_len: pkt_len as u16, 
-            pkt_len, 
-            buf_addr: [0; MAX_MBUF_SIZE as usize],
+    pub fn write_metadata_slot(mbuf: *mut MBuf, slot: usize, value: usize) {
+        unsafe {
+            let ptr = (mbuf.offset(1) as *mut usize).add(slot);
+            *ptr = value;
         }
     }
 
     #[inline]
-    pub fn data_address(&mut self, offset: usize) -> *mut u8 {
-        unsafe { (&mut (self.buf_addr[0]) as *mut u8).offset(self.data_off as isize + offset as isize) }
+    pub unsafe fn metadata_as<T: Sized>(mbuf: *const MBuf, slot: usize) -> *const T {
+        (mbuf.offset(1) as *const usize).add(slot) as *const T
+    }
+
+    #[inline]
+    pub unsafe fn mut_metadata_as<T: Sized>(mbuf: *mut MBuf, slot: usize) -> *mut T {
+        (mbuf.offset(1) as *mut usize).add(slot) as *mut T
+    }
+
+    #[inline]
+    pub fn data_address(&self, offset: usize) -> *mut u8 {
+        unsafe { (self.buf_addr as *mut u8).offset(self.data_off as isize + offset as isize) }
     }
 
     /// Returns the total allocated size of this mbuf segment.
@@ -112,6 +145,18 @@ impl MBuf {
             self.data_len -= len as u16;
             self.pkt_len -= len as u32;
             len
+        }
+    }
+
+    #[inline]
+    pub fn refcnt(&self) -> u16 {
+        unsafe { self.__bindgen_anon_1.refcnt }
+    }
+
+    #[inline]
+    pub fn reference(&mut self) {
+        unsafe {
+            self.__bindgen_anon_1.refcnt += 1;
         }
     }
 }

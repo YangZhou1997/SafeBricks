@@ -40,12 +40,14 @@ fn main() {
 
     let bindings = bindgen::Builder::default()
         .header(header_path.to_str().unwrap())
+        .rustfmt_bindings(true)
         .rust_target(bindgen::RustTarget::Nightly)
         .clang_args(vec!["-I", dpdk_include_path.to_str().unwrap()].iter())
         .generate()
         .expect("Unable to generate DPDK bindings");
     let out_dir = env::var("OUT_DIR").unwrap();
     let dpdk_bindings = Path::new(&out_dir).join("dpdk_bindings.rs");
+    println!("{:?}", dpdk_bindings);
 
     bindings
         .write_to_file(dpdk_bindings)

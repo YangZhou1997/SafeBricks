@@ -55,8 +55,8 @@ pub mod config;
 pub mod control;
 pub mod interface;
 #[allow(dead_code)]
-mod native;
-mod native_include;
+pub mod native;
+pub mod native_include;
 pub mod operators;
 pub mod packets;
 pub mod runtime;
