@@ -122,9 +122,7 @@ impl NetBricksContext {
     /// Start scheduling pipelines.
     pub fn execute(&mut self) {
         for (core, channel) in &self.scheduler_channels {
-            println!("context: execute0");
             channel.send(SchedulerCommand::Execute).unwrap();
-            println!("context: execute1");
             info!("Starting scheduler on {}", core);
         }
     }

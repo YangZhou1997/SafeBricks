@@ -24,7 +24,6 @@ where
     let pipelines: Vec<_> = ports
         .iter()
         .map(|port| {
-            println!("before pull packets");
             ReceiveBatch::new(port.clone())
                 .map(macswap)
                 .send(port.clone())
@@ -38,9 +37,7 @@ where
 }
 
 fn macswap(packet: RawPacket) -> Result<Ethernet> {
-    println!("in macswap0"); stdout().flush().unwrap();
     assert!(packet.refcnt() == 1);
-    println!("in macswap1");
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
     Ok(ethernet)
@@ -51,8 +48,10 @@ fn main() -> Result<()> {
     println!("{}", configuration);
     let mut runtime = Runtime::init(&configuration)?;
     runtime.add_pipeline_to_run(install);
-    println!("main0");
     runtime.execute();
-    println!("main1");
+
+    // if you want to see output from the child thread, you much let the father thread wait instead of exiting.
+    // However, this will make the child thread un-stopped when you press ctrl+c.
+    // runtime.wait(); 
     Ok(())
 }

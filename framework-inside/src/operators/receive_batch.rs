@@ -20,14 +20,11 @@ pub struct ReceiveBatch<Rx: PacketRx> {
 impl<Rx: PacketRx> ReceiveBatch<Rx> {
     #[inline]
     pub fn new(port: Rx) -> Self {
-        println!("new receivebatch");
-        let t = ReceiveBatch {
+        ReceiveBatch {
             port,
             buffers: Vec::<*mut MBuf>::with_capacity(BATCH_SIZE),
             index: 0,
-        };
-        println!("new receivebatch end");
-        t
+        }
     }
 }
 
@@ -53,7 +50,6 @@ impl<Rx: PacketRx> Batch for ReceiveBatch<Rx> {
         unsafe {
             let capacity = self.buffers.capacity();
             self.buffers.set_len(capacity);
-            println!("before receive");
             match self.port.recv(self.buffers.as_mut_slice()) {
                 Ok(received) => {
                     // println!("receive0 {}", received); stdout().flush().unwrap();
