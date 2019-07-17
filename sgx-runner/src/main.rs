@@ -23,6 +23,7 @@ use haproxy::{run_client, run_server, parse_args};
 use std::thread;
 use std::sync::{Arc, Mutex};
 use std::fmt::Display;
+use std::slice;
 
 // pkt_count;
 lazy_static!{
@@ -70,56 +71,74 @@ fn macswap(packet: RawPacket) -> PktResult<Ethernet> {
 
 
 // This "ports" is essentially "queues"
-fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>, recvq_ring: RingBuffer, sendq_ring: RingBuffer)
+fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>, mut recvq_ring: RingBuffer, mut sendq_ring: RingBuffer)
 where
     T: PacketRx + PacketTx + Display + Clone + 'static,
 {
     for port in &ports {
         println!("Receiving port {}", port);
     }
-    
+    let mut mbufs = Vec::<*mut MBuf>::with_capacity(BATCH_SIZE);
     loop {
         // hostio only used ports[0];
-        let mbufs = Vec::<*mut MBuf>::with_capacity(BATCH_SIZE);
+        unsafe{ mbufs.set_len(BATCH_SIZE) }; 
 
         // pull packets; write mbuf pointers to mbufs.     
         let recv_pkt_num = match ports[0].recv(mbufs.as_mut_slice()) {
-            Ok(received) => received,
+            Ok(received) => {
+                unsafe{ mbufs.set_len(received as usize) };
+                received
+            }
             // the underlying DPDK method `rte_eth_rx_burst` will
             // never return an error. The error arm is unreachable
             _ => unreachable!(),
         };
         
         // recvq_ring.write_at_tail(data: &[u8])
-        let pkt_bufs = mbufs.iter().map(
+        mbufs.iter().map(
             |b| {
-                unsafe{(*b).data_address(0)} // *mut u8;
+                // unsafe{(**b).data_address(0)} // *mut u8;
+                let b_u8_p = (*b) as *const u8;
+                let b_u8_array = unsafe{ slice::from_raw_parts(b_u8_p, 8) };
+                recvq_ring.write_at_tail(b_u8_array);
+                0
             }
-        ).collect();
-        
+        );
 
+        if !mbufs.is_empty() {
+            let mut to_send = mbufs.len();
+            while to_send > 0 {
+                match ports[0].send(mbufs.as_mut_slice()) {
+                    Ok(sent) => {
+                        let sent = sent as usize;
+                        to_send -= sent;
+                        if to_send > 0 {
+                            mbufs.drain(..sent);
+                        }
+                    }
+                    // the underlying DPDK method `rte_eth_tx_burst` will
+                    // never return an error. The error arm is unreachable
+                    _ => unreachable!(),
+                }
+            }
+            unsafe {
+                unsafe{ mbufs.set_len(0) };
+            }
+        }
 
-    }
-
-
-
-    // the shared memory ring that NF read/write packet from/to.     
-        let _: Vec<_> = ports
-            .iter()
-            .map(|port| {
-                ReceiveBatch::new(port.clone())
-                    .map(macswap)
-                    .send(port.clone()).execute()
-            })
-            .collect();
-    
         BATCH_CNT.lock().unwrap()[0] += 1;
         if BATCH_CNT.lock().unwrap()[0] % 1024 == 0 {
             let (rx, tx) = main_port.stats(0);
-            println!("{} vs. {}", rx, tx);
+            println!("{} vs. {}; {}", rx, tx, recv_pkt_num);
         }
+    }
 }
 
+fn eq<T: ?Sized>(left: &Box<T>, right: &Box<T>) -> bool {
+    let left : *const T = left.as_ref();
+    let right : *const T = right.as_ref();
+    left == right
+}
 
 const RXD: u32 = 128;
 const TXD: u32 = 128;
@@ -140,8 +159,10 @@ fn main() -> PktResult<()> {
     });
 
     // Create two shared queue: recvq and sendq; 
-    let recvq_ring = unsafe{RingBuffer::new_in_heap((RXD * 8) as usize)}.unwrap();
-    let sendq_ring = unsafe{RingBuffer::new_in_heap((TXD * 8) as usize)}.unwrap();
+    let mut recvq_ring = unsafe{RingBuffer::new_in_heap((RXD * 8) as usize)}.unwrap();
+    let mut sendq_ring = unsafe{RingBuffer::new_in_heap((TXD * 8) as usize)}.unwrap();
+
+    // println!("{}", eq(&recvq_ring, &sendq_ring));
 
     let recvq_addr_u64: u64 = recvq_ring.head as u64; // *mut usize
     let sendq_addr_u64: u64 = sendq_ring.head as u64;

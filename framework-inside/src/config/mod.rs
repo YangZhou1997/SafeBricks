@@ -112,7 +112,7 @@ static DEFAULT_TOML: &'static str = r#"
     primary_core = 0
     cores = [0]
     strict = false
-    pool_size = 2047
+    pool_size = 512
     cache_size = 32
     [[ports]]
         name = "SimulateQueue"

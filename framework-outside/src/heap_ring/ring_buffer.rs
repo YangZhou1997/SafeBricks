@@ -20,6 +20,8 @@ struct InvalidRingSize(usize);
 
 /// A ring buffer which can be used to insert and read ordered data.
 pub struct RingBuffer {
+    /// boxed ring; avoid heap memory being dropped;
+    boxed: Box<[u8]>, 
     /// Head, signifies where a consumer should read from.
     pub head: *mut usize,
     /// Tail, signifies where a producer should write.
@@ -57,6 +59,7 @@ impl RingBuffer {
         }
 
         Ok(RingBuffer {
+            boxed,
             head: (address as *mut usize),
             tail: (address as *mut usize).offset(1), 
             size: (address as *mut usize).offset(2),
