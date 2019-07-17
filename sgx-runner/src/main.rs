@@ -3,22 +3,32 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+#[macro_use]
+extern crate lazy_static;
 extern crate pktpuller;
 pub mod haproxy;
 
 use pktpuller::common::Result as PktResult;
 use pktpuller::config::load_config;
-use pktpuller::interface::{PmdPort, PortQueue};
-use pktpuller::interface::{PacketRx, PacketTx};
+use pktpuller::interface::{PmdPort, PortQueue, PacketRx, PacketTx};
 use pktpuller::operators::{Batch, ReceiveBatch};
 use pktpuller::packets::{Ethernet, Packet, RawPacket};
 use pktpuller::runtime::Runtime;
-use pktpuller::scheduler::Scheduler;
-use pktpuller::scheduler::Executable;
-use std::thread;
-use std::sync::Arc;
+use pktpuller::scheduler::{Scheduler, Executable};
+use pktpuller::shared_ring::*;
 use haproxy::{run_client, run_server, parse_args};
+
+use std::thread;
+use std::sync::{Arc, Mutex};
 use std::fmt::Display;
+
+// pkt_count;
+lazy_static!{
+    static ref BATCH_CNT: Mutex<Vec<u64>> = {
+        let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
+        Mutex::new(batch_cnt)
+    };
+}
 
 // This "ports" is essentially "queues"
 fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>)
@@ -39,8 +49,12 @@ where
                     .send(port.clone()).execute()
             })
             .collect();
-        let (rx, tx) = main_port.stats(0);
-        println!("{} vs. {}", rx, tx);
+    
+        BATCH_CNT.lock().unwrap()[0] += 1;
+        if BATCH_CNT.lock().unwrap()[0] % 1024 == 0 {
+            let (rx, tx) = main_port.stats(0);
+            println!("{} vs. {}", rx, tx);
+        }
     }
 }
 
@@ -71,7 +85,7 @@ fn main() -> PktResult<()> {
 
 
     // send recvq_addr and sendq_addr to the enclave through TCP tunnel. 
-    run_client();
+    run_client(0x12345678, 0xabcdefff); // recvq_addr, sendq_addr
 
     // keep pulling packet from DPDK port, and push pkt pointers to recvq
     // keep pulling packet pointers from sendq, and send them out to the DPDK port.
@@ -81,8 +95,6 @@ fn main() -> PktResult<()> {
 
     let ports = runtime.context.rx_queues.get(&0).unwrap().clone(); // get this hostio core's queues.
 
-    // let main_port = Arc::try_unwrap(runtime.context.main_port).unwrap();
-    // let ports = &runtime.context.queues_vec;
     hostio(main_port, ports);
 
     let _ = server.join().unwrap();

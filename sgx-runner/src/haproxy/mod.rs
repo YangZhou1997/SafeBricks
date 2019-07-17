@@ -301,7 +301,7 @@ impl SimulateHaProxyConfig {
     }
 
     fn send_queue_addr(recvq_addr: u64, sendq_addr: u64) {
-        thread::sleep(std::time::Duration::from_secs(2));
+        thread::sleep(std::time::Duration::from_secs(2));// wait until server in enclave sets up;
         let header = &[
             0x0d, 0x0a, 0x0d, 0x0a, 0x00, 0x0d, 0x0a, 0x51, 0x55, 0x49, 0x54, 0x0a, 0x21, 0x11,
             0x00, 0x0c, 0x7f, 0x00, 0x00, 0x01, 0x7f, 0x00, 0x00, 0x01, 0x97, 0x32, 0x1f, 0x43,
@@ -379,11 +379,11 @@ fn fib(n: u64) -> u64{
     }
 }
 
-pub fn run_client() -> Result<(), Error> {
+pub fn run_client(recvq_addr: u64, sendq_addr: u64) -> Result<(), Error> {
     // SimulateHaProxyConfig::ipv4();
     // SimulateHaProxyConfig::ipv6();
     // SimulateHaProxyConfig::local();
-    SimulateHaProxyConfig::send_queue_addr(0x12345678, 0xabcdefff);
+    SimulateHaProxyConfig::send_queue_addr(recvq_addr, sendq_addr);
     // fib(30000);
     Ok(())
 }

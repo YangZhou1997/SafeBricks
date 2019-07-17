@@ -37,7 +37,7 @@ pub struct RingBuffer {
 }
 
 
-impl<T> Drop for RingBuffer {
+impl Drop for RingBuffer {
     fn drop(&mut self) {
         unsafe {
             let size = self.size() + 16; // plus the four usize meta-value stored in shared memory. 
@@ -55,7 +55,7 @@ unsafe impl Send for RingBuffer {}
 impl RingBuffer {
     /// Create a new wrapping ring buffer. The ring buffer size is specified in bytes and must be a power of 2. 
     /// bytes is the number of bytes of RingBuffer::vec
-    pub fn new_in_shared_mem(name: &str, bytes: usize) -> Result<RingBuffer>{
+    pub unsafe fn new_in_shared_mem(name: &str, bytes: usize) -> Result<RingBuffer>{
         if bytes & (bytes - 1) != 0 {
             // We need pages to be a power of 2.
             return Err(InvalidRingSize(bytes).into());
@@ -106,19 +106,20 @@ impl RingBuffer {
             *((address as *mut usize).offset(3)) = bytes - 1;
         }
 
-        RingBuffer {
+        Ok(RingBuffer {
+            name,
             head: (address as *mut usize),
             tail: (address as *mut usize).offset(1), 
             size: (address as *mut usize).offset(2),
             mask: (address as *mut usize).offset(3),
             vec: (address as *mut usize).offset(4) as *mut u8,
-        }
+        })
     }
 
 
     #[inline]
-    fn head(&mut self) -> usize{
-        unsafe{*self.head}
+    fn head(&self) -> usize{
+        unsafe{(*self.head)}
     }
     #[inline]
     fn set_head(&mut self, new_head: usize){
@@ -136,8 +137,8 @@ impl RingBuffer {
     }
 
     #[inline]
-    fn tail(&mut self) -> usize{
-        unsafe{*self.tail}
+    fn tail(&self) -> usize{
+        unsafe{(*self.tail)}
     }
     #[inline]
     fn set_tail(&mut self, new_tail: usize){
@@ -155,8 +156,8 @@ impl RingBuffer {
     }
 
     #[inline]
-    fn size(&mut self) -> usize{
-        unsafe{*self.size}
+    fn size(&self) -> usize{
+        unsafe{(*self.size)}
     }
     #[inline]
     fn set_size(&mut self, new_size: usize){
@@ -164,8 +165,8 @@ impl RingBuffer {
     }
 
     #[inline]
-    fn mask(&mut self) -> usize{
-        unsafe{*self.mask}
+    fn mask(&self) -> usize{
+        unsafe{(*self.mask)}
     }
     #[inline]
     fn set_mask(&mut self, new_mask: usize){
@@ -173,12 +174,12 @@ impl RingBuffer {
     }
     
     #[inline]
-    fn vec_as_u8(&mut self) -> &[u8]{
+    fn vec_as_u8(&self) -> &[u8]{
         unsafe{slice::from_raw_parts(self.vec as *const u8, self.size())}
     }
     #[inline]
     fn vec_as_mut_u8(&mut self) -> &mut [u8]{
-        unsafe{slice::from_raw_parts(self.vec, self.size())}
+        unsafe{slice::from_raw_parts_mut(self.vec, self.size())}
     }
 
 
@@ -206,14 +207,15 @@ impl RingBuffer {
     /// number of bytes written.
     fn wrapped_read(&mut self, offset: usize, data: &mut [u8]) -> usize {
         let mut bytes: usize = 0;
-        assert!(offset < self.size());
-        assert!(data.len() <= self.size());
+        let ring_size = self.size();
+        assert!(offset < ring_size);
+        assert!(data.len() <= ring_size);
 
         let u8_vec: &[u8]= self.vec_as_u8();
-        bytes += (&mut_u8_vec[offset..]).read(data).unwrap();
-        if offset + data.len() > self.size() {
+        bytes += (&u8_vec[offset..]).read(data).unwrap();
+        if offset + data.len() > ring_size {
             let remaining = data.len() - bytes;
-            bytes += (&mut_u8_vec[..remaining]).read(&mut data[bytes..]).unwrap();
+            bytes += (&u8_vec[..remaining]).read(&mut data[bytes..]).unwrap();
         }
         bytes
     }
@@ -222,12 +224,13 @@ impl RingBuffer {
     /// the number of bytes written.
     fn wrapped_write(&mut self, offset: usize, data: &[u8]) -> usize {
         let mut bytes: usize = 0;
-        assert!(offset < self.size());
-        assert!(data.len() <= self.size());
+        let ring_size = self.size();
+        assert!(offset < ring_size);
+        assert!(data.len() <= ring_size);
 
         let mut_u8_vec: &mut [u8]= self.vec_as_mut_u8();
         bytes += (&mut mut_u8_vec[offset..]).write(data).unwrap();
-        if offset + data.len() > self.size() {
+        if offset + data.len() > ring_size {
             let remaining = data.len() - bytes;
             bytes += (&mut mut_u8_vec[..remaining]).write(&data[bytes..]).unwrap();
         }
