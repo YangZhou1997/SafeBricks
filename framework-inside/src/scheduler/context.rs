@@ -122,7 +122,9 @@ impl NetBricksContext {
     /// Start scheduling pipelines.
     pub fn execute(&mut self) {
         for (core, channel) in &self.scheduler_channels {
+            println!("context: execute0");
             channel.send(SchedulerCommand::Execute).unwrap();
+            println!("context: execute1");
             info!("Starting scheduler on {}", core);
         }
     }
@@ -206,6 +208,7 @@ pub fn initialize_system(configuration: &NetBricksConfiguration) -> Result<NetBr
                     .into());
                 }
             }
+            // println!("initialize_system1");
 
             let port_instance = &ctx.ports[&port.name];
 
@@ -225,6 +228,7 @@ pub fn initialize_system(configuration: &NetBricksConfiguration) -> Result<NetBr
                     }
                 }
             }
+            // println!("initialize_system2");
         }
     }
     if configuration.strict {
@@ -245,6 +249,7 @@ pub fn initialize_system(configuration: &NetBricksConfiguration) -> Result<NetBr
     } else {
         cores.extend(ctx.rx_queues.keys());
     };
+    // println!("initialize_system3");
     ctx.active_cores = cores.into_iter().collect();
     Ok(ctx)
 }

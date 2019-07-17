@@ -44,7 +44,9 @@ impl Runtime {
     /// By default, any Unix signal received will end the process. To change
     /// this behavior, use `set_on_signal` to customize signal handling.
     pub fn execute(&mut self) -> Result<()> {
+        println!("execute0");
         self.context.execute();
+        println!("execute1");
         Ok(())
     }
 }

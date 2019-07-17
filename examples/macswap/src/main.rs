@@ -6,7 +6,11 @@ use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::{Ethernet, Packet, RawPacket};
 use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
+use netbricks::interface::SimulatePort;
 use std::fmt::Display;
+use std::io::stdout;
+use std::io::Write;
+
 
 fn install<T, S>(ports: Vec<T>, sched: &mut S)
 where
@@ -20,6 +24,7 @@ where
     let pipelines: Vec<_> = ports
         .iter()
         .map(|port| {
+            println!("before pull packets");
             ReceiveBatch::new(port.clone())
                 .map(macswap)
                 .send(port.clone())
@@ -33,7 +38,9 @@ where
 }
 
 fn macswap(packet: RawPacket) -> Result<Ethernet> {
+    println!("in macswap0"); stdout().flush().unwrap();
     assert!(packet.refcnt() == 1);
+    println!("in macswap1");
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
     Ok(ethernet)
@@ -44,5 +51,8 @@ fn main() -> Result<()> {
     println!("{}", configuration);
     let mut runtime = Runtime::init(&configuration)?;
     runtime.add_pipeline_to_run(install);
-    runtime.execute()
+    println!("main0");
+    runtime.execute();
+    println!("main1");
+    Ok(())
 }

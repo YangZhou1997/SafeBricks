@@ -93,10 +93,20 @@ impl StandaloneScheduler {
     }
 
     fn handle_request(&mut self, request: SchedulerCommand) {
+        println!("handle_request0");
         match request {
-            SchedulerCommand::Add(ex) => self.run_q.push(Runnable::from_boxed_task(ex)),
-            SchedulerCommand::Run(f) => f(self),
-            SchedulerCommand::Execute => self.execute_loop(),
+            SchedulerCommand::Add(ex) => {
+                println!("handle_request add0");             
+                self.run_q.push(Runnable::from_boxed_task(ex))
+            }
+            SchedulerCommand::Run(f) => {
+                println!("handle_request run0");                             
+                f(self)
+            }
+            SchedulerCommand::Execute => {
+                println!("handle_request execute0");
+                self.execute_loop()
+            }
             SchedulerCommand::Shutdown => {
                 self.execute_loop = false;
                 self.shutdown = true;
@@ -118,8 +128,10 @@ impl StandaloneScheduler {
                 self.sched_channel.recv()
             }
         } {
+            println!("handle_requests0");
             self.handle_request(cmd)
         }
+
         info!(
             "Scheduler exiting {}",
             thread::current().name().unwrap_or_else(|| "unknown-name")

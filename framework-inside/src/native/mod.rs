@@ -3,6 +3,7 @@ use self::mbuf::MBuf;
 
 pub fn mbuf_alloc_bulk(array: *mut *mut MBuf, len: u16, cnt: i32) -> i32
 {
+    println!("mbuf_alloc_bulk");
     unsafe{        
         for i in 0..cnt {
             *(array.offset(i as isize)) = &mut MBuf::new(len as u32);

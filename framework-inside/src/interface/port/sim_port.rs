@@ -63,6 +63,7 @@ impl PacketRx for SimulateQueue {
         let alloced = if status == 0 { len } else { 0 };
         let update = self.stats_rx.stats.load(Ordering::Relaxed) + alloced as usize;
         self.stats_rx.stats.store(update, Ordering::Relaxed);
+        println!("rx {}, tx {}", self.stats_rx.stats.load(Ordering::Relaxed), self.stats_tx.stats.load(Ordering::Relaxed)); stdout().flush().unwrap();
         Ok(alloced as u32)
     }
 }
@@ -81,32 +82,26 @@ fn fib(n: u64) -> u64{
 
 impl SimulatePort {
     pub fn new(port_config: &PortConfiguration) -> Result<Arc<SimulatePort>> {        
-        for _ in 0..3 {
-            let listener = TcpListener::bind("localhost:6010")?;
-            let (stream, peer_addr) = listener.accept()?;
-            let peer_addr = peer_addr.to_string();
-            let local_addr = stream.local_addr()?;
-            eprintln!(
-                "App:: accept  - local address is {}, peer address is {}",
-                local_addr, peer_addr
-            );
+        let listener = TcpListener::bind("localhost:6010")?;
+        let (stream, peer_addr) = listener.accept()?;
+        let peer_addr = peer_addr.to_string();
+        let local_addr = stream.local_addr()?;
+        eprintln!(
+            "App:: accept  - local address is {}, peer address is {}",
+            local_addr, peer_addr
+        );
 
-            let mut reader = BufReader::new(stream);
-            let mut message = String::new();
-            loop {
-                let read_bytes = reader.read_line(&mut message)?;
-                if read_bytes == 0 {
-                    break;
-                }
-                print!("{}", message);
-                let queue_addr: Vec<u64> = 
-                     message.trim().split(' ')
-                    .map(|s| s.parse().unwrap())
-                    .collect();
-                println!("{:?}", queue_addr);
-                // fib(30);
-            }
-        }
+        let mut reader = BufReader::new(stream);
+        let mut message = String::new();
+        
+        let read_bytes = reader.read_line(&mut message)?;
+        print!("{}", message);
+        let queue_addr: Vec<u64> = 
+                message.trim().split(' ')
+            .map(|s| s.parse().unwrap())
+            .collect();
+        println!("{:?}", queue_addr);
+            // fib(30);
 
         Ok(Arc::new(SimulatePort {
             stats_rx: Arc::new(PortStats::new()),
