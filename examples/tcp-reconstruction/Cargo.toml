@@ -15,7 +15,7 @@ getopts = ">= 0.2.19"
 rand = "0.6"
 fnv = ">= 1.0.6"
 twox-hash = ">= 1.2.0"
-netbricks = { path = "../../framework" }
+netbricks = { path = "../../framework-inside" }
 
 [features]
 default = []

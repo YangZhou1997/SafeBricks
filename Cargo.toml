@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "framework",
+    "framework-inside",
+    "framework-outside",
     # "examples/ttl-chain",
     # "examples/collect-metrics",
     # "examples/echo-reply",
@@ -32,8 +33,7 @@ members = [
     # "examples/nat-tcp-v4-ipsec",
     # "examples/monitoring-ipsec",
     # for sgx 
-    "runner",
-    "pktpuller"
+    "sgx-runner",
 ]
 exclude = ["rust-sgx"]
 

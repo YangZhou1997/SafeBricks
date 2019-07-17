@@ -12,7 +12,7 @@ categories = ["network-functions", "framework"]
 [dependencies]
 log = ">= 0.4"
 simplelog = ">= 0.5"
-netbricks = { path = "../../framework" }
+netbricks = { path = "../../framework-inside" }
 
 [features]
 default = []
