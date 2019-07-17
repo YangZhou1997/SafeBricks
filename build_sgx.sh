@@ -35,13 +35,13 @@ native () {
     make -C $BASE_DIR/native install
 }
 
+native
+
 # Build custom runner
-pushd runner
+pushd sgx-runner
 if [ "$MODE" == "debug" ]; then
-    native
     cargo +nightly build
 else
-    native
     cargo +nightly build --release
 fi
 popd
