@@ -17,7 +17,7 @@ pub use tokio_signal::unix::{SIGHUP, SIGINT, SIGTERM};
 type TokioRuntime = tokio::runtime::current_thread::Runtime;
 
 pub struct Runtime {
-    context: NetBricksContext,
+    pub context: NetBricksContext,
     tokio_rt: TokioRuntime,
     on_signal: Arc<Fn(i32) -> std::result::Result<(), i32>>,
 }

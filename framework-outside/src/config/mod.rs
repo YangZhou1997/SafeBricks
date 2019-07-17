@@ -211,14 +211,22 @@ impl Source for CommandLine {
 }
 
 static DEFAULT_TOML: &'static str = r#"
-    name = "netbricks"
+    name = "netbricks-outside"
     secondary = false
     primary_core = 0
     cores = [0]
     strict = false
     pool_size = 2047
     cache_size = 32
-    ports = []
+    [[ports]]
+        name = "0000:04:00.0"
+        rx_queues = [0]
+        tx_queues = [0]
+        rxd = 128
+        txd = 128
+        loopback = false
+        tso = false
+        csum = false
     duration = 0
 "#;
 

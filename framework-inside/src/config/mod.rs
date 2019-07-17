@@ -107,7 +107,7 @@ impl fmt::Display for PortConfiguration {
 
 
 static DEFAULT_TOML: &'static str = r#"
-    name = "netbricks"
+    name = "netbricks-inside"
     secondary = false
     primary_core = 0
     cores = [0]
@@ -115,7 +115,7 @@ static DEFAULT_TOML: &'static str = r#"
     pool_size = 2047
     cache_size = 32
     [[ports]]
-        name = "0000:04:00.0"
+        name = "SimulateQueue"
         rx_queues = [0]
         tx_queues = [0]
         rxd = 128

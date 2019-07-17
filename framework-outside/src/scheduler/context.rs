@@ -41,7 +41,9 @@ pub struct PortError(String);
 #[derive(Default)]
 pub struct NetBricksContext {
     pub ports: HashMap<String, Arc<PmdPort>>,
+    // pub main_port: Arc<PmdPort>,
     pub rx_queues: HashMap<i32, Vec<CacheAligned<PortQueue>>>,
+    // pub queues_vec: Vec<CacheAligned<PortQueue>>,
     pub active_cores: Vec<i32>,
     pub virtual_ports: HashMap<i32, Arc<VirtualPort>>,
     scheduler_channels: HashMap<i32, SyncSender<SchedulerCommand>>,
@@ -234,6 +236,7 @@ pub fn initialize_system(configuration: &NetBricksConfiguration) -> Result<NetBr
             match PmdPort::new_port_from_configuration(port) {
                 Ok(p) => {
                     ctx.ports.insert(port.name.clone(), p);
+                    // ctx.main_port = &p; // only one port in hostio.
                 }
                 Err(e) => {
                     return Err(PortError(format!(
@@ -250,7 +253,8 @@ pub fn initialize_system(configuration: &NetBricksConfiguration) -> Result<NetBr
                 let rx_q = rx_q as i32;
                 match PmdPort::new_queue_pair(port_instance, rx_q, rx_q) {
                     Ok(q) => {
-                        ctx.rx_queues.entry(*core).or_insert_with(|| vec![]).push(q);
+                        ctx.rx_queues.entry(*core).or_insert_with(|| vec![]).push(q); // on hostio, we actualy only have one core.
+                        // ctx.queues_vec.push(&q); // queues_vec is the pmdqueues of the hostio core
                     }
                     Err(e) => {
                         return Err(PortError(format!(

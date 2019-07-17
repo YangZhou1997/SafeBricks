@@ -12,6 +12,7 @@ use std::io::stdout;
 use std::io::Write;
 
 
+// This "ports" is essentially "queues"
 fn install<T, S>(ports: Vec<T>, sched: &mut S)
 where
     T: PacketRx + PacketTx + Display + Clone + 'static,
