@@ -15,7 +15,7 @@ use pktpuller::operators::{Batch, ReceiveBatch};
 use pktpuller::packets::{Ethernet, Packet, RawPacket};
 use pktpuller::runtime::Runtime;
 use pktpuller::scheduler::{Scheduler, Executable};
-use pktpuller::shared_ring::*;
+use pktpuller::heap_ring::*;
 use haproxy::{run_client, run_server, parse_args};
 
 use std::thread;
@@ -31,7 +31,7 @@ lazy_static!{
 }
 
 // This "ports" is essentially "queues"
-fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>)
+fn hostio_test<T, >(main_port: Arc<PmdPort>, ports: Vec<T>)
 where
     T: PacketRx + PacketTx + Display + Clone + 'static,
 {
@@ -66,6 +66,62 @@ fn macswap(packet: RawPacket) -> PktResult<Ethernet> {
     Ok(ethernet)
 }
 
+
+// This "ports" is essentially "queues"
+fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>, recvq_ring: RingBuffer, sendq_ring: RingBuffer)
+where
+    T: PacketRx + PacketTx + Display + Clone + 'static,
+{
+    for port in &ports {
+        println!("Receiving port {}", port);
+    }
+    
+    loop {
+        // hostio only used ports[0];
+        let mbufs = Vec::<*mut MBuf>::with_capacity(BATCH_SIZE),
+
+        // pull packets; write mbuf pointers to mbufs.     
+        let recv_pkt_num = match ports[0].recv(mbufs.as_mut_slice()) {
+            Ok(received) => received,
+            // the underlying DPDK method `rte_eth_rx_burst` will
+            // never return an error. The error arm is unreachable
+            _ => unreachable!(),
+        };
+        
+        // recvq_ring.write_at_tail(data: &[u8])
+        let pkt_bufs = mbufs.iter().map(
+            |b| {
+                (b as &mut MBuf).data_address(0) // *mut u8;
+            }
+        ).collect();
+        
+
+
+    }
+
+
+
+    // the shared memory ring that NF read/write packet from/to.     
+        let _: Vec<_> = ports
+            .iter()
+            .map(|port| {
+                ReceiveBatch::new(port.clone())
+                    .map(macswap)
+                    .send(port.clone()).execute()
+            })
+            .collect();
+    
+        BATCH_CNT.lock().unwrap()[0] += 1;
+        if BATCH_CNT.lock().unwrap()[0] % 1024 == 0 {
+            let (rx, tx) = main_port.stats(0);
+            println!("{} vs. {}", rx, tx);
+        }
+}
+
+
+const RXD: u32 = 128;
+const TXD: u32 = 128;
+
 fn main() -> PktResult<()> {
     let configuration = load_config()?;
     println!("{}", configuration);
@@ -82,10 +138,15 @@ fn main() -> PktResult<()> {
     });
 
     // Create two shared queue: recvq and sendq; 
+    let recvq_ring = unsafe{RingBuffer::new_in_heap((RXD * 8) as usize)}.unwrap();
+    let sendq_ring = unsafe{RingBuffer::new_in_heap((TXD * 8) as usize)}.unwrap();
 
+    let recvq_addr_u64: u64 = recvq_ring.head as u64; // *mut usize
+    let sendq_addr_u64: u64 = sendq_ring.head as u64;
 
+    println!("recvq_addr {}, sendq_addr {}", recvq_addr_u64, sendq_addr_u64);
     // send recvq_addr and sendq_addr to the enclave through TCP tunnel. 
-    run_client(0x12345678, 0xabcdefff); // recvq_addr, sendq_addr
+    run_client(recvq_addr_u64, sendq_addr_u64); // recvq_addr, sendq_addr
 
     // keep pulling packet from DPDK port, and push pkt pointers to recvq
     // keep pulling packet pointers from sendq, and send them out to the DPDK port.
@@ -95,7 +156,7 @@ fn main() -> PktResult<()> {
 
     let ports = runtime.context.rx_queues.get(&0).unwrap().clone(); // get this hostio core's queues.
 
-    hostio(main_port, ports);
+    hostio(main_port, ports, recvq_ring, sendq_ring);
 
     let _ = server.join().unwrap();
     Ok(())

@@ -65,4 +65,4 @@ pub mod shared_state;
 pub mod state;
 pub mod tests;
 pub mod utils;
-pub mod shared_ring;
+pub mod heap_ring;
