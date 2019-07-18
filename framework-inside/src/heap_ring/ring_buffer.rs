@@ -8,6 +8,7 @@ use std::io::Error;
 use std::ptr;
 use utils::PAGE_SIZE;
 use std::slice;
+use native::mbuf::MBuf;
 
 pub const sendq_name: &str = "safebricks_sendq";
 pub const recvq_name: &str = "safebricks_recvq";
@@ -18,10 +19,9 @@ pub const mbufq_name: &str = "safebricks_mbufq";
 #[fail(display = "Bad ring size {}, must be a power of 2", _0)]
 struct InvalidRingSize(usize);
 
+#[derive(Clone)]
 /// A ring buffer which can be used to insert and read ordered data.
 pub struct RingBuffer {
-    /// boxed ring; avoid heap memory being dropped;
-    boxed: Box<[u8]>, 
     /// Head, signifies where a consumer should read from.
     pub head: *mut usize,
     /// Tail, signifies where a producer should write.
@@ -34,6 +34,7 @@ pub struct RingBuffer {
     vec: *mut u8,
 }
 
+unsafe impl Sync for RingBuffer {}
 unsafe impl Send for RingBuffer {}
 
 #[cfg_attr(feature = "dev", allow(len_without_is_empty))]
@@ -41,25 +42,16 @@ impl RingBuffer {
     /// Create a new wrapping ring buffer. The ring buffer size is specified in bytes and must be a power of 2. 
     /// bytes is the number of bytes of RingBuffer::vec
     /// we will require additional 16 bytes to store the meta-data for this ring.
-    pub unsafe fn new_in_heap(bytes: usize) -> Result<RingBuffer>{
+    pub unsafe fn attach_in_heap(bytes: usize, queue_addr_u64: u64) -> Result<RingBuffer>{
         if bytes & (bytes - 1) != 0 {
             // We need pages to be a power of 2.
             return Err(InvalidRingSize(bytes).into());
         }
 
-        let vec: Vec<u8> = vec![0; bytes + 16];
-        let mut boxed: Box<[u8]> = vec.into_boxed_slice(); // Box<[u8]> is just like &[u8];
-
-        let address = &mut boxed[0] as *mut u8;
-        unsafe{
-            *(address as *mut usize) = 0;
-            *((address as *mut usize).offset(1)) = 0;
-            *((address as *mut usize).offset(2)) = bytes;
-            *((address as *mut usize).offset(3)) = bytes - 1;
-        }
+        let head_addr = queue_addr_u64 as (*mut u32);
+        let address = head_addr as *mut u8;
 
         Ok(RingBuffer {
-            boxed,
             head: (address as *mut usize),
             tail: (address as *mut usize).offset(1), 
             size: (address as *mut usize).offset(2),
@@ -74,16 +66,16 @@ impl RingBuffer {
         unsafe{(*self.head)}
     }
     #[inline]
-    fn set_head(&mut self, new_head: usize){
+    fn set_head(&self, new_head: usize){
         unsafe{*self.head = new_head;}
     }
     #[inline]
-    fn wrapping_sub_head(&mut self, delta: usize)
+    fn wrapping_sub_head(&self, delta: usize)
     {
         self.set_head(self.head().wrapping_sub(delta));        
     }
     #[inline]
-    fn wrapping_add_head(&mut self, delta: usize)
+    fn wrapping_add_head(&self, delta: usize)
     {
         self.set_head(self.head().wrapping_add(delta));        
     }
@@ -93,16 +85,16 @@ impl RingBuffer {
         unsafe{(*self.tail)}
     }
     #[inline]
-    fn set_tail(&mut self, new_tail: usize){
+    fn set_tail(&self, new_tail: usize){
         unsafe{*self.tail = new_tail;}
     }
     #[inline]
-    fn wrapping_sub_tail(&mut self, delta: usize)
+    fn wrapping_sub_tail(&self, delta: usize)
     {
         self.set_tail(self.tail().wrapping_sub(delta));        
     }
     #[inline]
-    fn wrapping_add_tail(&mut self, delta: usize)
+    fn wrapping_add_tail(&self, delta: usize)
     {
         self.set_tail(self.tail().wrapping_add(delta));
     }
@@ -112,7 +104,7 @@ impl RingBuffer {
         unsafe{(*self.size)}
     }
     #[inline]
-    fn set_size(&mut self, new_size: usize){
+    fn set_size(&self, new_size: usize){
         unsafe{*self.size = new_size;}
     }
 
@@ -121,7 +113,7 @@ impl RingBuffer {
         unsafe{(*self.mask)}
     }
     #[inline]
-    fn set_mask(&mut self, new_mask: usize){
+    fn set_mask(&self, new_mask: usize){
         unsafe{*self.mask = new_mask;}
     }
     
@@ -130,21 +122,21 @@ impl RingBuffer {
         unsafe{slice::from_raw_parts(self.vec as *const u8, self.size())}
     }
     #[inline]
-    fn vec_as_mut_u8(&mut self) -> &mut [u8]{
+    fn vec_as_mut_u8(&self) -> &mut [u8]{
         unsafe{slice::from_raw_parts_mut(self.vec, self.size())}
     }
 
 
     /// Read from the buffer, incrementing the read head. Returns bytes read.
     #[inline]
-    pub fn read_from_head(&mut self, data: &mut [u8]) -> usize {
+    pub fn read_from_head(&self, data: &mut [u8]) -> usize {
         let len = data.len();
         self.read_from_head_with_increment(data, len)
     }
 
     /// Write data at the end of the buffer. The amount of data written might be smaller than input.
     #[inline]
-    pub fn write_at_tail(&mut self, data: &[u8]) -> usize {
+    pub fn write_at_tail(&self, data: &[u8]) -> usize {
         let available = self.size().wrapping_add(self.head()).wrapping_sub(self.tail());
         let write = min(data.len(), available);
         if write != data.len() {
@@ -157,7 +149,7 @@ impl RingBuffer {
 
     /// Reads data from self.vec, wrapping around the end of the Vec if necessary. Returns the
     /// number of bytes written.
-    fn wrapped_read(&mut self, offset: usize, data: &mut [u8]) -> usize {
+    fn wrapped_read(&self, offset: usize, data: &mut [u8]) -> usize {
         let mut bytes: usize = 0;
         let ring_size = self.size();
         assert!(offset < ring_size);
@@ -174,7 +166,7 @@ impl RingBuffer {
 
     /// Writes data to self.vec[offset..], wrapping around the end of the Vec if necessary. Returns
     /// the number of bytes written.
-    fn wrapped_write(&mut self, offset: usize, data: &[u8]) -> usize {
+    fn wrapped_write(&self, offset: usize, data: &[u8]) -> usize {
         let mut bytes: usize = 0;
         let ring_size = self.size();
         assert!(offset < ring_size);
@@ -202,7 +194,7 @@ impl RingBuffer {
 
     /// Read from the buffer, incrementing the read head by `increment` bytes. Returns bytes read.
     #[inline]
-    pub fn read_from_head_with_increment(&mut self, data: &mut [u8], increment: usize) -> usize {
+    pub fn read_from_head_with_increment(&self, data: &mut [u8], increment: usize) -> usize {
         let offset = self.read_offset();
         let to_read = min(self.available(), data.len());
         self.wrapping_add_head(min(increment, to_read));        
@@ -212,7 +204,7 @@ impl RingBuffer {
     /// Seek the read head by `seek` bytes (without actually reading any data). `seek` must be less-than-or-equal to the
     /// number of available bytes.
     #[inline]
-    pub fn seek_head(&mut self, seek: usize) {
+    pub fn seek_head(&self, seek: usize) {
         let available = self.available();
         assert!(available >= seek, "Seek beyond available bytes.");
         self.wrapping_add_head(seek);
@@ -233,12 +225,12 @@ impl RingBuffer {
     /// In cases with out-of-order data this allows the write head (and hence the amount of available data) to be
     /// progressed without writing anything.
     #[inline]
-    pub fn seek_tail(&mut self, increment_by: usize) {
-        self.tail = self.tail.wrapping_add(increment_by);
+    pub fn seek_tail(&self, increment_by: usize) {
+        self.set_tail(self.tail().wrapping_add(increment_by));
     }
 
     #[inline]
-    pub fn clear(&mut self) {
+    pub fn clear(&self) {
         self.set_head(0);
         self.set_tail(0);
     }

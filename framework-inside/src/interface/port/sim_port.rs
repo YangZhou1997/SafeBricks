@@ -8,18 +8,21 @@ use std::fmt;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use config::{PortConfiguration, NUM_RXD, NUM_TXD};
+use operators::BATCH_SIZE;
 
 use std::io::stdout;
 use std::io::Write;
 
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
+use std::thread;
+use std::slice;
+
+use heap_ring::ring_buffer::*;
 
 pub struct SimulatePort {
     stats_rx: Arc<CacheAligned<PortStats>>,
     stats_tx: Arc<CacheAligned<PortStats>>,
-    recvq_addr: u64,
-    sendq_addr: u64,
 }
 
 impl fmt::Debug for SimulatePort {
@@ -32,6 +35,8 @@ impl fmt::Debug for SimulatePort {
 pub struct SimulateQueue {
     stats_rx: Arc<CacheAligned<PortStats>>,
     stats_tx: Arc<CacheAligned<PortStats>>,
+    recvq_ring: RingBuffer,
+    sendq_ring: RingBuffer,
 }
 
 impl fmt::Display for SimulateQueue {
@@ -43,10 +48,31 @@ impl fmt::Display for SimulateQueue {
 impl PacketTx for SimulateQueue {
     #[inline]
     fn send(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
-        let len = pkts.len() as i32;
+        let mut mbufs = pkts.to_vec();
+        let len = mbufs.len() as i32;
         let update = self.stats_tx.stats.load(Ordering::Relaxed) + len as usize;
         self.stats_tx.stats.store(update, Ordering::Relaxed);
-        mbuf_free_bulk(pkts.as_mut_ptr(), len);
+
+        // push len mbuf pointers to sendq.
+        if !mbufs.is_empty() {
+            let mut to_send = mbufs.len();
+            while to_send > 0 {
+                let b_u8_p = unsafe{ (&(*(mbufs[0])) as *const MBuf) as *const u8 };
+                let b_u8_array = unsafe{ slice::from_raw_parts(b_u8_p, to_send * 8) };
+                let sent = self.sendq_ring.write_at_tail(b_u8_array) / 8;
+                // println!("{}, {}", sent, recvq_ring.tail());
+                thread::sleep(std::time::Duration::from_secs(1));// for debugging;
+            
+                to_send -= sent;
+                if to_send > 0 {
+                    mbufs.drain(..sent);
+                }
+            }
+            unsafe {
+                unsafe{ mbufs.set_len(0) };
+            }
+        }
+        // mbuf_free_bulk(mbufs.as_mut_ptr(), len);
         Ok(len as u32)
     }
 }
@@ -56,11 +82,20 @@ impl PacketRx for SimulateQueue {
     /// called).
     #[inline]
     fn recv(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
-        let len = pkts.len() as i32;
+        let mut mbufs = pkts.to_vec();
+        let len = mbufs.len() as i32;
         // println!("recv0"); stdout().flush().unwrap();
-        let status = mbuf_alloc_bulk(pkts.as_mut_ptr(), MAX_MBUF_SIZE, len);
+        
+        // pull packet from recvq;
+        let b_u8_p_mut = unsafe{ (&mut (*(mbufs[0])) as *mut MBuf) as *mut u8 };
+        let b_u8_array_mut = unsafe{ slice::from_raw_parts_mut(b_u8_p_mut, BATCH_SIZE * 8) };
+        let recv_pkt_num_from_enclave = self.recvq_ring.read_from_head(b_u8_array_mut) / 8;
+        unsafe{ mbufs.set_len(recv_pkt_num_from_enclave) }; 
+
+        // let status = mbuf_alloc_bulk(mbufs.as_mut_ptr(), MAX_MBUF_SIZE, len);
         // println!("recv1 {}", status); stdout().flush().unwrap();
-        let alloced = if status == 0 { len } else { 0 };
+        // let alloced = if status == 0 { len } else { 0 };
+        let alloced = recv_pkt_num_from_enclave;
         let update = self.stats_rx.stats.load(Ordering::Relaxed) + alloced as usize;
         self.stats_rx.stats.store(update, Ordering::Relaxed);
         // println!("rx {}, tx {}", self.stats_rx.stats.load(Ordering::Relaxed), self.stats_tx.stats.load(Ordering::Relaxed)); stdout().flush().unwrap();
@@ -82,6 +117,13 @@ fn fib(n: u64) -> u64{
 
 impl SimulatePort {
     pub fn new(port_config: &PortConfiguration) -> Result<Arc<SimulatePort>> {        
+        Ok(Arc::new(SimulatePort {
+            stats_rx: Arc::new(PortStats::new()),
+            stats_tx: Arc::new(PortStats::new()),
+        }))
+    }
+
+    pub fn new_simulate_queue(&self, _queue: i32) -> Result<CacheAligned<SimulateQueue>> {
         let listener = TcpListener::bind("localhost:6010")?;
         let (stream, peer_addr) = listener.accept()?;
         let peer_addr = peer_addr.to_string();
@@ -103,18 +145,11 @@ impl SimulatePort {
         println!("{:?}", queue_addr);
             // fib(30);
 
-        Ok(Arc::new(SimulatePort {
-            stats_rx: Arc::new(PortStats::new()),
-            stats_tx: Arc::new(PortStats::new()),
-            recvq_addr: 0, 
-            sendq_addr: 0,
-        }))
-    }
-
-    pub fn new_simulate_queue(&self, _queue: i32) -> Result<CacheAligned<SimulateQueue>> {
         Ok(CacheAligned::allocate(SimulateQueue {
             stats_rx: self.stats_rx.clone(),
             stats_tx: self.stats_tx.clone(),
+            recvq_ring: unsafe{ RingBuffer::attach_in_heap(NUM_RXD as usize, queue_addr[0]).unwrap() }, 
+            sendq_ring: unsafe{ RingBuffer::attach_in_heap(NUM_TXD as usize, queue_addr[1]).unwrap() },
         }))
     }
 

@@ -312,6 +312,7 @@ impl SimulateHaProxyConfig {
             .write_all(&format!("{} {}\n", recvq_addr, sendq_addr).as_bytes())
             .unwrap();
         stream.shutdown(Shutdown::Write).unwrap();
+        thread::sleep(std::time::Duration::from_secs(1));// wait until server in enclave sets up;
     }
 
     fn ipv4() {
