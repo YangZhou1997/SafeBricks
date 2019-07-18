@@ -66,16 +66,16 @@ impl RingBuffer {
         unsafe{(*self.head)}
     }
     #[inline]
-    fn set_head(&self, new_head: usize){
+    pub fn set_head(&self, new_head: usize){
         unsafe{*self.head = new_head;}
     }
     #[inline]
-    fn wrapping_sub_head(&self, delta: usize)
+    pub fn wrapping_sub_head(&self, delta: usize)
     {
         self.set_head(self.head().wrapping_sub(delta));        
     }
     #[inline]
-    fn wrapping_add_head(&self, delta: usize)
+    pub fn wrapping_add_head(&self, delta: usize)
     {
         // println!("delta: {}", delta);
         self.set_head(self.head().wrapping_add(delta));        
@@ -86,44 +86,44 @@ impl RingBuffer {
         unsafe{(*self.tail)}
     }
     #[inline]
-    fn set_tail(&self, new_tail: usize){
+    pub fn set_tail(&self, new_tail: usize){
         unsafe{*self.tail = new_tail;}
     }
     #[inline]
-    fn wrapping_sub_tail(&self, delta: usize)
+    pub fn wrapping_sub_tail(&self, delta: usize)
     {
         self.set_tail(self.tail().wrapping_sub(delta));        
     }
     #[inline]
-    fn wrapping_add_tail(&self, delta: usize)
+    pub fn wrapping_add_tail(&self, delta: usize)
     {
         self.set_tail(self.tail().wrapping_add(delta));
     }
 
     #[inline]
-    fn size(&self) -> usize{
+    pub fn size(&self) -> usize{
         unsafe{(*self.size)}
     }
     #[inline]
-    fn set_size(&self, new_size: usize){
+    pub fn set_size(&self, new_size: usize){
         unsafe{*self.size = new_size;}
     }
 
     #[inline]
-    fn mask(&self) -> usize{
+    pub fn mask(&self) -> usize{
         unsafe{(*self.mask)}
     }
     #[inline]
-    fn set_mask(&self, new_mask: usize){
+    pub fn set_mask(&self, new_mask: usize){
         unsafe{*self.mask = new_mask;}
     }
     
     #[inline]
-    fn vec_as_u8(&self) -> &[u8]{
+    pub fn vec_as_u8(&self) -> &[u8]{
         unsafe{slice::from_raw_parts(self.vec as *const u8, self.size())}
     }
     #[inline]
-    fn vec_as_mut_u8(&self) -> &mut [u8]{
+    pub fn vec_as_mut_u8(&self) -> &mut [u8]{
         unsafe{slice::from_raw_parts_mut(self.vec, self.size())}
     }
 
