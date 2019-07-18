@@ -77,6 +77,7 @@ impl RingBuffer {
     #[inline]
     fn wrapping_add_head(&self, delta: usize)
     {
+        // println!("delta: {}", delta);
         self.set_head(self.head().wrapping_add(delta));        
     }
 
@@ -131,6 +132,7 @@ impl RingBuffer {
     #[inline]
     pub fn read_from_head(&self, data: &mut [u8]) -> usize {
         let len = data.len();
+        // println!("len: {}", len);
         self.read_from_head_with_increment(data, len)
     }
 
@@ -184,6 +186,7 @@ impl RingBuffer {
     /// Data available to be read.
     #[inline]
     pub fn available(&self) -> usize {
+        // println!("tail {}", self.tail());
         self.tail().wrapping_sub(self.head())
     }
 
@@ -197,6 +200,8 @@ impl RingBuffer {
     pub fn read_from_head_with_increment(&self, data: &mut [u8], increment: usize) -> usize {
         let offset = self.read_offset();
         let to_read = min(self.available(), data.len());
+        // println!("offset {}, to_read {}", offset, to_read);
+
         self.wrapping_add_head(min(increment, to_read));        
         self.wrapped_read(offset, &mut data[..to_read])
     }

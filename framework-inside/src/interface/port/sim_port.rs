@@ -16,9 +16,18 @@ use std::io::Write;
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
 use std::thread;
+use std::sync::Mutex;
 use std::slice;
 
 use heap_ring::ring_buffer::*;
+
+// pkt_count;
+lazy_static!{
+    static ref BATCH_CNT: Mutex<Vec<u64>> = {
+        let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
+        Mutex::new(batch_cnt)
+    };
+}
 
 pub struct SimulatePort {
     stats_rx: Arc<CacheAligned<PortStats>>,
@@ -50,6 +59,7 @@ impl PacketTx for SimulateQueue {
     fn send(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
         let mut mbufs = pkts.to_vec();
         let len = mbufs.len() as i32;
+        // let len = pkts.len() as i32;
         let update = self.stats_tx.stats.load(Ordering::Relaxed) + len as usize;
         self.stats_tx.stats.store(update, Ordering::Relaxed);
 
@@ -60,8 +70,8 @@ impl PacketTx for SimulateQueue {
                 let b_u8_p = unsafe{ (&(*(mbufs[0])) as *const MBuf) as *const u8 };
                 let b_u8_array = unsafe{ slice::from_raw_parts(b_u8_p, to_send * 8) };
                 let sent = self.sendq_ring.write_at_tail(b_u8_array) / 8;
-                // println!("{}, {}", sent, recvq_ring.tail());
-                thread::sleep(std::time::Duration::from_secs(1));// for debugging;
+                println!("{}, {}", sent, self.sendq_ring.tail());
+                // thread::sleep(std::time::Duration::from_secs(1));// for debugging;
             
                 to_send -= sent;
                 if to_send > 0 {
@@ -72,7 +82,7 @@ impl PacketTx for SimulateQueue {
                 unsafe{ mbufs.set_len(0) };
             }
         }
-        // mbuf_free_bulk(mbufs.as_mut_ptr(), len);
+        // mbuf_free_bulk(pkts.as_mut_ptr(), len);
         Ok(len as u32)
     }
 }
@@ -84,6 +94,8 @@ impl PacketRx for SimulateQueue {
     fn recv(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
         let mut mbufs = pkts.to_vec();
         let len = mbufs.len() as i32;
+        // let len = pkts.len() as i32;
+
         // println!("recv0"); stdout().flush().unwrap();
         
         // pull packet from recvq;
@@ -91,8 +103,14 @@ impl PacketRx for SimulateQueue {
         let b_u8_array_mut = unsafe{ slice::from_raw_parts_mut(b_u8_p_mut, BATCH_SIZE * 8) };
         let recv_pkt_num_from_enclave = self.recvq_ring.read_from_head(b_u8_array_mut) / 8;
         unsafe{ mbufs.set_len(recv_pkt_num_from_enclave) }; 
+        
+        BATCH_CNT.lock().unwrap()[0] += 1;
+        let batch_cnt = BATCH_CNT.lock().unwrap()[0];
+        if batch_cnt % (1024 * 1024) == 0 || recv_pkt_num_from_enclave != 0{
+            println!("{}, {}, {}", recv_pkt_num_from_enclave, self.recvq_ring.tail(), self.recvq_ring.head());
+        }
 
-        // let status = mbuf_alloc_bulk(mbufs.as_mut_ptr(), MAX_MBUF_SIZE, len);
+        // let status = mbuf_alloc_bulk(pkts.as_mut_ptr(), MAX_MBUF_SIZE, len);
         // println!("recv1 {}", status); stdout().flush().unwrap();
         // let alloced = if status == 0 { len } else { 0 };
         let alloced = recv_pkt_num_from_enclave;
@@ -148,8 +166,8 @@ impl SimulatePort {
         Ok(CacheAligned::allocate(SimulateQueue {
             stats_rx: self.stats_rx.clone(),
             stats_tx: self.stats_tx.clone(),
-            recvq_ring: unsafe{ RingBuffer::attach_in_heap(NUM_RXD as usize, queue_addr[0]).unwrap() }, 
-            sendq_ring: unsafe{ RingBuffer::attach_in_heap(NUM_TXD as usize, queue_addr[1]).unwrap() },
+            recvq_ring: unsafe{ RingBuffer::attach_in_heap((NUM_RXD * 8) as usize, queue_addr[0]).unwrap() }, 
+            sendq_ring: unsafe{ RingBuffer::attach_in_heap((NUM_TXD * 8) as usize, queue_addr[1]).unwrap() },
         }))
     }
 

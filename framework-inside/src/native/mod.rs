@@ -1,4 +1,4 @@
-pub(crate) mod mbuf;
+pub mod mbuf;
 use self::mbuf::MBuf;
 
 pub fn mbuf_alloc_bulk(array: *mut *mut MBuf, len: u16, cnt: i32) -> i32

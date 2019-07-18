@@ -31,7 +31,7 @@ impl Runtime {
         self.context.add_pipeline_to_run(Arc::new(installer));
     }
 
-    fn shutdown(&mut self) {
+    pub fn shutdown(&mut self) {
         info!("shutting down context");
         self.context.shutdown();
     }

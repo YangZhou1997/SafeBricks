@@ -46,8 +46,8 @@ pub mod config;
 pub mod interface;
 pub mod scheduler;
 #[allow(dead_code)]
-mod native;
-mod native_include;
+pub mod native;
+pub mod native_include;
 pub mod operators;
 pub mod packets;
 // pub mod shared_state;

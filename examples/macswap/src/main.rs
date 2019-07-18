@@ -11,7 +11,6 @@ use std::fmt::Display;
 use std::io::stdout;
 use std::io::Write;
 
-
 // This "ports" is essentially "queues"
 fn install<T, S>(ports: Vec<T>, sched: &mut S)
 where
@@ -39,6 +38,7 @@ where
 
 fn macswap(packet: RawPacket) -> Result<Ethernet> {
     assert!(packet.refcnt() == 1);
+    println!("macswap");
     let mut ethernet = packet.parse::<Ethernet>()?;
     ethernet.swap_addresses();
     Ok(ethernet)
@@ -53,6 +53,8 @@ fn main() -> Result<()> {
 
     // if you want to see output from the child thread, you much let the father thread wait instead of exiting.
     // However, this will make the child thread un-stopped when you press ctrl+c.
-    // runtime.wait(); 
+    runtime.wait();
+    // thread::sleep(std::time::Duration::from_secs(10));// for debugging;
+
     Ok(())
 }
