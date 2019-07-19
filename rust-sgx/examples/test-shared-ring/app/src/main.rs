@@ -12,7 +12,7 @@ use netbricks::packets::{Ethernet as EthernetSGX, Packet as PacketSGX, RawPacket
 
 use std::sync::{Arc, Mutex};
 
-// pkt_count;
+// poll_count;
 lazy_static!{
     static ref BATCH_CNT_SGX: Mutex<Vec<u64>> = {
         let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
@@ -50,7 +50,8 @@ fn main() -> std::io::Result<()> {
     println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
 
     let mut mbufs = Vec::<*mut MBufSGX>::with_capacity(BATCH_SIZE);
-    
+    let mut poll_count: u64 = 0;
+    let mut pkt_count: u64 = 0;
     loop{
         // fib(300);
         unsafe{ mbufs.set_len(BATCH_SIZE) };
@@ -73,25 +74,27 @@ fn main() -> std::io::Result<()> {
 
         // let rand_v: f64 = rand::thread_rng().gen();
         // if rand_v < 0.00001 {}
-        if recv_pkt_num_from_outside > 0 {
-            BATCH_CNT_SGX.lock().unwrap()[0] += 1;
-            if BATCH_CNT_SGX.lock().unwrap()[0] % (1024 * 32) == 0 {
+            poll_count += 1;
+            if poll_count % (1024 * 32) == 0 {
+                if recv_pkt_num_from_outside > 0 {
+                    pkt_count += recv_pkt_num_from_outside as u64;
                     let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
                     let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
                     println!("src: {:?}", ethernet.src());
                     println!("dst: {:?}", ethernet.dst());
                     ethernet.swap_addresses();
-                // let _: Vec<()> = mbufs.iter().map({
-                //     |m| {
-                //         let mut raw = RawPacket::from_mbuf(*m);
-                //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
-                //         println!("src: {:?}", ethernet.src());
-                //         println!("dst: {:?}", ethernet.dst());
-                //         ethernet.swap_addresses();
-                //     }
-                // }).collect();
+                    // let _: Vec<()> = mbufs.iter().map({
+                    //     |m| {
+                    //         let mut raw = RawPacket::from_mbuf(*m);
+                    //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
+                    //         println!("src: {:?}", ethernet.src());
+                    //         println!("dst: {:?}", ethernet.dst());
+                    //         ethernet.swap_addresses();
+                    //     }
+                    // }).collect();
+                }
             }
-        }
+        // }
 
 
         if !mbufs.is_empty() {
@@ -106,6 +109,9 @@ fn main() -> std::io::Result<()> {
             unsafe {
                 unsafe{ mbufs.set_len(0) };
             }
+        }
+        if pkt_count >= (8 * 1024 * 1024) {
+            break;
         }
     }
     Ok(())

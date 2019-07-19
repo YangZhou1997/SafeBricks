@@ -36,7 +36,7 @@ use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
 
 
-// pkt_count;
+// poll_count;
 lazy_static!{
     static ref BATCH_CNT: Mutex<Vec<u64>> = {
         let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
@@ -44,7 +44,7 @@ lazy_static!{
     };
 }
 
-// pkt_count;
+// poll_count;
 lazy_static!{
     static ref BATCH_CNT_SGX: Mutex<Vec<u64>> = {
         let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
@@ -99,6 +99,8 @@ where
     }
 
     let mut mbufs = Vec::<*mut MBuf>::with_capacity(BATCH_SIZE);
+    let mut poll_count: u64 = 0;
+    let mut pkt_count: u64 = 0;
     loop {
         // hostio only used ports[0];
         unsafe{ mbufs.set_len(BATCH_SIZE) }; 
@@ -161,15 +163,19 @@ where
                 unsafe{ mbufs.set_len(0) };
             }
         }
-        if recv_pkt_num_from_nic > 0 {        
-            BATCH_CNT.lock().unwrap()[0] += 1;
-            if BATCH_CNT.lock().unwrap()[0] % (1024 * 32) == 0 {
+        // if recv_pkt_num_from_nic > 0 {          
+            poll_count += 1;
+            if poll_count % (1024 * 32) == 0 {
             // if recv_pkt_num_from_nic != 0 {
                 let (rx, tx) = main_port.stats(0);
                 println!("out-of-enclave: {} vs. {}; {} vs {}", rx, tx, recv_pkt_num_from_nic, recv_pkt_num_from_enclave);
             // }
             }
-        }
+        // }
+        pkt_count += recv_pkt_num_from_nic as u64;
+        // if pkt_count >= (8 * 1024 * 1024) {
+        //     break;
+        // }
     }
 }
 
@@ -230,25 +236,25 @@ fn run_server_thread() -> std::io::Result<()>
 
         // let rand_v: f64 = rand::thread_rng().gen();
         // if rand_v < 0.00001 {}
-        if recv_pkt_num_from_outside > 0 {
-            BATCH_CNT_SGX.lock().unwrap()[0] += 1;
-            if BATCH_CNT_SGX.lock().unwrap()[0] % (1024 * 32) == 0 {
-                    let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
-                    let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
-                    println!("src: {:?}", ethernet.src());
-                    println!("dst: {:?}", ethernet.dst());
-                    ethernet.swap_addresses();
-                // let _: Vec<()> = mbufs.iter().map({
-                //     |m| {
-                //         let mut raw = RawPacket::from_mbuf(*m);
-                //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
-                //         println!("src: {:?}", ethernet.src());
-                //         println!("dst: {:?}", ethernet.dst());
-                //         ethernet.swap_addresses();
-                //     }
-                // }).collect();
-            }
-        }
+        // if recv_pkt_num_from_outside > 0 {
+        //     BATCH_CNT_SGX.lock().unwrap()[0] += 1;
+        //     if BATCH_CNT_SGX.lock().unwrap()[0] % (1024 * 32) == 0 {
+        //             let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
+        //             let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
+        //             println!("src: {:?}", ethernet.src());
+        //             println!("dst: {:?}", ethernet.dst());
+        //             ethernet.swap_addresses();
+        //         // let _: Vec<()> = mbufs.iter().map({
+        //         //     |m| {
+        //         //         let mut raw = RawPacket::from_mbuf(*m);
+        //         //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
+        //         //         println!("src: {:?}", ethernet.src());
+        //         //         println!("dst: {:?}", ethernet.dst());
+        //         //         ethernet.swap_addresses();
+        //         //     }
+        //         // }).collect();
+        //     }
+        // }
 
 
         if !mbufs.is_empty() {
@@ -286,8 +292,8 @@ fn main() -> PktResult<()> {
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
         core_affinity::set_for_current(client_core);
-        run_server(file);
-        // run_server_thread();
+        // run_server(file);
+        run_server_thread();
     });
     core_affinity::set_for_current(server_core);
 
