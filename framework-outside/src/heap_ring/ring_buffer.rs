@@ -37,6 +37,13 @@ pub struct RingBuffer {
     vec: *mut (*mut MBuf),
 }
 
+impl Drop for RingBuffer {
+    fn drop(&mut self) {
+        unsafe {
+            println!("We do not allow RingBuffer outside enclave drop their MBuf pointed by vec");
+        }
+    }
+}
 unsafe impl Send for RingBuffer {}
 
 #[cfg_attr(feature = "dev", allow(len_without_is_empty))]

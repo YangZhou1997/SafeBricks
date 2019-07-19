@@ -36,6 +36,7 @@ use std::net::TcpListener;
 
 use std::sync::atomic::fence;
 use std::sync::atomic::Ordering;
+const PKT_NUM: u64 = (1024 * 10);
 
 // poll_count;
 lazy_static!{
@@ -187,9 +188,9 @@ fn run_server_thread() -> std::io::Result<u64>
         // }
         
         // you cannot break, since some memory segmentfault or heap double free error would appear.
-        // if pkt_count >= (1024 * 1024) {
-        //     break;
-        // }
+        if pkt_count >= PKT_NUM {
+             break;
+        }
     }
     Ok(pkt_count)
 }
@@ -222,7 +223,7 @@ where
         unsafe{ mbufs.set_len(BATCH_SIZE) }; 
 
         let mut recv_pkt_num_from_nic: u32 = 0;
-        if pkt_count_from_nic < (1024 * 1024) {
+        if pkt_count_from_nic < PKT_NUM {
             // pull packets from NIC; write mbuf pointers to mbufs.     
             recv_pkt_num_from_nic = match ports[0].recv(mbufs.as_mut_slice()) {
                 Ok(received) => {
@@ -296,12 +297,15 @@ where
             println!("  sendq: {} vs. {}", sendq_ring.head(), sendq_ring.tail());
         }
 
-        if pkt_count_from_nic >= (1024 * 1024) && pkt_count_from_enclave >= (1024 * 1024) {
+        if pkt_count_from_nic >= PKT_NUM && pkt_count_from_enclave >= PKT_NUM {
             break;
         }
     }
     // either not break above or have a loop here. 
-    loop{}
+    loop{
+        thread::sleep(std::time::Duration::from_secs(1));// for debugging;
+        println!("waiting for ctrl+c ...");
+    }
     Ok(pkt_count_from_nic)
 }
 
@@ -313,9 +317,9 @@ fn main() -> PktResult<()> {
     
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("core_affinity detect: # available cores: {}", core_ids.len());
-    assert!(core_ids.len() >= 4, "# available cores is not enough");
-    let server_core = core_ids[2];
-    let client_core = core_ids[3];
+    assert!(core_ids.len() >= 2, "# available cores is not enough");
+    let server_core = core_ids[0];
+    let client_core = core_ids[1];
 
     // Create two shared queue: recvq and sendq; 
     let mut recvq_ring = unsafe{RingBuffer::new_in_heap((NUM_RXD) as usize)}.unwrap();
@@ -327,8 +331,8 @@ fn main() -> PktResult<()> {
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
         core_affinity::set_for_current(server_core);
-        run_server(file);
-        // server_count = run_server_thread().unwrap();
+        // run_server(file);
+        server_count = run_server_thread().unwrap();
     });
     core_affinity::set_for_current(client_core);
 

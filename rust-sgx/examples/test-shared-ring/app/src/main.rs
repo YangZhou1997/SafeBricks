@@ -12,6 +12,8 @@ use netbricks::packets::{Ethernet as EthernetSGX, Packet as PacketSGX, RawPacket
 
 use std::sync::{Arc, Mutex};
 
+const PKT_NUM: u64 = (1024 * 10);
+
 // poll_count;
 lazy_static!{
     static ref BATCH_CNT_SGX: Mutex<Vec<u64>> = {

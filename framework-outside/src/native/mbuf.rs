@@ -1,6 +1,14 @@
 use super::super::native_include as ldpdk;
 pub type MBuf = ldpdk::rte_mbuf;
 
+impl Drop for MBuf {
+    fn drop(&mut self) {
+        unsafe {
+            println!("We do not allow MBuf to be freed by Rust (dpdk will free it)");
+        }
+    }
+}
+
 impl MBuf {
     #[inline]
     pub fn read_metadata_slot(mbuf: *mut MBuf, slot: usize) -> usize {
