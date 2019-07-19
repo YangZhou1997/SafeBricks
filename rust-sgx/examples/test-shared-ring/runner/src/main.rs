@@ -327,8 +327,8 @@ fn main() -> PktResult<()> {
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
         core_affinity::set_for_current(client_core);
-        // run_server(file);
-        server_count = run_server_thread().unwrap();
+        run_server(file);
+        // server_count = run_server_thread().unwrap();
     });
     core_affinity::set_for_current(server_core);
 

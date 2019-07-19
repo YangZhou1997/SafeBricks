@@ -20,7 +20,7 @@ lazy_static!{
     };
 }
 
-fn main() -> std::io::Result<(u64)> {
+fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind("localhost:6010")?;
     let (stream, peer_addr) = listener.accept()?;
     let peer_addr = peer_addr.to_string();
@@ -127,5 +127,5 @@ fn main() -> std::io::Result<(u64)> {
         //     break;
         // }
     }
-    Ok(pkt_count)
+    Ok(())
 }
