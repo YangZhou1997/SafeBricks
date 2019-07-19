@@ -289,7 +289,7 @@ where
         pkt_count_from_enclave += recv_pkt_num_from_enclave as u64;
 
         poll_count += 1;
-        if pkt_count_from_enclave != 0 && recv_pkt_num_from_enclave != 0{           
+        if pkt_count_from_enclave != 0 && recv_pkt_num_from_enclave != 0 {
             let (rx, tx) = main_port.stats(0);
             println!("out-of-enclave: {} vs. {}; {} vs {}", rx, tx, recv_pkt_num_from_nic, recv_pkt_num_from_enclave);
             println!("  recvq: {} vs. {}", recvq_ring.head(), recvq_ring.tail());
