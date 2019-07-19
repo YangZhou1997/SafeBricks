@@ -307,7 +307,7 @@ impl SimulateHaProxyConfig {
             0x00, 0x0c, 0x7f, 0x00, 0x00, 0x01, 0x7f, 0x00, 0x00, 0x01, 0x97, 0x32, 0x1f, 0x43,
         ];
         let mut stream = TcpStream::connect(HAPROXY_ADDRESS).unwrap();
-        //stream.write_all(header).unwrap();
+        stream.write_all(header).unwrap();
         stream
             .write_all(&format!("{} {}\n", recvq_addr, sendq_addr).as_bytes())
             .unwrap();

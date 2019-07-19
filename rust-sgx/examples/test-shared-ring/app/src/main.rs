@@ -125,9 +125,9 @@ fn main() -> std::io::Result<()> {
         // }
         
         // you cannot break, since some memory segmentfault or heap double free error would appear.
-        // if pkt_count >= (1024 * 1024) {
-        //     break;
-        // }
+        if pkt_count >= PKT_NUM {
+             break;
+        }
     }
     Ok(())
 }
