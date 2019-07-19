@@ -21,7 +21,7 @@ lazy_static!{
 }
 
 fn main() -> std::io::Result<()> {
-       let listener = TcpListener::bind("localhost:6010")?;
+    let listener = TcpListener::bind("localhost:6010")?;
     let (stream, peer_addr) = listener.accept()?;
     let peer_addr = peer_addr.to_string();
     let local_addr = stream.local_addr()?;
@@ -73,25 +73,25 @@ fn main() -> std::io::Result<()> {
 
         // let rand_v: f64 = rand::thread_rng().gen();
         // if rand_v < 0.00001 {}
-        // if recv_pkt_num_from_outside > 0 {
-        //     BATCH_CNT_SGX.lock().unwrap()[0] += 1;
-        //     if BATCH_CNT_SGX.lock().unwrap()[0] % (1024) == 0 {
-        //             let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
-        //             let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
-        //             println!("src: {:?}", ethernet.src());
-        //             println!("dst: {:?}", ethernet.dst());
-        //             ethernet.swap_addresses();
-        //         // let _: Vec<()> = mbufs.iter().map({
-        //         //     |m| {
-        //         //         let mut raw = RawPacket::from_mbuf(*m);
-        //         //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
-        //         //         println!("src: {:?}", ethernet.src());
-        //         //         println!("dst: {:?}", ethernet.dst());
-        //         //         ethernet.swap_addresses();
-        //         //     }
-        //         // }).collect();
-        //     }
-        // }
+        if recv_pkt_num_from_outside > 0 {
+            BATCH_CNT_SGX.lock().unwrap()[0] += 1;
+            if BATCH_CNT_SGX.lock().unwrap()[0] % (1024 * 32) == 0 {
+                    let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
+                    let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
+                    println!("src: {:?}", ethernet.src());
+                    println!("dst: {:?}", ethernet.dst());
+                    ethernet.swap_addresses();
+                // let _: Vec<()> = mbufs.iter().map({
+                //     |m| {
+                //         let mut raw = RawPacket::from_mbuf(*m);
+                //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
+                //         println!("src: {:?}", ethernet.src());
+                //         println!("dst: {:?}", ethernet.dst());
+                //         ethernet.swap_addresses();
+                //     }
+                // }).collect();
+            }
+        }
 
 
         if !mbufs.is_empty() {

@@ -163,7 +163,7 @@ where
         }
         if recv_pkt_num_from_nic > 0 {        
             BATCH_CNT.lock().unwrap()[0] += 1;
-            if BATCH_CNT.lock().unwrap()[0] % 1024 == 0 {
+            if BATCH_CNT.lock().unwrap()[0] % (1024 * 32) == 0 {
             // if recv_pkt_num_from_nic != 0 {
                 let (rx, tx) = main_port.stats(0);
                 println!("out-of-enclave: {} vs. {}; {} vs {}", rx, tx, recv_pkt_num_from_nic, recv_pkt_num_from_enclave);
@@ -232,7 +232,7 @@ fn run_server_thread() -> std::io::Result<()>
         // if rand_v < 0.00001 {}
         if recv_pkt_num_from_outside > 0 {
             BATCH_CNT_SGX.lock().unwrap()[0] += 1;
-            if BATCH_CNT_SGX.lock().unwrap()[0] % (1024) == 0 {
+            if BATCH_CNT_SGX.lock().unwrap()[0] % (1024 * 32) == 0 {
                     let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
                     let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
                     println!("src: {:?}", ethernet.src());
@@ -286,8 +286,8 @@ fn main() -> PktResult<()> {
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
         core_affinity::set_for_current(client_core);
-        // run_server(file);
-        run_server_thread();
+        run_server(file);
+        // run_server_thread();
     });
     core_affinity::set_for_current(server_core);
 
