@@ -9,6 +9,8 @@ use std::ptr;
 use utils::PAGE_SIZE;
 use std::slice;
 use native::mbuf::MBuf;
+use std::sync::atomic::compiler_fence;
+use std::sync::atomic::Ordering;
 
 pub const sendq_name: &str = "safebricks_sendq";
 pub const recvq_name: &str = "safebricks_recvq";
@@ -124,6 +126,7 @@ impl RingBuffer {
         let to_read = min(mbufs.len(), available);
         let offset = self.head() & self.mask();
         let reads = self.wrapped_read(offset, &mut mbufs[..to_read]);
+        compiler_fence(Ordering::Release);
         self.wrapping_add_head(reads);
         reads
     }
@@ -135,6 +138,7 @@ impl RingBuffer {
         let to_write = min(mbufs.len(), available);
         let offset = self.tail() & self.mask();
         let writes = self.wrapped_write(offset, &mbufs[..to_write]);
+        compiler_fence(Ordering::Release);
         self.wrapping_add_tail(writes);
         writes
     }

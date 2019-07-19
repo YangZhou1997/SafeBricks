@@ -20,7 +20,7 @@ lazy_static!{
     };
 }
 
-fn main() -> std::io::Result<()> {
+fn main() -> std::io::Result<(u64)> {
     let listener = TcpListener::bind("localhost:6010")?;
     let (stream, peer_addr) = listener.accept()?;
     let peer_addr = peer_addr.to_string();
@@ -41,8 +41,8 @@ fn main() -> std::io::Result<()> {
         .collect();
     println!("{:?}", queue_addr);
 
-    let recvq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD * 8) as usize, queue_addr[0]).unwrap() };
-    let sendq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD * 8) as usize, queue_addr[1]).unwrap() };
+    let recvq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD) as usize, queue_addr[0]).unwrap() };
+    let sendq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD) as usize, queue_addr[1]).unwrap() };
     
     println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
     // recvq_ring.set_head(56781234);
@@ -52,6 +52,7 @@ fn main() -> std::io::Result<()> {
     let mut mbufs = Vec::<*mut MBufSGX>::with_capacity(BATCH_SIZE);
     let mut poll_count: u64 = 0;
     let mut pkt_count: u64 = 0;
+    let mut pull_none: u64 = 0;
     loop{
         // fib(300);
         unsafe{ mbufs.set_len(BATCH_SIZE) };
@@ -74,26 +75,26 @@ fn main() -> std::io::Result<()> {
 
         // let rand_v: f64 = rand::thread_rng().gen();
         // if rand_v < 0.00001 {}
-            poll_count += 1;
-            if poll_count % (1024 * 32) == 0 {
-                if recv_pkt_num_from_outside > 0 {
-                    pkt_count += recv_pkt_num_from_outside as u64;
-                    let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
-                    let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
-                    println!("src: {:?}", ethernet.src());
-                    println!("dst: {:?}", ethernet.dst());
-                    ethernet.swap_addresses();
-                    // let _: Vec<()> = mbufs.iter().map({
-                    //     |m| {
-                    //         let mut raw = RawPacket::from_mbuf(*m);
-                    //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
-                    //         println!("src: {:?}", ethernet.src());
-                    //         println!("dst: {:?}", ethernet.dst());
-                    //         ethernet.swap_addresses();
-                    //     }
-                    // }).collect();
-                }
-            }
+            // poll_count += 1;
+            // if poll_count % (1024 * 32) == 0 {
+            //     if recv_pkt_num_from_outside > 0 {
+            //         pkt_count += recv_pkt_num_from_outside as u64;
+            //         let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
+            //         let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
+            //         println!("src: {:?}", ethernet.src());
+            //         println!("dst: {:?}", ethernet.dst());
+            //         ethernet.swap_addresses();
+            //         // let _: Vec<()> = mbufs.iter().map({
+            //         //     |m| {
+            //         //         let mut raw = RawPacket::from_mbuf(*m);
+            //         //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
+            //         //         println!("src: {:?}", ethernet.src());
+            //         //         println!("dst: {:?}", ethernet.dst());
+            //         //         ethernet.swap_addresses();
+            //         //     }
+            //         // }).collect();
+            //     }
+            // }
         // }
 
 
@@ -110,9 +111,21 @@ fn main() -> std::io::Result<()> {
                 unsafe{ mbufs.set_len(0) };
             }
         }
-        if pkt_count >= (8 * 1024 * 1024) {
-            break;
+        if recv_pkt_num_from_outside == 0 {
+            pull_none += 1;
         }
+        else {
+            pull_none = 0;
+            pkt_count += recv_pkt_num_from_outside as u64;
+        }
+        // if pkt_count != 0 && pull_none == 0 {
+        //     println!("pkt_count: {}", pkt_count);
+        // }
+        
+        // you cannot break, since some memory segmentfault or heap double free error would appear.
+        // if pkt_count >= (1024 * 1024) {
+        //     break;
+        // }
     }
-    Ok(())
+    Ok(pkt_count)
 }

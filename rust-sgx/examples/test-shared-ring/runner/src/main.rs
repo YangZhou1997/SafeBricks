@@ -31,10 +31,11 @@ use std::sync::{Arc, Mutex};
 use std::fmt::Display;
 use std::slice;
 
-
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
 
+use std::sync::atomic::fence;
+use std::sync::atomic::Ordering;
 
 // poll_count;
 lazy_static!{
@@ -80,6 +81,119 @@ where
     }
 }
 
+
+fn run_server_thread() -> std::io::Result<u64>
+// fn run_server_thread(mut recvq_ring: RingBuffer, mut sendq_ring: RingBuffer)
+{
+        let listener = TcpListener::bind("localhost:6010")?;
+    let (stream, peer_addr) = listener.accept()?;
+    let peer_addr = peer_addr.to_string();
+    let local_addr = stream.local_addr()?;
+    eprintln!(
+        "App:: accept  - local address is {}, peer address is {}",
+        local_addr, peer_addr
+    );
+
+    let mut reader = BufReader::new(stream);
+    let mut message = String::new();
+    
+    let read_bytes = reader.read_line(&mut message)?;
+    print!("{}", message);
+    let queue_addr: Vec<u64> = 
+            message.trim().split(' ')
+        .map(|s| s.parse().unwrap())
+        .collect();
+    println!("{:?}", queue_addr);
+
+    let recvq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD) as usize, queue_addr[0]).unwrap() };
+    let sendq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD) as usize, queue_addr[1]).unwrap() };
+    
+    println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
+    // recvq_ring.set_head(56781234);
+    // recvq_ring.set_tail(43218765);
+    println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
+
+    let mut mbufs = Vec::<*mut MBufSGX>::with_capacity(BATCH_SIZE);
+    let mut poll_count: u64 = 0;
+    let mut pkt_count: u64 = 0;
+    let mut pull_none: u64 = 0;
+    loop{
+        // fib(300);
+        unsafe{ mbufs.set_len(BATCH_SIZE) };
+        let len = mbufs.len() as i32;
+        // pull packet from recvq;
+        let recv_pkt_num_from_outside = recvq_ring.read_from_head(mbufs.as_mut_slice());
+        unsafe{ mbufs.set_len(recv_pkt_num_from_outside) }; 
+        
+        // let _: Vec<()> = mbufs.iter().map({
+        //     |m| {
+        //         let mut raw = RawPacket::from_mbuf(*m);
+        //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
+        //         println!("src: {:?}", ethernet.src());
+        //         println!("dst: {:?}", ethernet.dst());
+        //         ethernet.swap_addresses();
+        //     }
+        // }).collect();
+
+        // println!("{}, {}, {}", recv_pkt_num_from_outside, recvq_ring.head(), recvq_ring.tail());
+
+        // let rand_v: f64 = rand::thread_rng().gen();
+        // if rand_v < 0.00001 {}
+            // poll_count += 1;
+            // if poll_count % (1024 * 32) == 0 {
+            //     if recv_pkt_num_from_outside > 0 {
+            //         pkt_count += recv_pkt_num_from_outside as u64;
+            //         let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
+            //         let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
+            //         println!("src: {:?}", ethernet.src());
+            //         println!("dst: {:?}", ethernet.dst());
+            //         ethernet.swap_addresses();
+            //         // let _: Vec<()> = mbufs.iter().map({
+            //         //     |m| {
+            //         //         let mut raw = RawPacket::from_mbuf(*m);
+            //         //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
+            //         //         println!("src: {:?}", ethernet.src());
+            //         //         println!("dst: {:?}", ethernet.dst());
+            //         //         ethernet.swap_addresses();
+            //         //     }
+            //         // }).collect();
+            //     }
+            // }
+        // }
+
+
+        if !mbufs.is_empty() {
+            let mut to_send = mbufs.len();
+            while to_send > 0 {
+                let sent = sendq_ring.write_at_tail(mbufs.as_mut_slice());
+                to_send -= sent;
+                if to_send > 0 {
+                    mbufs.drain(..sent);
+                }
+            }
+            unsafe {
+                unsafe{ mbufs.set_len(0) };
+            }
+        }
+        if recv_pkt_num_from_outside == 0 {
+            pull_none += 1;
+        }
+        else {
+            pull_none = 0;
+            pkt_count += recv_pkt_num_from_outside as u64;
+        }
+        // if pkt_count != 0 && pull_none == 0 {
+        //     println!("pkt_count: {}", pkt_count);
+        // }
+        
+        // you cannot break, since some memory segmentfault or heap double free error would appear.
+        // if pkt_count >= (1024 * 1024) {
+        //     break;
+        // }
+    }
+    Ok(pkt_count)
+}
+
 fn macswap(packet: RawPacket) -> PktResult<Ethernet> {
     // assert!(packet.refcnt() == 1);
     // println!("macswap"); stdout().flush().unwrap();
@@ -90,7 +204,7 @@ fn macswap(packet: RawPacket) -> PktResult<Ethernet> {
 
 
 // This "ports" is essentially "queues"
-fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>, mut recvq_ring: RingBuffer, mut sendq_ring: RingBuffer)
+fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>, mut recvq_ring: RingBuffer, mut sendq_ring: RingBuffer) -> std::io::Result<u64>
 where
     T: PacketRx + PacketTx + Display + Clone + 'static,
 {
@@ -100,22 +214,30 @@ where
 
     let mut mbufs = Vec::<*mut MBuf>::with_capacity(BATCH_SIZE);
     let mut poll_count: u64 = 0;
-    let mut pkt_count: u64 = 0;
+    let mut pkt_count_from_nic: u64 = 0;
+    let mut pkt_count_from_enclave: u64 = 0;
+
     loop {
         // hostio only used ports[0];
         unsafe{ mbufs.set_len(BATCH_SIZE) }; 
 
-        // pull packets from NIC; write mbuf pointers to mbufs.     
-        let recv_pkt_num_from_nic = match ports[0].recv(mbufs.as_mut_slice()) {
-            Ok(received) => {
-                unsafe{ mbufs.set_len(received as usize) };
-                received
-            }
-            // the underlying DPDK method `rte_eth_rx_burst` will
-            // never return an error. The error arm is unreachable
-            _ => unreachable!(),
-        };
-        unsafe{ mbufs.set_len(recv_pkt_num_from_nic as usize) }; 
+        let mut recv_pkt_num_from_nic: u32 = 0;
+        if pkt_count_from_nic < (1024 * 1024) {
+            // pull packets from NIC; write mbuf pointers to mbufs.     
+            recv_pkt_num_from_nic = match ports[0].recv(mbufs.as_mut_slice()) {
+                Ok(received) => {
+                    unsafe{ mbufs.set_len(received as usize) };
+                    received
+                }
+                // the underlying DPDK method `rte_eth_rx_burst` will
+                // never return an error. The error arm is unreachable
+                _ => unreachable!(),
+            };
+            unsafe{ mbufs.set_len(recv_pkt_num_from_nic as usize) }; 
+        }
+        else {
+            unsafe{ mbufs.set_len(0) }; 
+        }
 
         
         // push recv_pkt_num_from_nic mbuf pointers to recvq.      
@@ -163,116 +285,26 @@ where
                 unsafe{ mbufs.set_len(0) };
             }
         }
-        // if recv_pkt_num_from_nic > 0 {          
-            poll_count += 1;
-            if poll_count % (1024 * 32) == 0 {
-            // if recv_pkt_num_from_nic != 0 {
-                let (rx, tx) = main_port.stats(0);
-                println!("out-of-enclave: {} vs. {}; {} vs {}", rx, tx, recv_pkt_num_from_nic, recv_pkt_num_from_enclave);
-            // }
-            }
-        // }
-        pkt_count += recv_pkt_num_from_nic as u64;
-        // if pkt_count >= (8 * 1024 * 1024) {
-        //     break;
-        // }
-    }
-}
+        pkt_count_from_nic += recv_pkt_num_from_nic as u64;
+        pkt_count_from_enclave += recv_pkt_num_from_enclave as u64;
 
+        poll_count += 1;
+        if pkt_count_from_enclave != 0 && recv_pkt_num_from_enclave != 0{           
+            let (rx, tx) = main_port.stats(0);
+            println!("out-of-enclave: {} vs. {}; {} vs {}", rx, tx, recv_pkt_num_from_nic, recv_pkt_num_from_enclave);
+            println!("  recvq: {} vs. {}", recvq_ring.head(), recvq_ring.tail());
+            println!("  sendq: {} vs. {}", sendq_ring.head(), sendq_ring.tail());
+        }
 
-
-fn run_server_thread() -> std::io::Result<()>
-// fn run_server_thread(mut recvq_ring: RingBuffer, mut sendq_ring: RingBuffer)
-{
-    let listener = TcpListener::bind("localhost:6010")?;
-    let (stream, peer_addr) = listener.accept()?;
-    let peer_addr = peer_addr.to_string();
-    let local_addr = stream.local_addr()?;
-    eprintln!(
-        "App:: accept  - local address is {}, peer address is {}",
-        local_addr, peer_addr
-    );
-
-    let mut reader = BufReader::new(stream);
-    let mut message = String::new();
-    
-    let read_bytes = reader.read_line(&mut message)?;
-    print!("{}", message);
-    let queue_addr: Vec<u64> = 
-            message.trim().split(' ')
-        .map(|s| s.parse().unwrap())
-        .collect();
-    println!("{:?}", queue_addr);
-
-    let recvq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD * 8) as usize, queue_addr[0]).unwrap() };
-    let sendq_ring = unsafe{ RingBufferSGX::attach_in_heap((NUM_RXD * 8) as usize, queue_addr[1]).unwrap() };
-    
-    println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
-    // recvq_ring.set_head(56781234);
-    // recvq_ring.set_tail(43218765);
-    println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
-
-    let mut mbufs = Vec::<*mut MBufSGX>::with_capacity(BATCH_SIZE);
-    
-    loop{
-        // fib(300);
-        unsafe{ mbufs.set_len(BATCH_SIZE) };
-        let len = mbufs.len() as i32;
-        // pull packet from recvq;
-        let recv_pkt_num_from_outside = recvq_ring.read_from_head(mbufs.as_mut_slice());
-        unsafe{ mbufs.set_len(recv_pkt_num_from_outside) }; 
-        
-        // let _: Vec<()> = mbufs.iter().map({
-        //     |m| {
-        //         let mut raw = RawPacket::from_mbuf(*m);
-        //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
-        //         println!("src: {:?}", ethernet.src());
-        //         println!("dst: {:?}", ethernet.dst());
-        //         ethernet.swap_addresses();
-        //     }
-        // }).collect();
-
-        // println!("{}, {}, {}", recv_pkt_num_from_outside, recvq_ring.head(), recvq_ring.tail());
-
-        // let rand_v: f64 = rand::thread_rng().gen();
-        // if rand_v < 0.00001 {}
-        // if recv_pkt_num_from_outside > 0 {
-        //     BATCH_CNT_SGX.lock().unwrap()[0] += 1;
-        //     if BATCH_CNT_SGX.lock().unwrap()[0] % (1024 * 32) == 0 {
-        //             let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
-        //             let mut ethernet = raw.parse::<EthernetSGX>().unwrap();
-        //             println!("src: {:?}", ethernet.src());
-        //             println!("dst: {:?}", ethernet.dst());
-        //             ethernet.swap_addresses();
-        //         // let _: Vec<()> = mbufs.iter().map({
-        //         //     |m| {
-        //         //         let mut raw = RawPacket::from_mbuf(*m);
-        //         //         let mut ethernet = raw.parse::<Ethernet>().unwrap();
-        //         //         println!("src: {:?}", ethernet.src());
-        //         //         println!("dst: {:?}", ethernet.dst());
-        //         //         ethernet.swap_addresses();
-        //         //     }
-        //         // }).collect();
-        //     }
-        // }
-
-
-        if !mbufs.is_empty() {
-            let mut to_send = mbufs.len();
-            while to_send > 0 {
-                let sent = sendq_ring.write_at_tail(mbufs.as_mut_slice());
-                to_send -= sent;
-                if to_send > 0 {
-                    mbufs.drain(..sent);
-                }
-            }
-            unsafe {
-                unsafe{ mbufs.set_len(0) };
-            }
+        if pkt_count_from_nic >= (1024 * 1024) && pkt_count_from_enclave >= (1024 * 1024) {
+            break;
         }
     }
-    Ok(())
+    // either not break above or have a loop here. 
+    loop{}
+    Ok(pkt_count_from_nic)
 }
+
 
 fn main() -> PktResult<()> {
     let configuration = load_config()?;
@@ -286,14 +318,17 @@ fn main() -> PktResult<()> {
     let client_core = core_ids[1];
 
     // Create two shared queue: recvq and sendq; 
-    let mut recvq_ring = unsafe{RingBuffer::new_in_heap((NUM_RXD * 8) as usize)}.unwrap();
-    let mut sendq_ring = unsafe{RingBuffer::new_in_heap((NUM_TXD * 8) as usize)}.unwrap();
+    let mut recvq_ring = unsafe{RingBuffer::new_in_heap((NUM_RXD) as usize)}.unwrap();
+    let mut sendq_ring = unsafe{RingBuffer::new_in_heap((NUM_TXD) as usize)}.unwrap();
+
+    let mut server_count: u64 = 0;
+    let mut client_count: u64 = 0;
 
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
         core_affinity::set_for_current(client_core);
         // run_server(file);
-        run_server_thread();
+        server_count = run_server_thread().unwrap();
     });
     core_affinity::set_for_current(server_core);
 
@@ -331,9 +366,9 @@ fn main() -> PktResult<()> {
     //         print!("{} ", *b as u64);
     // }).collect();
 
-    hostio(main_port, ports, recvq_ring, sendq_ring);
+    client_count = hostio(main_port, ports, recvq_ring, sendq_ring).unwrap();
 
-
+    println!("{} vs. {}", client_count, server_count);
     let _ = server.join().unwrap();
     Ok(())
 }
