@@ -57,29 +57,16 @@ impl fmt::Display for SimulateQueue {
 impl PacketTx for SimulateQueue {
     #[inline]
     fn send(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
-        let mut mbufs = pkts.to_vec();
-        let len = mbufs.len() as i32;
-        // let len = pkts.len() as i32;
+        let len = pkts.len();
         let update = self.stats_tx.stats.load(Ordering::Relaxed) + len as usize;
         self.stats_tx.stats.store(update, Ordering::Relaxed);
 
+        let mut cur_sent = 0;
         // push len mbuf pointers to sendq.
-        if !mbufs.is_empty() {
-            let mut to_send = mbufs.len();
-            while to_send > 0 {
-                let b_u8_p = unsafe{ (&(*(mbufs[0])) as *const MBuf) as *const u8 };
-                let b_u8_array = unsafe{ slice::from_raw_parts(b_u8_p, to_send * 8) };
-                let sent = self.sendq_ring.write_at_tail(b_u8_array) / 8;
-                println!("{}, {}", sent, self.sendq_ring.tail());
-                // thread::sleep(std::time::Duration::from_secs(1));// for debugging;
-            
-                to_send -= sent;
-                if to_send > 0 {
-                    mbufs.drain(..sent);
-                }
-            }
-            unsafe {
-                unsafe{ mbufs.set_len(0) };
+        if !pkts.is_empty() {
+            while cur_sent < len {
+                let sent = self.sendq_ring.write_at_tail(&mut pkts[cur_sent..]);
+                cur_sent += sent;
             }
         }
         // mbuf_free_bulk(pkts.as_mut_ptr(), len);
@@ -92,17 +79,8 @@ impl PacketRx for SimulateQueue {
     /// called).
     #[inline]
     fn recv(&self, pkts: &mut [*mut MBuf]) -> Result<u32> {
-        let mut mbufs = pkts.to_vec();
-        let len = mbufs.len() as i32;
-        // let len = pkts.len() as i32;
-
-        // println!("recv0"); stdout().flush().unwrap();
-        
         // pull packet from recvq;
-        let b_u8_p_mut = unsafe{ (&mut (*(mbufs[0])) as *mut MBuf) as *mut u8 };
-        let b_u8_array_mut = unsafe{ slice::from_raw_parts_mut(b_u8_p_mut, BATCH_SIZE * 8) };
-        let recv_pkt_num_from_enclave = self.recvq_ring.read_from_head(b_u8_array_mut) / 8;
-        unsafe{ mbufs.set_len(recv_pkt_num_from_enclave) }; 
+        let recv_pkt_num_from_enclave = self.recvq_ring.read_from_head(pkts);
         
         BATCH_CNT.lock().unwrap()[0] += 1;
         let batch_cnt = BATCH_CNT.lock().unwrap()[0];

@@ -31,7 +31,7 @@ pub struct RingBuffer {
     /// Mask used for bit-wise wrapping operations.
     mask: *mut usize,
     /// A Vec that holds this RingBuffer's data.
-    vec: *mut u8,
+    vec: *mut (*mut MBuf),
 }
 
 unsafe impl Sync for RingBuffer {}
@@ -56,7 +56,7 @@ impl RingBuffer {
             tail: (address as *mut usize).offset(1), 
             size: (address as *mut usize).offset(2),
             mask: (address as *mut usize).offset(3),
-            vec: (address as *mut usize).offset(4) as *mut u8,
+            vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf)),
         })
     }
 
@@ -77,7 +77,6 @@ impl RingBuffer {
     #[inline]
     pub fn wrapping_add_head(&self, delta: usize)
     {
-        // println!("delta: {}", delta);
         self.set_head(self.head().wrapping_add(delta));        
     }
 
@@ -118,101 +117,66 @@ impl RingBuffer {
         unsafe{*self.mask = new_mask;}
     }
     
-    #[inline]
-    pub fn vec_as_u8(&self) -> &[u8]{
-        unsafe{slice::from_raw_parts(self.vec as *const u8, self.size())}
-    }
-    #[inline]
-    pub fn vec_as_mut_u8(&self) -> &mut [u8]{
-        unsafe{slice::from_raw_parts_mut(self.vec, self.size())}
-    }
-
-
     /// Read from the buffer, incrementing the read head. Returns bytes read.
     #[inline]
-    pub fn read_from_head(&self, data: &mut [u8]) -> usize {
-        let len = data.len();
-        // println!("len: {}", len);
-        self.read_from_head_with_increment(data, len)
+    pub fn read_from_head(&self, mbufs: &mut [*mut MBuf]) -> usize {
+        let available = self.tail().wrapping_sub(self.head());
+        let to_read = min(mbufs.len(), available);
+        let offset = self.head() & self.mask();
+        let reads = self.wrapped_read(offset, &mut mbufs[..to_read]);
+        self.wrapping_add_head(reads);
+        reads
     }
 
     /// Write data at the end of the buffer. The amount of data written might be smaller than input.
     #[inline]
-    pub fn write_at_tail(&self, data: &[u8]) -> usize {
+    pub fn write_at_tail(&self, mbufs: &[*mut MBuf]) -> usize {
         let available = self.size().wrapping_add(self.head()).wrapping_sub(self.tail());
-        let write = min(data.len(), available);
-        if write != data.len() {
-            info!("Not writing all, available {}", available);
-        }
+        let to_write = min(mbufs.len(), available);
         let offset = self.tail() & self.mask();
-        self.wrapping_add_tail(write);
-        self.wrapped_write(offset, &data[..write])
+        let writes = self.wrapped_write(offset, &mbufs[..to_write]);
+        self.wrapping_add_tail(writes);
+        writes
     }
 
     /// Reads data from self.vec, wrapping around the end of the Vec if necessary. Returns the
     /// number of bytes written.
-    fn wrapped_read(&self, offset: usize, data: &mut [u8]) -> usize {
+    fn wrapped_read(&self, offset: usize, mbufs: &mut [*mut MBuf]) -> usize {
         let mut bytes: usize = 0;
         let ring_size = self.size();
         assert!(offset < ring_size);
-        assert!(data.len() <= ring_size);
+        assert!(mbufs.len() <= ring_size);
 
-        let u8_vec: &[u8]= self.vec_as_u8();
-        bytes += (&u8_vec[offset..]).read(data).unwrap();
-        if offset + data.len() > ring_size {
-            let remaining = data.len() - bytes;
-            bytes += (&u8_vec[..remaining]).read(&mut data[bytes..]).unwrap();
+        let mut bytes = min(ring_size - offset, mbufs.len());
+        if bytes != 0 {
+            unsafe{ ptr::copy(self.vec.offset(offset as isize), &mut mbufs[0] as (*mut (*mut MBuf)), bytes) };
+        }
+        if offset + mbufs.len() > ring_size {
+            let remaining = mbufs.len() - bytes;
+            unsafe{ ptr::copy(self.vec, ((&mut mbufs[0]) as (*mut (*mut MBuf))).offset(bytes as isize), remaining) };
+            bytes += remaining;
         }
         bytes
     }
 
     /// Writes data to self.vec[offset..], wrapping around the end of the Vec if necessary. Returns
     /// the number of bytes written.
-    fn wrapped_write(&self, offset: usize, data: &[u8]) -> usize {
+    fn wrapped_write(&self, offset: usize, mbufs: &[*mut MBuf]) -> usize {
         let mut bytes: usize = 0;
         let ring_size = self.size();
         assert!(offset < ring_size);
-        assert!(data.len() <= ring_size);
+        assert!(mbufs.len() <= ring_size);
 
-        let mut_u8_vec: &mut [u8]= self.vec_as_mut_u8();
-        bytes += (&mut mut_u8_vec[offset..]).write(data).unwrap();
-        if offset + data.len() > ring_size {
-            let remaining = data.len() - bytes;
-            bytes += (&mut mut_u8_vec[..remaining]).write(&data[bytes..]).unwrap();
+        let mut bytes = min(ring_size - offset, mbufs.len());
+        if bytes != 0 {
+            unsafe{ ptr::copy(&mbufs[0] as (*const (* mut MBuf)), self.vec.offset(offset as isize), bytes) };
+        }
+        if offset + mbufs.len() > ring_size {
+            let remaining = mbufs.len() - bytes;
+            unsafe{ ptr::copy(((&mbufs[0]) as (*const (* mut MBuf))).offset(bytes as isize), self.vec, remaining) };
+            bytes += remaining;
         }
         bytes
-    }
-
-    /// Data available to be read.
-    #[inline]
-    pub fn available(&self) -> usize {
-        // println!("tail {}", self.tail());
-        self.tail().wrapping_sub(self.head())
-    }
-
-    #[inline]
-    fn read_offset(&self) -> usize {
-        self.head() & self.mask()
-    }
-
-    /// Read from the buffer, incrementing the read head by `increment` bytes. Returns bytes read.
-    #[inline]
-    pub fn read_from_head_with_increment(&self, data: &mut [u8], increment: usize) -> usize {
-        let offset = self.read_offset();
-        let to_read = min(self.available(), data.len());
-        // println!("offset {}, to_read {}", offset, to_read);
-
-        self.wrapping_add_head(min(increment, to_read));        
-        self.wrapped_read(offset, &mut data[..to_read])
-    }
-
-    /// Seek the read head by `seek` bytes (without actually reading any data). `seek` must be less-than-or-equal to the
-    /// number of available bytes.
-    #[inline]
-    pub fn seek_head(&self, seek: usize) {
-        let available = self.available();
-        assert!(available >= seek, "Seek beyond available bytes.");
-        self.wrapping_add_head(seek);
     }
 
     /// Length of the ring buffer.
@@ -225,13 +189,6 @@ impl RingBuffer {
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
-    }
-
-    /// In cases with out-of-order data this allows the write head (and hence the amount of available data) to be
-    /// progressed without writing anything.
-    #[inline]
-    pub fn seek_tail(&self, increment_by: usize) {
-        self.set_tail(self.tail().wrapping_add(increment_by));
     }
 
     #[inline]

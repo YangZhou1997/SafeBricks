@@ -75,16 +75,16 @@ impl RingBuffer {
         unsafe{(*self.head)}
     }
     #[inline]
-    pub fn set_head(&mut self, new_head: usize){
+    pub fn set_head(&self, new_head: usize){
         unsafe{*self.head = new_head;}
     }
     #[inline]
-    pub fn wrapping_sub_head(&mut self, delta: usize)
+    pub fn wrapping_sub_head(&self, delta: usize)
     {
         self.set_head(self.head().wrapping_sub(delta));        
     }
     #[inline]
-    pub fn wrapping_add_head(&mut self, delta: usize)
+    pub fn wrapping_add_head(&self, delta: usize)
     {
         self.set_head(self.head().wrapping_add(delta));        
     }
@@ -94,16 +94,16 @@ impl RingBuffer {
         unsafe{(*self.tail)}
     }
     #[inline]
-    pub fn set_tail(&mut self, new_tail: usize){
+    pub fn set_tail(&self, new_tail: usize){
         unsafe{*self.tail = new_tail;}
     }
     #[inline]
-    pub fn wrapping_sub_tail(&mut self, delta: usize)
+    pub fn wrapping_sub_tail(&self, delta: usize)
     {
         self.set_tail(self.tail().wrapping_sub(delta));        
     }
     #[inline]
-    pub fn wrapping_add_tail(&mut self, delta: usize)
+    pub fn wrapping_add_tail(&self, delta: usize)
     {
         self.set_tail(self.tail().wrapping_add(delta));
     }
@@ -113,7 +113,7 @@ impl RingBuffer {
         unsafe{(*self.size)}
     }
     #[inline]
-    pub fn set_size(&mut self, new_size: usize){
+    pub fn set_size(&self, new_size: usize){
         unsafe{*self.size = new_size;}
     }
 
@@ -122,13 +122,13 @@ impl RingBuffer {
         unsafe{(*self.mask)}
     }
     #[inline]
-    pub fn set_mask(&mut self, new_mask: usize){
+    pub fn set_mask(&self, new_mask: usize){
         unsafe{*self.mask = new_mask;}
     }
     
     /// Read from the buffer, incrementing the read head. Returns bytes read.
     #[inline]
-    pub fn read_from_head(&mut self, mbufs: &mut [*mut MBuf]) -> usize {
+    pub fn read_from_head(&self, mbufs: &mut [*mut MBuf]) -> usize {
         let available = self.tail().wrapping_sub(self.head());
         let to_read = min(mbufs.len(), available);
         let offset = self.head() & self.mask();
@@ -139,7 +139,7 @@ impl RingBuffer {
 
     /// Write data at the end of the buffer. The amount of data written might be smaller than input.
     #[inline]
-    pub fn write_at_tail(&mut self, mbufs: &[*mut MBuf]) -> usize {
+    pub fn write_at_tail(&self, mbufs: &[*mut MBuf]) -> usize {
         let available = self.size().wrapping_add(self.head()).wrapping_sub(self.tail());
         let to_write = min(mbufs.len(), available);
         let offset = self.tail() & self.mask();
@@ -150,14 +150,16 @@ impl RingBuffer {
 
     /// Reads data from self.vec, wrapping around the end of the Vec if necessary. Returns the
     /// number of bytes written.
-    fn wrapped_read(&mut self, offset: usize, mbufs: &mut [*mut MBuf]) -> usize {
+    fn wrapped_read(&self, offset: usize, mbufs: &mut [*mut MBuf]) -> usize {
         let mut bytes: usize = 0;
         let ring_size = self.size();
         assert!(offset < ring_size);
         assert!(mbufs.len() <= ring_size);
 
         let mut bytes = min(ring_size - offset, mbufs.len());
-        unsafe{ ptr::copy(self.vec.offset(offset as isize), &mut mbufs[0] as (*mut (*mut MBuf)), bytes) };
+        if bytes != 0 {
+            unsafe{ ptr::copy(self.vec.offset(offset as isize), &mut mbufs[0] as (*mut (*mut MBuf)), bytes) };
+        }
         if offset + mbufs.len() > ring_size {
             let remaining = mbufs.len() - bytes;
             unsafe{ ptr::copy(self.vec, ((&mut mbufs[0]) as (*mut (*mut MBuf))).offset(bytes as isize), remaining) };
@@ -168,14 +170,16 @@ impl RingBuffer {
 
     /// Writes data to self.vec[offset..], wrapping around the end of the Vec if necessary. Returns
     /// the number of bytes written.
-    fn wrapped_write(&mut self, offset: usize, mbufs: &[*mut MBuf]) -> usize {
+    fn wrapped_write(&self, offset: usize, mbufs: &[*mut MBuf]) -> usize {
         let mut bytes: usize = 0;
         let ring_size = self.size();
         assert!(offset < ring_size);
         assert!(mbufs.len() <= ring_size);
 
         let mut bytes = min(ring_size - offset, mbufs.len());
-        unsafe{ ptr::copy(&mbufs[0] as (*const (* mut MBuf)), self.vec.offset(offset as isize), bytes) };
+        if bytes != 0 {
+            unsafe{ ptr::copy(&mbufs[0] as (*const (* mut MBuf)), self.vec.offset(offset as isize), bytes) };
+        }
         if offset + mbufs.len() > ring_size {
             let remaining = mbufs.len() - bytes;
             unsafe{ ptr::copy(((&mbufs[0]) as (*const (* mut MBuf))).offset(bytes as isize), self.vec, remaining) };
@@ -197,7 +201,7 @@ impl RingBuffer {
     }
 
     #[inline]
-    pub fn clear(&mut self) {
+    pub fn clear(&self) {
         self.set_head(0);
         self.set_tail(0);
     }
