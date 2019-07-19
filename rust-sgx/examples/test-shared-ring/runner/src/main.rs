@@ -276,6 +276,8 @@ fn main() -> PktResult<()> {
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("core_affinity detect: # available cores: {}", core_ids.len());
     assert!(core_ids.len() >= 2, "# available cores is not enough");
+    let server_core = core_ids[0];
+    let client_core = core_ids[1];
 
     // Create two shared queue: recvq and sendq; 
     let mut recvq_ring = unsafe{RingBuffer::new_in_heap((NUM_RXD * 8) as usize)}.unwrap();
@@ -283,10 +285,12 @@ fn main() -> PktResult<()> {
 
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
-        core_affinity::set_for_current(core_ids[1]);
-        run_server(file);
-        // run_server_thread();
+        core_affinity::set_for_current(client_core);
+        // run_server(file);
+        run_server_thread();
     });
+    core_affinity::set_for_current(server_core);
+
 
     // println!("{}", eq(&recvq_ring, &sendq_ring));
 

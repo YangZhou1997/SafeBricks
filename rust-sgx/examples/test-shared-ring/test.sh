@@ -56,7 +56,7 @@ fi
 popd
 
 # Convert the APP
-ftxsgx-elf2sgxs app/target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x20000 --stack-size 0x20000 --threads 2 --debug
+ftxsgx-elf2sgxs app/target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x2a00000 --stack-size 0x2a00000 --threads 2 --debug
 
 # Execute
 export PATH="${BIN_DIR}:${PATH}"

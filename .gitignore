@@ -58,8 +58,6 @@ out.pcap
 # other
 moongen
 netbricks
-utils
-!framework/src/utils
 
 *.gz
 massif.out.*
