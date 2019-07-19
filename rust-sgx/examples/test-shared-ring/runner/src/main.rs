@@ -44,6 +44,14 @@ lazy_static!{
     };
 }
 
+// pkt_count;
+lazy_static!{
+    static ref BATCH_CNT_SGX: Mutex<Vec<u64>> = {
+        let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
+        Mutex::new(batch_cnt)
+    };
+}
+
 // This "ports" is essentially "queues"
 fn hostio_test<T, >(main_port: Arc<PmdPort>, ports: Vec<T>)
 where
