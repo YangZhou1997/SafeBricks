@@ -21,10 +21,31 @@ pub const mbufq_name: &str = "safebricks_mbufq";
 #[fail(display = "Bad ring size {}, must be a power of 2", _0)]
 struct InvalidRingSize(usize);
 
+struct SuperBox { my_box: Box<[u8]> }
+
+impl Drop for SuperBox {
+    fn drop(&mut self) {
+        unsafe {
+            println!("We do not allow boxed to be freed by rust");
+        }
+    }
+}
+
+#[derive(Clone)]
+struct SuperVec { my_vec: *mut (*mut MBuf) }
+
+impl Drop for SuperVec {
+    fn drop(&mut self) {
+        unsafe {
+            println!("We do not allow vec to be freed by rust (the mbuf they point has been freed by dpdk");
+        }
+    }
+}
+
 /// A ring buffer which can be used to insert and read ordered data.
 pub struct RingBuffer {
     /// boxed ring; avoid heap memory being dropped;
-    boxed: Box<[u8]>, 
+    boxed: SuperBox,
     /// Head, signifies where a consumer should read from.
     pub head: *mut usize,
     /// Tail, signifies where a producer should write.
@@ -34,7 +55,7 @@ pub struct RingBuffer {
     /// Mask used for bit-wise wrapping operations.
     mask: *mut usize,
     /// A Vec that holds this RingBuffer's data.
-    vec: *mut (*mut MBuf),
+    vec: SuperVec,
 }
 
 impl Drop for RingBuffer {
@@ -58,9 +79,9 @@ impl RingBuffer {
         }
 
         let temp_vec: Vec<u8> = vec![0; ring_size * 8 + 16];
-        let mut boxed: Box<[u8]> = temp_vec.into_boxed_slice(); // Box<[u8]> is just like &[u8];
+        let mut boxed: SuperBox = SuperBox{ my_box: temp_vec.into_boxed_slice(), }; // Box<[u8]> is just like &[u8];
 
-        let address = &mut boxed[0] as *mut u8;
+        let address = &mut boxed.my_box[0] as *mut u8;
         unsafe{
             *(address as *mut usize) = 0;
             *((address as *mut usize).offset(1)) = 0;
@@ -74,7 +95,7 @@ impl RingBuffer {
             tail: (address as *mut usize).offset(1), 
             size: (address as *mut usize).offset(2),
             mask: (address as *mut usize).offset(3),
-            vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf)),
+            vec: SuperVec{ my_vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf))},
         })
     }
 
@@ -169,11 +190,11 @@ impl RingBuffer {
 
         let mut bytes = min(ring_size - offset, mbufs.len());
         if bytes != 0 {
-            unsafe{ ptr::copy(self.vec.offset(offset as isize), &mut mbufs[0] as (*mut (*mut MBuf)), bytes) };
+            unsafe{ ptr::copy(self.vec.my_vec.offset(offset as isize), &mut mbufs[0] as (*mut (*mut MBuf)), bytes) };
         }
         if offset + mbufs.len() > ring_size {
             let remaining = mbufs.len() - bytes;
-            unsafe{ ptr::copy(self.vec, ((&mut mbufs[0]) as (*mut (*mut MBuf))).offset(bytes as isize), remaining) };
+            unsafe{ ptr::copy(self.vec.my_vec, ((&mut mbufs[0]) as (*mut (*mut MBuf))).offset(bytes as isize), remaining) };
             bytes += remaining;
         }
         bytes
@@ -189,11 +210,11 @@ impl RingBuffer {
 
         let mut bytes = min(ring_size - offset, mbufs.len());
         if bytes != 0 {
-            unsafe{ ptr::copy(&mbufs[0] as (*const (* mut MBuf)), self.vec.offset(offset as isize), bytes) };
+            unsafe{ ptr::copy(&mbufs[0] as (*const (* mut MBuf)), self.vec.my_vec.offset(offset as isize), bytes) };
         }
         if offset + mbufs.len() > ring_size {
             let remaining = mbufs.len() - bytes;
-            unsafe{ ptr::copy(((&mbufs[0]) as (*const (* mut MBuf))).offset(bytes as isize), self.vec, remaining) };
+            unsafe{ ptr::copy(((&mbufs[0]) as (*const (* mut MBuf))).offset(bytes as isize), self.vec.my_vec, remaining) };
             bytes += remaining;
         }
         bytes

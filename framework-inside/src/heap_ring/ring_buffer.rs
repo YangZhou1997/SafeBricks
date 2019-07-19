@@ -22,6 +22,17 @@ pub const mbufq_name: &str = "safebricks_mbufq";
 struct InvalidRingSize(usize);
 
 #[derive(Clone)]
+struct SuperVec { my_vec: *mut (*mut MBuf) }
+
+impl Drop for SuperVec {
+    fn drop(&mut self) {
+        unsafe {
+            println!("We do not allow vec to be freed by rust (the mbuf they point has been freed by dpdk");
+        }
+    }
+}
+
+#[derive(Clone)]
 /// A ring buffer which can be used to insert and read ordered data.
 pub struct RingBuffer {
     /// Head, signifies where a consumer should read from.
@@ -33,8 +44,9 @@ pub struct RingBuffer {
     /// Mask used for bit-wise wrapping operations.
     mask: *mut usize,
     /// A Vec that holds this RingBuffer's data.
-    vec: *mut (*mut MBuf),
+    vec: SuperVec,
 }
+
 
 impl Drop for RingBuffer {
     fn drop(&mut self) {
@@ -65,7 +77,7 @@ impl RingBuffer {
             tail: (address as *mut usize).offset(1), 
             size: (address as *mut usize).offset(2),
             mask: (address as *mut usize).offset(3),
-            vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf)),
+            vec: SuperVec{ my_vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf))},
         })
     }
 
@@ -160,11 +172,11 @@ impl RingBuffer {
 
         let mut bytes = min(ring_size - offset, mbufs.len());
         if bytes != 0 {
-            unsafe{ ptr::copy(self.vec.offset(offset as isize), &mut mbufs[0] as (*mut (*mut MBuf)), bytes) };
+            unsafe{ ptr::copy(self.vec.my_vec.offset(offset as isize), &mut mbufs[0] as (*mut (*mut MBuf)), bytes) };
         }
         if offset + mbufs.len() > ring_size {
             let remaining = mbufs.len() - bytes;
-            unsafe{ ptr::copy(self.vec, ((&mut mbufs[0]) as (*mut (*mut MBuf))).offset(bytes as isize), remaining) };
+            unsafe{ ptr::copy(self.vec.my_vec, ((&mut mbufs[0]) as (*mut (*mut MBuf))).offset(bytes as isize), remaining) };
             bytes += remaining;
         }
         bytes
@@ -180,11 +192,11 @@ impl RingBuffer {
 
         let mut bytes = min(ring_size - offset, mbufs.len());
         if bytes != 0 {
-            unsafe{ ptr::copy(&mbufs[0] as (*const (* mut MBuf)), self.vec.offset(offset as isize), bytes) };
+            unsafe{ ptr::copy(&mbufs[0] as (*const (* mut MBuf)), self.vec.my_vec.offset(offset as isize), bytes) };
         }
         if offset + mbufs.len() > ring_size {
             let remaining = mbufs.len() - bytes;
-            unsafe{ ptr::copy(((&mbufs[0]) as (*const (* mut MBuf))).offset(bytes as isize), self.vec, remaining) };
+            unsafe{ ptr::copy(((&mbufs[0]) as (*const (* mut MBuf))).offset(bytes as isize), self.vec.my_vec, remaining) };
             bytes += remaining;
         }
         bytes

@@ -12,7 +12,7 @@ use netbricks::packets::{Ethernet as EthernetSGX, Packet as PacketSGX, RawPacket
 
 use std::sync::{Arc, Mutex};
 
-const PKT_NUM: u64 = (1024 * 10);
+const PKT_NUM: u64 = (1024 * 1024);
 
 // poll_count;
 lazy_static!{
