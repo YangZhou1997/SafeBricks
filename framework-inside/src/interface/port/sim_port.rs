@@ -75,7 +75,7 @@ impl PacketRx for SimulateQueue {
         let recv_pkt_num_from_enclave = self.recvq_ring.read_from_head(pkts);
         
         // if recv_pkt_num_from_enclave != 0{
-        //     println!("{}, {}, {}", recv_pkt_num_from_enclave, self.recvq_ring.tail(), self.recvq_ring.head());
+            // println!("{}, {}, {}", recv_pkt_num_from_enclave, self.recvq_ring.tail(), self.recvq_ring.head());
         // }
 
         // let status = mbuf_alloc_bulk(pkts.as_mut_ptr(), MAX_MBUF_SIZE, len);

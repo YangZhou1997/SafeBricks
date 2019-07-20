@@ -45,13 +45,14 @@ fn macswap(packet: RawPacket) -> Result<Ethernet> {
     ethernet.swap_addresses();
     Ok(ethernet)
 }
-pub const NPKT: u64 = (1024 * 1024);
+
+pub const PKT_NUM: u64 = (1024 * 1024);
 
 fn main() -> Result<()> {
     let configuration = load_config()?;
     println!("{}", configuration);
     let mut context = initialize_system(&configuration)?;
-    context.run(Arc::new(install), NPKT); // will trap in the run() and return after finish
+    context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
     // context.start_schedulers();
     // context.add_pipeline_to_run(Arc::new(install));
     // context.execute();

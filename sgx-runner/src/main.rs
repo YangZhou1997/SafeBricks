@@ -303,14 +303,15 @@ where
         pkt_count_from_enclave += recv_pkt_num_from_enclave as u64;
 
         poll_count += 1;
-            let (rx, tx) = main_port.stats(0);
 
-        if pkt_count_from_enclave != 0 && recv_pkt_num_from_enclave != 0 {
-            println!("out-of-enclave: {} vs. {}; {} vs {}", rx, tx, recv_pkt_num_from_nic, recv_pkt_num_from_enclave);
-            println!("  recvq: {} vs. {}", recvq_ring.head(), recvq_ring.tail());
-            println!("  sendq: {} vs. {}", sendq_ring.head(), sendq_ring.tail());
+        if pkt_count_from_enclave % (1024 * 1024) == 0 {
+            if pkt_count_from_enclave != 0 && recv_pkt_num_from_enclave != 0 {
+                let (rx, tx) = main_port.stats(0);                
+                println!("out-of-enclave: from nic {}, to sgx {}, from sgx {}, to nic {}", rx, pkt_count_from_nic, pkt_count_from_enclave, tx);
+                println!("  recvq: head {} vs. tail {}", recvq_ring.head(), recvq_ring.tail());
+                println!("  sendq: head {} vs. tail {}", sendq_ring.head(), sendq_ring.tail());
+            }
         }
-            println!("out-of-enclave: {} vs. {}; {} vs {}", rx, tx, recv_pkt_num_from_nic, recv_pkt_num_from_enclave);
 
         if pkt_count_from_nic >= PKT_NUM && pkt_count_from_enclave >= PKT_NUM {
             break;
@@ -335,8 +336,8 @@ fn main() -> PktResult<()> {
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("core_affinity detect: # available cores: {}", core_ids.len());
     assert!(core_ids.len() >= 2, "# available cores is not enough");
-    let server_core = core_ids[0];
-    let client_core = core_ids[1];
+    let server_core = core_ids[2];
+    let client_core = core_ids[3];
 
     // Create two shared queue: recvq and sendq; 
     let mut recvq_ring = unsafe{RingBuffer::new_in_heap((NUM_RXD) as usize)}.unwrap();

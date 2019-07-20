@@ -33,7 +33,6 @@ impl<B: Batch, Tx: PacketTx> Executable for SendBatch<B, Tx> {
 
         let transmit_q = &mut self.transmit_q;
         let drop_q = &mut self.drop_q;
-        let pkt_sents = transmit_q.len();
 
         while let Some(item) = self.source.next() {
             match item {
@@ -52,6 +51,7 @@ impl<B: Batch, Tx: PacketTx> Executable for SendBatch<B, Tx> {
                 }
             }
         }
+        let pkt_sents = transmit_q.len();
 
         if !transmit_q.is_empty() {
             let mut to_send = transmit_q.len();
