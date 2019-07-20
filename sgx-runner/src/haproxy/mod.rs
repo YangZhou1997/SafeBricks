@@ -10,7 +10,6 @@ use self::enclave_runner::EnclaveBuilder;
 use self::sgxs_loaders::isgx::Device as IsgxDevice;
 use self::byteorder::{NetworkEndian, ReadBytesExt};
 use std::io;
-use std::fmt::Display;
 use std::io::{Error, ErrorKind, Read, Result as IoResult, Write};
 use std::mem::size_of;
 use std::net::Shutdown;
@@ -365,18 +364,6 @@ impl SimulateHaProxyConfig {
         ];
 
         Self::test_proxy_header(TEST_LOCAL, "local");
-    }
-}
-
-fn fib(n: u64) -> u64{
-    if n == 0{
-        return 0;
-    }
-    else if n == 1{
-        return 1;
-    }
-    else{
-        return fib(n - 1) + fib(n - 2); 
     }
 }
 

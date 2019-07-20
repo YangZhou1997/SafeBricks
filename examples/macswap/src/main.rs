@@ -5,11 +5,10 @@ use netbricks::interface::{PacketRx, PacketTx};
 use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::{Ethernet, Packet, RawPacket};
 use netbricks::scheduler::Scheduler;
-use netbricks::interface::SimulatePort;
-use netbricks::scheduler::{initialize_system, NetBricksContext, StandaloneScheduler};
+use netbricks::scheduler::{initialize_system};
 use std::fmt::Display;
-use std::io::stdout;
-use std::io::Write;
+// use std::io::stdout;
+// use std::io::Write;
 use std::sync::Arc;
 
 
@@ -46,7 +45,7 @@ fn macswap(packet: RawPacket) -> Result<Ethernet> {
     Ok(ethernet)
 }
 
-pub const PKT_NUM: u64 = (1024 * 1024);
+pub const PKT_NUM: u64 = (8 * 1024 * 1024);
 
 fn main() -> Result<()> {
     let configuration = load_config()?;

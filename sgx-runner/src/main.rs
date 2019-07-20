@@ -11,12 +11,12 @@ pub mod haproxy;
 
 use pktpuller::common::Result as PktResult;
 use pktpuller::config::load_config;
-use pktpuller::interface::{PmdPort, PortQueue, PacketRx, PacketTx};
+use pktpuller::interface::{PmdPort, PacketRx, PacketTx};
 use pktpuller::operators::{Batch, ReceiveBatch};
 use pktpuller::operators::BATCH_SIZE;
 use pktpuller::packets::{Ethernet, Packet, RawPacket};
 use pktpuller::runtime::Runtime;
-use pktpuller::scheduler::{Scheduler, Executable};
+use pktpuller::scheduler::Executable;
 use pktpuller::heap_ring::*;
 use pktpuller::native::mbuf::MBuf;
 use pktpuller::config::{NUM_RXD, NUM_TXD};
@@ -24,23 +24,19 @@ use haproxy::{run_client, run_server, parse_args};
 
 use netbricks::heap_ring::ring_buffer::RingBuffer as RingBufferSGX;
 use netbricks::native::mbuf::MBuf as MBufSGX;
-use netbricks::packets::{Ethernet as EthernetSGX, Packet as PacketSGX, RawPacket as RawPacketSGX};
 
 use std::thread;
 use std::sync::{Arc, Mutex};
 use std::fmt::Display;
-use std::slice;
 
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
 
-use std::sync::atomic::fence;
-use std::sync::atomic::Ordering;
 
+const PKT_NUM: u64 = (8 * 1024 * 1024);
+const PRINT_INTER: u64 = (1024 * 1024);
 
-const PKT_NUM: u64 = (1024 * 1024);
-
-// poll_count;
+// pull_count;
 lazy_static!{
     static ref BATCH_CNT: Mutex<Vec<u64>> = {
         let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
@@ -48,7 +44,7 @@ lazy_static!{
     };
 }
 
-// poll_count;
+// pull_count;
 lazy_static!{
     static ref BATCH_CNT_SGX: Mutex<Vec<u64>> = {
         let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
@@ -100,7 +96,7 @@ fn run_server_thread() -> std::io::Result<u64>
     let mut reader = BufReader::new(stream);
     let mut message = String::new();
     
-    let read_bytes = reader.read_line(&mut message)?;
+    let _read_bytes = reader.read_line(&mut message)?;
     print!("{}", message);
     let queue_addr: Vec<u64> = 
             message.trim().split(' ')
@@ -117,13 +113,12 @@ fn run_server_thread() -> std::io::Result<u64>
     println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
 
     let mut mbufs = Vec::<*mut MBufSGX>::with_capacity(BATCH_SIZE);
-    let mut poll_count: u64 = 0;
+    let mut pull_count: u64 = 0;
     let mut pkt_count: u64 = 0;
     let mut pull_none: u64 = 0;
     loop{
         // fib(300);
         unsafe{ mbufs.set_len(BATCH_SIZE) };
-        let len = mbufs.len() as i32;
         // pull packet from recvq;
         let recv_pkt_num_from_outside = recvq_ring.read_from_head(mbufs.as_mut_slice());
         unsafe{ mbufs.set_len(recv_pkt_num_from_outside) }; 
@@ -142,8 +137,8 @@ fn run_server_thread() -> std::io::Result<u64>
 
         // let rand_v: f64 = rand::thread_rng().gen();
         // if rand_v < 0.00001 {}
-            // poll_count += 1;
-            // if poll_count % (1024 * 32) == 0 {
+            // pull_count += 1;
+            // if pull_count % (1024 * 32) == 0 {
             //     if recv_pkt_num_from_outside > 0 {
             //         pkt_count += recv_pkt_num_from_outside as u64;
             //         let mut raw = RawPacketSGX::from_mbuf(mbufs[0]);
@@ -175,7 +170,7 @@ fn run_server_thread() -> std::io::Result<u64>
                 }
             }
             unsafe {
-                unsafe{ mbufs.set_len(0) };
+                mbufs.set_len(0);
             }
         }
         if recv_pkt_num_from_outside == 0 {
@@ -227,7 +222,7 @@ where
     }
 
     let mut mbufs = MbufVec{ my_mbufs: Vec::<*mut MBuf>::with_capacity(BATCH_SIZE) };
-    let mut poll_count: u64 = 0;
+    let mut pull_count: u64 = 0;
     let mut pkt_count_from_nic: u64 = 0;
     let mut pkt_count_from_enclave: u64 = 0;
 
@@ -302,9 +297,9 @@ where
         pkt_count_from_nic += recv_pkt_num_from_nic as u64;
         pkt_count_from_enclave += recv_pkt_num_from_enclave as u64;
 
-        poll_count += 1;
+        pull_count += 1;
 
-        if pkt_count_from_enclave % (1024 * 1024) == 0 {
+        if pkt_count_from_enclave % PRINT_INTER == 0 {
             if pkt_count_from_enclave != 0 && recv_pkt_num_from_enclave != 0 {
                 let (rx, tx) = main_port.stats(0);                
                 println!("out-of-enclave: from nic {}, to sgx {}, from sgx {}, to nic {}", rx, pkt_count_from_nic, pkt_count_from_enclave, tx);
@@ -349,7 +344,7 @@ fn main() -> PktResult<()> {
     let file = parse_args().unwrap();
     let server = thread::spawn(move || {
         core_affinity::set_for_current(server_core);
-        run_server(file);
+        run_server(file).unwrap();
         // server_count = run_server_thread().unwrap();
     });
     core_affinity::set_for_current(client_core);
@@ -362,7 +357,7 @@ fn main() -> PktResult<()> {
 
     println!("recvq_addr {}, sendq_addr {}", recvq_addr_u64, sendq_addr_u64);
     // send recvq_addr and sendq_addr to the enclave through TCP tunnel. 
-    run_client(recvq_addr_u64, sendq_addr_u64); // recvq_addr, sendq_addr
+    run_client(recvq_addr_u64, sendq_addr_u64).unwrap(); // recvq_addr, sendq_addr
 
     // keep pulling packet from DPDK port, and push pkt pointers to recvq
     // keep pulling packet pointers from sendq, and send them out to the DPDK port.
@@ -391,6 +386,6 @@ fn main() -> PktResult<()> {
     client_count = hostio(main_port, ports, &mut recvq_ring, &mut sendq_ring).unwrap();
 
     println!("{} vs. {}", client_count, server_count);
-    // let _ = server.join().unwrap();
+    let _ = server.join().unwrap();
     Ok(())
 }
