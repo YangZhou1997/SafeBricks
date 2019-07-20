@@ -21,14 +21,6 @@ use std::slice;
 
 use heap_ring::ring_buffer::*;
 
-// pkt_count;
-lazy_static!{
-    static ref BATCH_CNT: Mutex<Vec<u64>> = {
-        let batch_cnt = (0..1).map(|_| 0 as u64).collect();        
-        Mutex::new(batch_cnt)
-    };
-}
-
 pub struct SimulatePort {
     stats_rx: Arc<CacheAligned<PortStats>>,
     stats_tx: Arc<CacheAligned<PortStats>>,
@@ -82,11 +74,9 @@ impl PacketRx for SimulateQueue {
         // pull packet from recvq;
         let recv_pkt_num_from_enclave = self.recvq_ring.read_from_head(pkts);
         
-        BATCH_CNT.lock().unwrap()[0] += 1;
-        let batch_cnt = BATCH_CNT.lock().unwrap()[0];
-        if batch_cnt % (1024 * 1024) == 0 || recv_pkt_num_from_enclave != 0{
-            println!("{}, {}, {}", recv_pkt_num_from_enclave, self.recvq_ring.tail(), self.recvq_ring.head());
-        }
+        // if recv_pkt_num_from_enclave != 0{
+        //     println!("{}, {}, {}", recv_pkt_num_from_enclave, self.recvq_ring.tail(), self.recvq_ring.head());
+        // }
 
         // let status = mbuf_alloc_bulk(pkts.as_mut_ptr(), MAX_MBUF_SIZE, len);
         // println!("recv1 {}", status); stdout().flush().unwrap();
@@ -144,8 +134,8 @@ impl SimulatePort {
         Ok(CacheAligned::allocate(SimulateQueue {
             stats_rx: self.stats_rx.clone(),
             stats_tx: self.stats_tx.clone(),
-            recvq_ring: unsafe{ RingBuffer::attach_in_heap((NUM_RXD * 8) as usize, queue_addr[0]).unwrap() }, 
-            sendq_ring: unsafe{ RingBuffer::attach_in_heap((NUM_TXD * 8) as usize, queue_addr[1]).unwrap() },
+            recvq_ring: unsafe{ RingBuffer::attach_in_heap((NUM_RXD) as usize, queue_addr[0]).unwrap() }, 
+            sendq_ring: unsafe{ RingBuffer::attach_in_heap((NUM_TXD) as usize, queue_addr[1]).unwrap() },
         }))
     }
 

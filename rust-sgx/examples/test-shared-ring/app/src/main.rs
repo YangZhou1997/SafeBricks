@@ -14,6 +14,17 @@ use std::sync::{Arc, Mutex};
 
 const PKT_NUM: u64 = (1024 * 1024);
 
+#[derive(Clone)]
+struct MbufVec { my_mbufs: Vec::<*mut MBufSGX> }
+
+impl Drop for MbufVec {
+    fn drop(&mut self) {
+        unsafe {
+            println!("MbufVec inside freed");
+        }
+    }
+}
+
 // poll_count;
 lazy_static!{
     static ref BATCH_CNT_SGX: Mutex<Vec<u64>> = {
@@ -51,17 +62,17 @@ fn main() -> std::io::Result<()> {
     // recvq_ring.set_tail(43218765);
     println!("in-enclave: {}, {}, {}, {}", recvq_ring.head(), recvq_ring.tail(), recvq_ring.size(), recvq_ring.mask());    
 
-    let mut mbufs = Vec::<*mut MBufSGX>::with_capacity(BATCH_SIZE);
+    let mut mbufs = MbufVec{ my_mbufs: Vec::<*mut MBufSGX>::with_capacity(BATCH_SIZE) };
     let mut poll_count: u64 = 0;
     let mut pkt_count: u64 = 0;
     let mut pull_none: u64 = 0;
     loop{
         // fib(300);
-        unsafe{ mbufs.set_len(BATCH_SIZE) };
-        let len = mbufs.len() as i32;
+        unsafe{ mbufs.my_mbufs.set_len(BATCH_SIZE) };
+        let len = mbufs.my_mbufs.len() as i32;
         // pull packet from recvq;
-        let recv_pkt_num_from_outside = recvq_ring.read_from_head(mbufs.as_mut_slice());
-        unsafe{ mbufs.set_len(recv_pkt_num_from_outside) }; 
+        let recv_pkt_num_from_outside = recvq_ring.read_from_head(mbufs.my_mbufs.as_mut_slice());
+        unsafe{ mbufs.my_mbufs.set_len(recv_pkt_num_from_outside) }; 
         
         // let _: Vec<()> = mbufs.iter().map({
         //     |m| {
@@ -100,17 +111,17 @@ fn main() -> std::io::Result<()> {
         // }
 
 
-        if !mbufs.is_empty() {
-            let mut to_send = mbufs.len();
+        if !mbufs.my_mbufs.is_empty() {
+            let mut to_send = mbufs.my_mbufs.len();
             while to_send > 0 {
-                let sent = sendq_ring.write_at_tail(mbufs.as_mut_slice());
+                let sent = sendq_ring.write_at_tail(mbufs.my_mbufs.as_mut_slice());
                 to_send -= sent;
                 if to_send > 0 {
-                    mbufs.drain(..sent);
+                    mbufs.my_mbufs.drain(..sent);
                 }
             }
             unsafe {
-                unsafe{ mbufs.set_len(0) };
+                unsafe{ mbufs.my_mbufs.set_len(0) };
             }
         }
         if recv_pkt_num_from_outside == 0 {

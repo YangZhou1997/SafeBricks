@@ -26,7 +26,7 @@ struct SuperBox { my_box: Box<[u8]> }
 impl Drop for SuperBox {
     fn drop(&mut self) {
         unsafe {
-            println!("We do not allow boxed to be freed by rust");
+            println!("SuperBox freed");
         }
     }
 }
@@ -37,7 +37,19 @@ struct SuperVec { my_vec: *mut (*mut MBuf) }
 impl Drop for SuperVec {
     fn drop(&mut self) {
         unsafe {
-            println!("We do not allow vec to be freed by rust (the mbuf they point has been freed by dpdk");
+            println!("SuperVec freed");
+        }
+    }
+}
+
+
+#[derive(Clone)]
+pub struct SuperUsize { pub my_usize: *mut usize }
+
+impl Drop for SuperUsize {
+    fn drop(&mut self) {
+        unsafe {
+            println!("SuperUsize freed");
         }
     }
 }
@@ -47,13 +59,13 @@ pub struct RingBuffer {
     /// boxed ring; avoid heap memory being dropped;
     boxed: SuperBox,
     /// Head, signifies where a consumer should read from.
-    pub head: *mut usize,
+    pub head: SuperUsize,
     /// Tail, signifies where a producer should write.
-    pub tail: *mut usize,
+    pub tail: SuperUsize,
     /// Size of the ring buffer.
-    size: *mut usize,
+    pub size: SuperUsize,
     /// Mask used for bit-wise wrapping operations.
-    mask: *mut usize,
+    pub mask: SuperUsize,
     /// A Vec that holds this RingBuffer's data.
     vec: SuperVec,
 }
@@ -61,7 +73,7 @@ pub struct RingBuffer {
 impl Drop for RingBuffer {
     fn drop(&mut self) {
         unsafe {
-            println!("We do not allow RingBuffer outside enclave drop their MBuf pointed by vec");
+            println!("RingBuffer freed");
         }
     }
 }
@@ -91,22 +103,22 @@ impl RingBuffer {
 
         Ok(RingBuffer {
             boxed,
-            head: (address as *mut usize),
-            tail: (address as *mut usize).offset(1), 
-            size: (address as *mut usize).offset(2),
-            mask: (address as *mut usize).offset(3),
-            vec: SuperVec{ my_vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf))},
+            head: SuperUsize{ my_usize: (address as *mut usize) },
+            tail: SuperUsize{ my_usize: (address as *mut usize).offset(1) }, 
+            size: SuperUsize{ my_usize: (address as *mut usize).offset(2) },
+            mask: SuperUsize{ my_usize: (address as *mut usize).offset(3) },
+            vec: SuperVec{ my_vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf)) },
         })
     }
 
 
     #[inline]
     pub fn head(&self) -> usize{
-        unsafe{(*self.head)}
+        unsafe{(*self.head.my_usize)}
     }
     #[inline]
     pub fn set_head(&self, new_head: usize){
-        unsafe{*self.head = new_head;}
+        unsafe{*self.head.my_usize = new_head;}
     }
     #[inline]
     pub fn wrapping_sub_head(&self, delta: usize)
@@ -121,11 +133,11 @@ impl RingBuffer {
 
     #[inline]
     pub fn tail(&self) -> usize{
-        unsafe{(*self.tail)}
+        unsafe{(*self.tail.my_usize)}
     }
     #[inline]
     pub fn set_tail(&self, new_tail: usize){
-        unsafe{*self.tail = new_tail;}
+        unsafe{*self.tail.my_usize = new_tail;}
     }
     #[inline]
     pub fn wrapping_sub_tail(&self, delta: usize)
@@ -140,20 +152,20 @@ impl RingBuffer {
 
     #[inline]
     pub fn size(&self) -> usize{
-        unsafe{(*self.size)}
+        unsafe{(*self.size.my_usize)}
     }
     #[inline]
     pub fn set_size(&self, new_size: usize){
-        unsafe{*self.size = new_size;}
+        unsafe{*self.size.my_usize = new_size;}
     }
 
     #[inline]
     pub fn mask(&self) -> usize{
-        unsafe{(*self.mask)}
+        unsafe{(*self.mask.my_usize)}
     }
     #[inline]
     pub fn set_mask(&self, new_mask: usize){
-        unsafe{*self.mask = new_mask;}
+        unsafe{*self.mask.my_usize = new_mask;}
     }
     
     /// Read from the buffer, incrementing the read head. Returns bytes read.
