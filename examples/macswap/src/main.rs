@@ -4,12 +4,14 @@ use netbricks::config::load_config;
 use netbricks::interface::{PacketRx, PacketTx};
 use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::{Ethernet, Packet, RawPacket};
-use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
 use netbricks::interface::SimulatePort;
+use netbricks::scheduler::{initialize_system, NetBricksContext, StandaloneScheduler};
 use std::fmt::Display;
 use std::io::stdout;
 use std::io::Write;
+use std::sync::Arc;
+
 
 // This "ports" is essentially "queues"
 fn install<T, S>(ports: Vec<T>, sched: &mut S)
@@ -43,18 +45,17 @@ fn macswap(packet: RawPacket) -> Result<Ethernet> {
     ethernet.swap_addresses();
     Ok(ethernet)
 }
+pub const NPKT: u64 = (1024 * 1024);
 
 fn main() -> Result<()> {
     let configuration = load_config()?;
     println!("{}", configuration);
-    let mut runtime = Runtime::init(&configuration)?;
-    runtime.add_pipeline_to_run(install);
-    runtime.execute();
-
-    // if you want to see output from the child thread, you much let the father thread wait instead of exiting.
-    // However, this will make the child thread un-stopped when you press ctrl+c.
-    // runtime.wait();
-    // thread::sleep(std::time::Duration::from_secs(10));// for debugging;
+    let mut context = initialize_system(&configuration)?;
+    context.run(Arc::new(install), NPKT); // will trap in the run() and return after finish
+    // context.start_schedulers();
+    // context.add_pipeline_to_run(Arc::new(install));
+    // context.execute();
+    // context.wait();        
 
     Ok(())
 }

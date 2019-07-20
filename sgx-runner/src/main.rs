@@ -335,8 +335,8 @@ fn main() -> PktResult<()> {
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("core_affinity detect: # available cores: {}", core_ids.len());
     assert!(core_ids.len() >= 2, "# available cores is not enough");
-    let server_core = core_ids[2];
-    let client_core = core_ids[3];
+    let server_core = core_ids[0];
+    let client_core = core_ids[1];
 
     // Create two shared queue: recvq and sendq; 
     let mut recvq_ring = unsafe{RingBuffer::new_in_heap((NUM_RXD) as usize)}.unwrap();

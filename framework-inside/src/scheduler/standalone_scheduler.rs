@@ -36,12 +36,12 @@ pub struct StandaloneScheduler {
     run_q: Vec<Runnable>,
     /// Next task to run.
     next_task: usize,
-    /// Channel to communicate and synchronize with scheduler.
-    sched_channel: Receiver<SchedulerCommand>,
     /// Signal scheduler should continue executing tasks.
     execute_loop: bool,
-    /// Signal scheduler should shutdown.
-    shutdown: bool,
+    /// Number of packet processed so far
+    npkts: u64, 
+    /// Number of packet that will process
+    tol_pkts: u64,
 }
 
 /// Messages that can be sent on the scheduler channel to add or remove tasks.
@@ -57,7 +57,7 @@ const DEFAULT_Q_SIZE: usize = 256;
 
 impl Default for StandaloneScheduler {
     fn default() -> StandaloneScheduler {
-        StandaloneScheduler::new()
+        StandaloneScheduler::new(1024 * 1024)
     }
 }
 
@@ -70,90 +70,18 @@ impl Scheduler for StandaloneScheduler {
 }
 
 impl StandaloneScheduler {
-    pub fn new() -> StandaloneScheduler {
-        let (_, receiver) = sync_channel(0);
-        StandaloneScheduler::new_with_channel(receiver)
-    }
-
-    pub fn new_with_channel(channel: Receiver<SchedulerCommand>) -> StandaloneScheduler {
-        StandaloneScheduler::new_with_channel_and_capacity(channel, DEFAULT_Q_SIZE)
-    }
-
-    pub fn new_with_channel_and_capacity(
-        channel: Receiver<SchedulerCommand>,
-        capacity: usize,
-    ) -> StandaloneScheduler {
+    pub fn new(tol_pkts: u64) -> StandaloneScheduler {
         StandaloneScheduler {
-            run_q: Vec::with_capacity(capacity),
+            run_q: Vec::with_capacity(DEFAULT_Q_SIZE),
             next_task: 0,
-            sched_channel: channel,
             execute_loop: false,
-            shutdown: true,
+            npkts: 0,
+            tol_pkts, 
         }
     }
 
-    fn handle_request(&mut self, request: SchedulerCommand) {
-        match request {
-            SchedulerCommand::Add(ex) => {
-                self.run_q.push(Runnable::from_boxed_task(ex))
-            }
-            SchedulerCommand::Run(f) => {
-                f(self)
-            }
-            SchedulerCommand::Execute => {
-                self.execute_loop()
-            }
-            SchedulerCommand::Shutdown => {
-                self.execute_loop = false;
-                self.shutdown = true;
-            }
-            SchedulerCommand::Handshake(chan) => {
-                chan.send(true).unwrap(); // Inform context about reaching barrier.
-                thread::park();
-            }
-        }
-    }
-
-    pub fn handle_requests(&mut self) {
-        self.shutdown = false;
-        // Note this rather bizarre structure here to get shutting down hooked in.
-        while let Ok(cmd) = {
-            if self.shutdown {
-                Err(RecvError)
-            } else {
-                self.sched_channel.recv()
-            }
-        } {
-            self.handle_request(cmd)
-        }
-
-        info!(
-            "Scheduler exiting {}",
-            thread::current().name().unwrap_or_else(|| "unknown-name")
-        );
-    }
-
-    #[inline]
-    fn execute_internal(&mut self, begin: u64) -> u64 {
-        let time = {
-            let task = &mut (&mut self.run_q[self.next_task]);
-            task.task.execute();
-            let end = utils::rdtsc_unsafe();
-            task.cycles += end - begin;
-            task.last_run = end;
-            end
-        };
-        let len = self.run_q.len();
-        let next = self.next_task + 1;
-        if next == len {
-            self.next_task = 0;
-            if let Ok(cmd) = self.sched_channel.try_recv() {
-                self.handle_request(cmd);
-            }
-        } else {
-            self.next_task = next;
-        };
-        time
+    pub fn run(&mut self, f: Arc<Fn(&mut StandaloneScheduler) + Send + Sync>) {
+        f(self);
     }
 
     /// Run the scheduling loop.
@@ -167,9 +95,30 @@ impl StandaloneScheduler {
         }
     }
 
-    pub fn execute_one(&mut self) {
-        if !self.run_q.is_empty() {
-            self.execute_internal(utils::rdtsc_unsafe());
-        }
+    #[inline]
+    fn execute_internal(&mut self, begin: u64) -> u64 {
+        let time = {
+            let task = &mut (&mut self.run_q[self.next_task]);
+            self.npkts += task.task.execute() as u64;
+            let end = utils::rdtsc_unsafe();
+            task.cycles += end - begin;
+            task.last_run = end;
+            end
+        };
+        let len = self.run_q.len();
+        let next = self.next_task + 1;
+        if next == len {
+            self.next_task = 0;
+            // if let Ok(cmd) = self.sched_channel.try_recv() {
+            //     self.handle_request(cmd);
+            // }
+            if self.npkts >= self.tol_pkts {
+                self.execute_loop = false;
+            }
+        } else {
+            self.next_task = next;
+        };
+        time
     }
+
 }

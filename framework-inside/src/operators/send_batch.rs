@@ -28,11 +28,12 @@ impl<B: Batch, Tx: PacketTx> SendBatch<B, Tx> {
 }
 
 impl<B: Batch, Tx: PacketTx> Executable for SendBatch<B, Tx> {
-    fn execute(&mut self) {
+    fn execute(&mut self) -> usize {
         self.source.receive();
 
         let transmit_q = &mut self.transmit_q;
         let drop_q = &mut self.drop_q;
+        let pkt_sents = transmit_q.len();
 
         while let Some(item) = self.source.next() {
             match item {
@@ -82,6 +83,7 @@ impl<B: Batch, Tx: PacketTx> Executable for SendBatch<B, Tx> {
                 drop_q.set_len(0);
             }
         }
+        pkt_sents
     }
 
     #[inline]

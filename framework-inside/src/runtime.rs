@@ -35,7 +35,7 @@ impl Runtime {
         info!("shutting down context");
         self.context.shutdown();
     }
-    
+        
     /// Executes tasks and pipelines
     ///
     /// If a timeout is provided through command line argument `--duration`,

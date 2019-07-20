@@ -24,15 +24,15 @@ pub enum SchedulerError {
 }
 
 pub trait Executable {
-    fn execute(&mut self);
+    fn execute(&mut self) -> usize;
     fn dependencies(&mut self) -> Vec<usize>;
 }
 
 impl<F> Executable for F
 where
-    F: FnMut(),
+    F: FnMut() -> usize,
 {
-    fn execute(&mut self) {
+    fn execute(&mut self) -> usize {
         (*self)()
     }
 
