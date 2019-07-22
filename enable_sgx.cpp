@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "./linux-sgx/common/inc/sgx_capable.h"
+#include "../linux-sgx/common/inc/sgx_capable.h"
 
 int main()
 {
