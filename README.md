@@ -116,6 +116,11 @@ gcc enable_sgx.cpp -o enable_sgx -L/home/yangz/linux-sgx/sdk/libcapable/linux -l
 sudo LD_LIBRARY_PATH=/home/yangz/linux-sgx/sdk/libcapable/linux ./enable_sgx
 ```
 
+From https://github.com/intel/linux-sgx/issues/354: 
+is_sgx_capable has to come back a 1 to be able to be enabled.
+If so, then status should come back a 1 also, which means "SGX_DISABLED_REBOOT_REQUIRED". Once you reboot, you should get a 0 back for the second.
+Yes! Zero means "SGX_ENABLED". :-) 
+
 ## Creating a Developer environment with `vagrant`
 
 1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
