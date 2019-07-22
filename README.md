@@ -71,6 +71,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     ```shell
     host$ sudo su
     root$ ./setupBuild.sh 
+    root$ source ~/.cargo env
     ```
     
     [setupBuild.sh](./setupBuild.sh) will install the rust nightly, clang, and etc for running NetBricks. 
