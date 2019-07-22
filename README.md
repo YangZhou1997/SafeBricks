@@ -97,6 +97,23 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
     **Note**: if you find numerous error printed during `make build`, it is caused by the bindgen (generating rust binding for dpdk); you can solve it by deleting `~/tools/dpdk-stable-17.08.1` and run `./setupDpdk.sh`. The specific reason is that you might download my hacked version of dpdk, which will fail the bindgen binding. 
 
+## Enabling SGX if `Software Controlled` set
+
+Clone linux-sgx and build in your home directory:
+```shell
+git clone git@github.com:intel/linux-sgx.git
+sudo apt-get -y install build-essential ocaml automake autoconf libtool wget python libssl-dev
+sudo apt-get -y install libssl-dev libcurl4-openssl-dev protobuf-compiler libprotobuf-dev debhelper cmake
+cd linux-sgx
+make
+```
+
+Enable SGX in your machine which set **Software Controlled**: 
+```shell
+gcc enable_sgx.cpp -o enable_sgx -L/home/yangz/linux-sgx/sdk/libcapable/linux -lsgx_capable -I/home/yangz/linux-sgx/common/inc/
+sudo LD_LIBRARY_PATH=/home/yangz/linux-sgx/sdk/libcapable/linux ./enable_sgx
+```
+
 ## Creating a Developer environment with `vagrant`
 
 1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
