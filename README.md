@@ -105,7 +105,8 @@ git clone git@github.com:intel/linux-sgx.git
 sudo apt-get -y install build-essential ocaml automake autoconf libtool wget python libssl-dev
 sudo apt-get -y install libssl-dev libcurl4-openssl-dev protobuf-compiler libprotobuf-dev debhelper cmake
 cd linux-sgx
-make
+./download_prebuilt.sh
+make -j16
 ```
 
 Enable SGX in your machine which set **Software Controlled**: 
