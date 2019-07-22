@@ -24,7 +24,7 @@ DPDK_CONFIG_FILE=${DPDK_CONFIG_FILE-"${DPDK_HOME}/config/common_linuxapp"}
 NATIVE_LIB_PATH="${BASE_DIR}/native"
 export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
-MODE=debug
+MODE=release
 TASK=macswap
 
 if [ $# -ge 1 ]; then
@@ -58,7 +58,11 @@ fi
 popd
 
 # Convert the APP
-ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x20000 --stack-size 0x20000 --threads 2 --debug
+if [ "$MODE" == "debug" ]; then
+    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x2a00000 --stack-size 0x2a00000 --threads 2 --debug
+else
+    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x2a00000 --stack-size 0x2a00000 --threads 2
+fi
 
 # Execute
 export PATH="${BIN_DIR}:${PATH}"
