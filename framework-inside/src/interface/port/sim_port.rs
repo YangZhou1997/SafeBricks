@@ -113,6 +113,7 @@ impl SimulatePort {
         let (stream, peer_addr) = listener.accept()?;
         let peer_addr = peer_addr.to_string();
         let local_addr = stream.local_addr()?;
+        println!("new_simulate_queue");
         eprintln!(
             "App:: accept  - local address is {}, peer address is {}",
             local_addr, peer_addr
@@ -130,6 +131,7 @@ impl SimulatePort {
         println!("{:?}", queue_addr);
             // fib(30);
 
+        drop(listener);
         Ok(CacheAligned::allocate(SimulateQueue {
             stats_rx: self.stats_rx.clone(),
             stats_tx: self.stats_tx.clone(),
