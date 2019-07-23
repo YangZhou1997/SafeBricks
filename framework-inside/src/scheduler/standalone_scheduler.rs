@@ -109,12 +109,9 @@ impl StandaloneScheduler {
         let next = self.next_task + 1;
         if next == len {
             self.next_task = 0;
-            // if let Ok(cmd) = self.sched_channel.try_recv() {
-            //     self.handle_request(cmd);
+            // if self.npkts >= self.tol_pkts {
+            //     self.execute_loop = false;
             // }
-            if self.npkts >= self.tol_pkts {
-                self.execute_loop = false;
-            }
         } else {
             self.next_task = next;
         };

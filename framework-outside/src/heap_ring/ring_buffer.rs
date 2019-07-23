@@ -53,6 +53,7 @@ impl Drop for SuperUsize {
         }
     }
 }
+pub const STOP_MARK: u32 = 0xabcdefff;
 
 /// A ring buffer which can be used to insert and read ordered data.
 pub struct RingBuffer {

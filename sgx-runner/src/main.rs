@@ -7,6 +7,7 @@
 extern crate lazy_static;
 extern crate netbricks;
 extern crate pktpuller;
+extern crate ctrlc;
 pub mod haproxy;
 
 use pktpuller::common::Result as PktResult;
@@ -31,7 +32,7 @@ use std::fmt::Display;
 
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
-
+use std::sync::atomic::{AtomicBool, Ordering};
 
 const PKT_NUM: u64 = (8 * 1024 * 1024);
 const PRINT_INTER: u64 = (1024 * 1024);
@@ -213,7 +214,7 @@ impl Drop for MbufVec {
 }
 
 // This "ports" is essentially "queues"
-fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>, recvq_ring: &mut RingBuffer, sendq_ring: &mut RingBuffer) -> std::io::Result<u64>
+fn hostio<T, >(main_port: Arc<PmdPort>, ports: Vec<T>, recvq_ring: &mut RingBuffer, sendq_ring: &mut RingBuffer, running: Arc<AtomicBool>) -> std::io::Result<u64>
 where
     T: PacketRx + PacketTx + Display + Clone + 'static,
 {
@@ -226,12 +227,12 @@ where
     let mut pkt_count_from_nic: u64 = 0;
     let mut pkt_count_from_enclave: u64 = 0;
 
-    loop {
+    while running.load(Ordering::SeqCst) {
         // hostio only used ports[0];
         unsafe{ mbufs.my_mbufs.set_len(BATCH_SIZE) }; 
 
         let mut recv_pkt_num_from_nic: u32 = 0;
-        if pkt_count_from_nic < PKT_NUM {
+        // if pkt_count_from_nic < PKT_NUM {
             // pull packets from NIC; write mbuf pointers to mbufs.     
             recv_pkt_num_from_nic = match ports[0].recv(mbufs.my_mbufs.as_mut_slice()) {
                 Ok(received) => {
@@ -243,10 +244,10 @@ where
                 _ => unreachable!(),
             };
             unsafe{ mbufs.my_mbufs.set_len(recv_pkt_num_from_nic as usize) }; 
-        }
-        else {
-            unsafe{ mbufs.my_mbufs.set_len(0) }; 
-        }
+        // }
+        // else {
+        //     unsafe{ mbufs.my_mbufs.set_len(0) }; 
+        // }
 
         
         // push recv_pkt_num_from_nic mbuf pointers to recvq.      
@@ -308,22 +309,25 @@ where
             }
         }
 
-        if pkt_count_from_nic >= PKT_NUM && pkt_count_from_enclave >= PKT_NUM {
-            break;
-        }
+        // if pkt_count_from_nic >= PKT_NUM && pkt_count_from_enclave >= PKT_NUM {
+        //     break;
+        // }
     }
     println!("exit from loop");
     // either not break above or have a loop here. 
-    loop{
-        thread::sleep(std::time::Duration::from_secs(1));// for debugging;
-        println!("waiting for ctrl+c ...");
-    }
+    recvq_ring.set_size(STOP_MARK as usize);
 
     Ok(pkt_count_from_nic)
 }
 
 
 fn main() -> PktResult<()> {
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::SeqCst);
+    }).expect("Error setting Ctrl-C handler");
+
     let configuration = load_config()?;
     println!("{}", configuration);
     let mut runtime = Runtime::init(&configuration)?;
@@ -383,9 +387,9 @@ fn main() -> PktResult<()> {
     //         print!("{} ", *b as u64);
     // }).collect();
 
-    client_count = hostio(main_port, ports, &mut recvq_ring, &mut sendq_ring).unwrap();
+    client_count = hostio(main_port, ports, &mut recvq_ring, &mut sendq_ring, running).unwrap();
 
     println!("{} vs. {}", client_count, server_count);
-    let _ = server.join().unwrap();
+    // let _ = server.join().unwrap();
     Ok(())
 }

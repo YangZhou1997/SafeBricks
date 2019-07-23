@@ -11,6 +11,7 @@ use std::slice;
 use native::mbuf::MBuf;
 use std::sync::atomic::compiler_fence;
 use std::sync::atomic::Ordering;
+use std::process;
 
 pub const sendq_name: &str = "safebricks_sendq";
 pub const recvq_name: &str = "safebricks_recvq";
@@ -43,6 +44,8 @@ impl Drop for SuperUsize {
     }
 }
 
+pub const STOP_MARK: u32 = 0xabcdefff;
+
 #[derive(Clone)]
 /// A ring buffer which can be used to insert and read ordered data.
 pub struct RingBuffer {
@@ -58,6 +61,8 @@ pub struct RingBuffer {
     vec: SuperVec,
 }
 
+// once receiving ctrl+c signal, pktpuller will set size to 0xabcdefff, 
+// in this way, the enclave can know it should stop itself. 
 
 impl Drop for RingBuffer {
     fn drop(&mut self) {
@@ -152,6 +157,10 @@ impl RingBuffer {
     /// Read from the buffer, incrementing the read head. Returns bytes read.
     #[inline]
     pub fn read_from_head(&self, mbufs: &mut [*mut MBuf]) -> usize {
+        let ring_size = self.size();
+        if ring_size == STOP_MARK as usize {
+            process::exit(1);
+        }
         let available = self.tail().wrapping_sub(self.head());
         let to_read = min(mbufs.len(), available);
         let offset = self.head() & self.mask();

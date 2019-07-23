@@ -3,7 +3,9 @@ set -e
 
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 BUILD_SCRIPT=$( basename "$0" )
-PORT_OPTIONS="dpdk:eth_pcap0,rx_pcap=../traffic/caida18_real.pcap,tx_pcap=/tmp/out.pcap"
+# PORT_OPTIONS="dpdk:eth_pcap0,rx_pcap=../traffic/caida18_real.pcap,tx_pcap=/tmp/out.pcap"
+PORT_OPTIONS="0000:02:00.0"
+
 
 if [[ -z ${CARGO_INCREMENTAL} ]] || [[ $CARGO_INCREMENTAL = false ]] || [[ $CARGO_INCREMENTAL = 0 ]]; then
     export CARGO_INCREMENTAL="CARGO_INCREMENTAL=0 "
