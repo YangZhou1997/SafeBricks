@@ -32,7 +32,7 @@ use std::fmt::Display;
 
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering, compiler_fence};
 
 const PKT_NUM: u64 = (8 * 1024 * 1024);
 const PRINT_INTER: u64 = (1024 * 1024);
@@ -315,6 +315,7 @@ where
     }
     println!("exit from loop");
     // either not break above or have a loop here. 
+    compiler_fence(Ordering::Release);
     recvq_ring.set_size(STOP_MARK as usize);
 
     Ok(pkt_count_from_nic)
