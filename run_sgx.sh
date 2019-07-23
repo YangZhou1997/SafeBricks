@@ -6,7 +6,7 @@ set -e
 PORT_OPTIONS="0000:02:00.0"
 MODE=debug
 TASK=macswap
-# QUEUE="single"
+QUEUE="single"
 
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 BUILD_SCRIPT=$( basename "$0" )
