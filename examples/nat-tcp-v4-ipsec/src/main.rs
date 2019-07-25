@@ -18,28 +18,27 @@ use std::fmt::Display;
 use std::hash::BuildHasherDefault;
 use std::net::{IpAddr, Ipv4Addr};
 use std::sync::atomic::{AtomicU16, Ordering};
-use std::sync::Arc;
-use std::sync::RwLock;
 use netbricks::utils::ipsec::*;
 // use std::io::stdout;
 // use std::io::Write;
+use std::cell::RefCell;
 
 // const MIN_PORT: u16 = 1024;
 const MAX_PORT: u16 = 65535;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
-lazy_static! {
-    static ref PORT_MAP: Arc<RwLock<HashMap<Flow, Flow, FnvHash>>> = {
+thread_local! {
+    pub static PORT_MAP: RefCell<HashMap<Flow, Flow, FnvHash>> = {
         let m = HashMap::with_capacity_and_hasher(65536, Default::default());
-        Arc::new(RwLock::new(m))
+        RefCell::new(m)
     };
 }
 
-lazy_static! {
-    static ref FLOW_VEC: Arc<RwLock<Vec<FlowUsed>>> = {
+thread_local! {
+    pub static FLOW_VEC: RefCell<Vec<FlowUsed>> = {
         let m = (0..65536).map(|_| Default::default()).collect();
-        Arc::new(RwLock::new(m))
+        RefCell::new(m)
     };
 }
 
@@ -51,7 +50,7 @@ lazy_static! {
 struct Unit;
 
 #[derive(Clone, Copy)]
-struct FlowUsed {
+pub struct FlowUsed {
     pub flow: Flow,
     pub time: u64,
     pub used: bool,
@@ -126,47 +125,44 @@ fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Ipv4> {
     
     let flow = get_flow(decrypted_pkt);
 
-    let port_map = PORT_MAP.read().unwrap();
-    // let port_map = PORT_MAP.try_read().unwrap();
-    // let temp_exist_res = port_map.get(&flow); // will return a reference &
-    // let exist_res = temp_exist_res.clone(); // clone the reference; exist_res still relies on port_map
-    // drop(temp_exist_res);
-    // drop(port_map); // exist_res still replies on port_map; so you cannot drop it. 
-    let exist_res = port_map.get(&flow);
-    match exist_res {
-        Some(s) => {
-            // drop(port_map);
-            // let _ = tcp.stamp_flow(*s);
-            let _ = set_flow(decrypted_pkt, *s);
-            // tcp.cascade();
-        }
-        None => {
-            drop(port_map);
-
-            if NEXT_PORT.load(Ordering::Relaxed) < MAX_PORT {
-                let assigned_port = NEXT_PORT.fetch_add(1, Ordering::Relaxed);
-                let mut flow_vec = FLOW_VEC.write().unwrap();
-
-                flow_vec[assigned_port as usize].flow = flow;
-                flow_vec[assigned_port as usize].used = true; 
-
-                let mut outgoing_flow = flow;
-                outgoing_flow.set_src_ip(IpAddr::V4(nat_ip));
-                outgoing_flow.set_src_port(assigned_port);
-                let rev_flow = outgoing_flow.reverse();
-                
-                let mut port_map = PORT_MAP.write().unwrap();
-                // let mut port_map = PORT_MAP.try_write().unwrap();
-
-                port_map.insert(flow, outgoing_flow);
-                port_map.insert(rev_flow, flow.reverse());
-
-                // let _ = tcp.stamp_flow(outgoing_flow);
-                let _ = set_flow(decrypted_pkt, outgoing_flow);
+    PORT_MAP.with(|port_map| {
+        let port_map_lived = port_map.borrow();
+        let exist_res = port_map_lived.get(&flow);
+        match exist_res {
+            Some(s) => {
+                // drop(port_map);
+                // let _ = tcp.stamp_flow(*s);
+                let _ = set_flow(decrypted_pkt, *s); 
                 // tcp.cascade();
             }
+            None => {
+                drop(port_map_lived);
+
+                if NEXT_PORT.load(Ordering::Relaxed) < MAX_PORT {
+                    let assigned_port = NEXT_PORT.fetch_add(1, Ordering::Relaxed);
+                    FLOW_VEC.with(|flow_vec| {
+                        let mut flow_vec_lived = flow_vec.borrow_mut();
+                        flow_vec_lived[assigned_port as usize].flow = flow;
+                        flow_vec_lived[assigned_port as usize].used = true; 
+                    });
+
+                    let mut outgoing_flow = flow;
+                    outgoing_flow.set_src_ip(IpAddr::V4(nat_ip));
+                    outgoing_flow.set_src_port(assigned_port);
+                    let rev_flow = outgoing_flow.reverse();
+                    
+                    PORT_MAP.with(|port_map2|{
+                        let mut port_map_mut_lived = port_map2.borrow_mut();
+                        port_map_mut_lived.insert(flow, outgoing_flow);
+                        port_map_mut_lived.insert(rev_flow, flow.reverse());
+                    });
+                    // let _ = tcp.stamp_flow(outgoing_flow);
+                    let _ = set_flow(decrypted_pkt, outgoing_flow);
+                    // tcp.cascade();
+                }
+            }
         }
-    }
+    });
 
     let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
     Ok(v4)

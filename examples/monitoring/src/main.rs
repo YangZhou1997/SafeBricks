@@ -15,18 +15,17 @@ use netbricks::scheduler::Scheduler;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::hash::BuildHasherDefault;
-use std::sync::Arc;
-use std::sync::RwLock;
 // use std::io::stdout;
 // use std::io::Write;
+use std::cell::RefCell;
 
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
-lazy_static! {
-    static ref FLOW_MAP: Arc<RwLock<HashMap<Flow, u64, FnvHash>>> = {
+thread_local! {
+    pub static FLOW_MAP: RefCell<HashMap<Flow, u64, FnvHash>> = {
         let m = HashMap::with_hasher(Default::default());
-        Arc::new(RwLock::new(m))
+        RefCell::new(m)
     };
 }
 
@@ -60,9 +59,9 @@ fn monitoring(packet: RawPacket) -> Result<Tcp<Ipv4>> {
     let tcp = v4.parse::<Tcp<Ipv4>>()?;
     let flow = tcp.flow();
 
-    let mut flow_map = FLOW_MAP.write().unwrap();
-    let count = flow_map.entry(flow).or_insert(0);
-    *count += 1;
+    FLOW_MAP.with(|flow_map| {
+        *((*flow_map.borrow_mut()).entry(flow).or_insert(0)) += 1;
+    });
 
     Ok(tcp)
 }

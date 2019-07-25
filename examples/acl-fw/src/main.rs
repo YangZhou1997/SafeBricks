@@ -19,20 +19,19 @@ use std::collections::HashSet;
 use std::hash::BuildHasherDefault;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
-use std::sync::Arc;
-use std::sync::RwLock;
+use std::cell::RefCell;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
-lazy_static! {
-    static ref FLOW_CACHE: Arc<RwLock<HashSet<Flow, FnvHash>>> = {
+thread_local! {
+    pub static FLOW_CACHE: RefCell<HashSet<Flow, FnvHash>> = {
         let m = HashSet::with_hasher(Default::default());
-        Arc::new(RwLock::new(m))
+        RefCell::new(m)  
     };
 }
 
-lazy_static! {
-    static ref ACLS: Arc<RwLock<Vec<Acl>>> = {
+thread_local! {
+    pub static ACLS: RefCell<Vec<Acl>> = {
         let acl = vec![Acl {
             // 0 and 32 means exactly match. 
             src_prefix: Some(Ipv4Cidr::new(Ipv4Addr::new(0, 0, 0, 0), 0).unwrap()),
@@ -74,7 +73,7 @@ lazy_static! {
             established: Some(true),
             drop: false,
         }];
-        Arc::new(RwLock::new(acl))
+        RefCell::new(acl)
     };
 }
 
@@ -107,9 +106,14 @@ impl Acl {
         {
             if let Some(established) = self.established {
                 let rev_flow = flow.reverse();
-                (FLOW_CACHE.read().unwrap().contains(flow)
-                    || FLOW_CACHE.read().unwrap().contains(&rev_flow))
+                FLOW_CACHE.with(|flow_cache| {
+                (flow_cache.borrow().contains(flow)
+                    || flow_cache.borrow().contains(&rev_flow))
                     == established
+                })
+                // (FLOW_CACHE.read().unwrap().contains(flow)
+                //     || FLOW_CACHE.read().unwrap().contains(&rev_flow))
+                //     == established
             } else {
                 true
             }
@@ -128,7 +132,6 @@ fn install<S: Scheduler + Sized>(ports: Vec<CacheAligned<PortQueue>>, sched: &mu
             port.txq()
         );
     }
-
     let pipelines: Vec<_> = ports
         .iter()
         .map(|port| {
@@ -153,17 +156,24 @@ fn install<S: Scheduler + Sized>(ports: Vec<CacheAligned<PortQueue>>, sched: &mu
 
 fn acl_match(p: &Tcp<Ipv4>) -> bool {
     let flow = p.flow();
-    let acls = ACLS.read().unwrap();
-    let matches = acls.iter().find(|ref acl| acl.matches(&flow));
+    ACLS.with(|acls| {    
+        // FLOW_CACHE.with(|flow_cache| {
+        //     println!("{}", flow_cache.borrow().len());
+        // });
 
-    if let Some(acl) = matches {
-        if !acl.drop {
-            FLOW_CACHE.write().unwrap().insert(flow);
+        if let Some(acl) = acls.borrow().iter().find(|ref acl| acl.matches(&flow)) {
+            if !acl.drop {
+                FLOW_CACHE.with(|flow_cache| {
+                    (*flow_cache.borrow_mut()).insert(flow);
+                });
+                // FLOW_CACHE.write().unwrap().insert(flow);
+            }
+            true
+        } else {
+            false
         }
-        true
-    } else {
-        false
-    }
+    })
+
 }
 
 fn main() -> Result<()> {

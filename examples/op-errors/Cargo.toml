@@ -13,7 +13,7 @@ categories = ["network-functions", "framework"]
 failure = "0.1"
 log = ">= 0.4"
 simplelog = ">= 0.5"
-netbricks = { path = "../../framework-inside"}
+netbricks = { path = "../../framework"}
 
 [features]
 default = []

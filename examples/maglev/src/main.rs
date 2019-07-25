@@ -15,7 +15,6 @@ use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr};
-use std::sync::Arc;
 // use std::io::stdout;
 // use std::io::Write;
 use std::hash::{BuildHasherDefault, BuildHasher, Hash, Hasher};
@@ -24,6 +23,7 @@ use std::slice;
 use std::mem;
 // use std::sync::RwLock;
 // use std::collections::HashMap;
+use std::cell::RefCell;
 
 
 const ENTRY_NUM: u32 = 65537;
@@ -31,7 +31,7 @@ const ENTRY_NUM: u32 = 65537;
 type FnvHash = BuildHasherDefault<FnvHasher>;
 type XxHashFactory = BuildHasherDefault<XxHash>;
 
-struct Maglev {
+pub struct Maglev {
     // permutation: Box<Vec<Vec<u32>>>,
     lut: Box<Vec<u32>>,
     lut_size: u32,
@@ -120,12 +120,12 @@ impl Maglev {
     }
 }
 
-lazy_static! {
-    static ref LUT: Arc<Maglev> = {
+thread_local! {
+    pub static LUT: RefCell<Maglev> = {
         let backends = vec!["Larry", "Curly", "Moe"];
         // let ct = backends.len();
         let lut = Maglev::new(&backends, ENTRY_NUM);
-        Arc::new(lut)
+        RefCell::new(lut)
     };
 }
 
@@ -178,10 +178,11 @@ fn lb(packet: RawPacket) -> Result<Tcp<Ipv4>> {
     let mut tcp = v4.parse::<Tcp<Ipv4>>()?;
     let flow = tcp.flow(); // new a Flow structure
 
-    let assigned_server = LUT.lookup(&flow) as u32;
+    let assigned_server = LUT.with(|lut| {
+        lut.borrow().lookup(&flow) as u32
+    });
     tcp.stamp_flow(assigned_server).unwrap();
     tcp.cascade();
-
 
     // Using a hashmap as "fast" translation as implemented in NetBricks paper; 
     // however, results show it hurts performance. 

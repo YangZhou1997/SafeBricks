@@ -279,22 +279,22 @@ fn parse_args() -> Result<String, ()> {
 }
 
 fn run_server(file: String) -> Result<(), ()> {
-    println!("run before run()");
+    // println!("run before run()");
     let mut device = IsgxDevice::new()
         .unwrap()
         .einittoken_provider(AesmClient::new())
         .build();
 
-    println!("run before run0()");
+    // println!("run before run0()");
     let mut enclave_builder = EnclaveBuilder::new(file.as_ref());
-    println!("run before run1()");
+    // println!("run before run1()");
     enclave_builder.dummy_signature();
-    println!("run before run2()");
+    // println!("run before run2()");
     enclave_builder.usercall_extension(HaproxyService);
-    println!("run before run3()");
+    // println!("run before run3()");
     let enclave = enclave_builder.build(&mut device).unwrap();
 
-    println!("run before run4()");
+    // println!("run before run4()");
     enclave.run().map_err(|e| {
         eprintln!("Error in running enclave {}", e);
     })
@@ -379,31 +379,33 @@ fn run_client() -> Result<(), Error> {
 }
 
 fn main() {
-    let core_ids: Vec<CoreId> = core_affinity::get_core_ids().unwrap();
-    println!("core_affinity detect: # available cores: {}", core_ids.len());
-    assert!(core_ids.len() >= 2 + 1 + 1, "# available cores is not enough"); 
+    // let core_ids: Vec<CoreId> = core_affinity::get_core_ids().unwrap();
+    // println!("core_affinity detect: # available cores: {}", core_ids.len());
+    // assert!(core_ids.len() >= 2 + 1 + 1, "# available cores is not enough"); 
 
     let file = parse_args().unwrap();
     for i in [0, 1].iter() {
-        let core_ids_sgx: CoreId = core_ids[(i + 2) as usize].clone();
+        // let core_ids_sgx: CoreId = core_ids[(i + 2) as usize].clone();
 
         let file_sgx = file.clone();
-        println!("before run_server"); 
+        // println!("before run_server"); 
         let server = thread::spawn(move || {
             // core_affinity::set_for_current(core_ids_sgx);
             run_server(file_sgx);
-            println!("run after run2()");
+            // println!("run after run2()");
         });
-        println!("run_server done"); 
-        run_client();
-        println!("run_client done"); 
+        // println!("run_server done"); 
+        // run_client();
+        // println!("run_client done"); 
 
         // let _ = client.join().unwrap();
         // let _ = server.join().unwrap();
     }
     // core_affinity::set_for_current(core_ids[1]);
-    loop{
-        thread::sleep(std::time::Duration::from_secs(1));
-        println!("done");
-    }
+    thread::sleep(std::time::Duration::from_secs(1));
+    
+    // loop{
+    //     thread::sleep(std::time::Duration::from_secs(1));
+    //     println!("done");
+    // }
 }

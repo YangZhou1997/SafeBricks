@@ -15,19 +15,18 @@ use netbricks::scheduler::Scheduler;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::hash::BuildHasherDefault;
-use std::sync::Arc;
-use std::sync::RwLock;
 use netbricks::utils::ipsec::*;
 // use std::io::stdout;
 // use std::io::Write;
+use std::cell::RefCell;
 
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
-lazy_static! {
-    static ref FLOW_MAP: Arc<RwLock<HashMap<Flow, u64, FnvHash>>> = {
+thread_local! {
+    pub static FLOW_MAP: RefCell<HashMap<Flow, u64, FnvHash>> = {
         let m = HashMap::with_hasher(Default::default());
-        Arc::new(RwLock::new(m))
+        RefCell::new(m)
     };
 }
 
@@ -67,9 +66,9 @@ fn monitoring(packet: RawPacket) -> Result<Ipv4> {
     let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
 
     let flow = get_flow(decrypted_pkt);
-    let mut flow_map = FLOW_MAP.write().unwrap();
-    let count = flow_map.entry(flow).or_insert(0);
-    *count += 1;
+    FLOW_MAP.with(|flow_map| {
+        *((*flow_map.borrow_mut()).entry(flow).or_insert(0)) += 1;
+    });
 
     let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
 

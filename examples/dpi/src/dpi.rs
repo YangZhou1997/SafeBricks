@@ -5,11 +5,10 @@ use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
 use std::str;
 use std::io::stdout;
 use std::io::Write;
-use std::sync::Arc;
-use std::sync::RwLock;
 use aho_corasick::AhoCorasick;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::cell::RefCell;
 
 const RULE_NUM: usize = (1 << 30); 
 
@@ -18,8 +17,8 @@ const RULE_NUM: usize = (1 << 30);
 // int pkt_size = 48 + sizeof(struct ether_hdr); // 48 + 14 = 62 bytes
 // const PAYLOAD_OFFSET: usize = 62; // payload offset relative to the ethernet header.
 
-lazy_static! {
-    static ref AC: Arc<RwLock<AhoCorasick>> = {
+thread_local! {
+    pub static AC: RefCell<AhoCorasick> = {
         let mut rules = vec![];
 
         let file = File::open("./dpi/wordrules/word.rules").expect("cannot open file");
@@ -35,7 +34,7 @@ lazy_static! {
         //let patterns = &["This is", "Yang", "abcedf"];
         let patterns = &rules;
         let m = AhoCorasick::new(patterns);
-        Arc::new(RwLock::new(m))
+        RefCell::new(m)
     };
 }
 
@@ -59,10 +58,12 @@ pub fn dpi(packet: RawPacket) -> Result<Tcp<Ipv4>> {
     // stdout().flush().unwrap();
 
     let mut matches = vec![];
-    let ac = AC.read().unwrap();
-    for mat in ac.find_iter(payload) {
-        matches.push((mat.pattern(), mat.start(), mat.end()));
-    }
+    AC.with(|ac| {
+        for mat in ac.borrow().find_iter(payload) {
+            matches.push((mat.pattern(), mat.start(), mat.end()));
+        }
+    });
+    
     // println!("{:?}", matches);
     // stdout().flush().unwrap();
 

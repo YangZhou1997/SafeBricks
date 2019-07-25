@@ -12,7 +12,7 @@ categories = ["network-functions", "framework"]
 [dependencies]
 nix = ">=0.13"
 rust-sctp = { git="https://github.com/netsys/rust-sctp" }
-netbricks = { path = "../../framework-inside", features = ["sctp"] }
+netbricks = { path = "../../framework", features = ["sctp"] }
 
 [features]
 default = []

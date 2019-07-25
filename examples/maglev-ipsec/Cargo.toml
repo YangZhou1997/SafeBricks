@@ -10,7 +10,7 @@ keywords = ["netbricks", "network-functions", "nfs", "packet-processing"]
 categories = ["network-functions", "framework"]
 
 [dependencies]
-netbricks = { path = "../../framework-inside" }
+netbricks = { path = "../../framework" }
 time = ">= 0.1"
 getopts = ">= 0.2"
 rand = "0.6"

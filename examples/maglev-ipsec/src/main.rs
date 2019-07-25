@@ -15,7 +15,6 @@ use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr};
-use std::sync::Arc;
 // use std::io::stdout;
 // use std::io::Write;
 use std::hash::{BuildHasherDefault, BuildHasher, Hash, Hasher};
@@ -25,6 +24,7 @@ use std::mem;
 use netbricks::utils::ipsec::*;
 // use std::sync::RwLock;
 // use std::collections::HashMap;
+use std::cell::RefCell;
 
 
 const ENTRY_NUM: u32 = 65537;
@@ -32,7 +32,7 @@ const ENTRY_NUM: u32 = 65537;
 type FnvHash = BuildHasherDefault<FnvHasher>;
 type XxHashFactory = BuildHasherDefault<XxHash>;
 
-struct Maglev {
+pub struct Maglev {
     // permutation: Box<Vec<Vec<u32>>>,
     lut: Box<Vec<u32>>,
     lut_size: u32,
@@ -121,12 +121,12 @@ impl Maglev {
     }
 }
 
-lazy_static! {
-    static ref LUT: Arc<Maglev> = {
+thread_local! {
+    pub static LUT: RefCell<Maglev> = {
         let backends = vec!["Larry", "Curly", "Moe"];
         // let ct = backends.len();
         let lut = Maglev::new(&backends, ENTRY_NUM);
-        Arc::new(lut)
+        RefCell::new(lut)
     };
 }
 
@@ -185,7 +185,9 @@ fn lb(packet: RawPacket) -> Result<Ipv4> {
     let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
     
     let flow = get_flow(decrypted_pkt);
-    let assigned_server = LUT.lookup(&flow) as u32;
+    let assigned_server = LUT.with(|lut| {
+        lut.borrow().lookup(&flow) as u32
+    });
     set_dst_ip(decrypted_pkt, assigned_server);
     // tcp.stamp_flow(assigned_server).unwrap();
     // tcp.cascade();

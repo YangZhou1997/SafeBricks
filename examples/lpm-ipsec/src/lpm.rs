@@ -6,11 +6,10 @@ use std::collections::HashMap;
 use std::convert::From;
 use std::hash::BuildHasherDefault;
 use std::net::Ipv4Addr;
-use std::sync::Arc;
-use std::sync::RwLock;
 use rand::distributions::Uniform;
 use rand::{thread_rng, Rng};
 use netbricks::utils::ipsec::*;
+use std::cell::RefCell;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
@@ -105,8 +104,8 @@ impl IPLookup {
     }
 }
 
-lazy_static! {
-    static ref LOOKUP_TABLE: Arc<RwLock<IPLookup>> = {
+thread_local! {
+    pub static LOOKUP_TABLE: RefCell<IPLookup> = {
         let mut rng = thread_rng();
         let mut lpm_table = IPLookup::new();
 
@@ -120,14 +119,14 @@ lazy_static! {
         }
 
         lpm_table.construct_table();
-        Arc::new(RwLock::new(lpm_table))
+        RefCell::new(lpm_table)
     };
 }
 
-lazy_static!{
-    static ref COUNT_PORTS: Arc<RwLock<Vec<u32>>> = {
+thread_local! {
+    pub static COUNT_PORTS: RefCell<Vec<u32>> = {
         let count_ports = (0..GATE_NUM).map(|_| 0).collect();
-        Arc::new(RwLock::new(count_ports))
+        RefCell::new(count_ports)
     };
 }
 
@@ -144,8 +143,12 @@ pub fn lpm(packet: RawPacket) -> Result<Ipv4> {
     let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
 
     let srcip = get_src_ip(decrypted_pkt);
-    let port = LOOKUP_TABLE.read().unwrap().lookup_entry(srcip) as u32;
-    COUNT_PORTS.write().unwrap()[port as usize] += 1;
+    let port = LOOKUP_TABLE.with(|lookup_table| {
+        lookup_table.borrow().lookup_entry(srcip) as u32
+    });
+    COUNT_PORTS.with(|count_ports| {
+        (*count_ports.borrow_mut())[port as usize] += 1;
+    });
 
     let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
 
