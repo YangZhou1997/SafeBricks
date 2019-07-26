@@ -9,7 +9,7 @@ CmdNetBricks = {
 }
 
 CmdPktgen = {
-	'start': 'ssh -i /home/yangz/.ssh/id_rsa yangz@10.243.38.93 "cd ./pktgen/dpdk_zeroloss_dyn/ && bash run.sh ../l2.conf 0.1 32 60 1 {type}"',
+	'start': 'ssh -i /home/yangz/.ssh/id_rsa yangz@10.243.38.93 "cd ./pktgen/dpdk_zeroloss_dyn/ && bash run_netbricks.sh ../l2.conf 0.1 32 60 1 {type}"',
 	'kill': 'sudo pkill "ssh yangz@10.243.38.93" 2>/dev/null'
 }
 
@@ -52,33 +52,39 @@ pktgens = ["ICTF", "CAIDA64", "CAIDA256", "CAIDA512", "CAIDA1024"]
 tasks_ipsec = ["acl-fw-ipsec", "dpi-ipsec", "lpm-ipsec", "maglev-ipsec", "monitoring-ipsec", "nat-tcp-v4-ipsec"]
 pktgens_ipsec = ["ICTF_IPSEC", "CAIDA64_IPSEC", "CAIDA256_IPSEC", "CAIDA512_IPSEC", "CAIDA1024_IPSEC"]
 
+num_queues = [1, 2, 3, 4, 5, 6]
 # ps -ef | grep release
 # sudo kill -9 ####
 
 if __name__ == '__main__':
 	now = datetime.datetime.now()
-	throughput_res = open("throughput-eva/throughput.txt_" + now.isoformat(), 'w')
+	throughput_res = open("./throughput-eva/throughput.txt_" + now.isoformat(), 'w')
+
 	run_count = 0
 	fail_count = 0
-	for task in tasks: 
-		for pktgen_type in pktgens: 
-			run_count += 1
-			status = task_exec(task, pktgen_type, 1, throughput_res)
-			if status == -1:
-				fail_count += 1
-				print colored("%s %s %s fails" % (task, pktgen_type, 1), 'red')
-			else:
-				print colored("%s %s %s succeeds" % (task, pktgen_type, 1), 'green')
-
-	for task in tasks_ipsec: 
-		for pktgen_type in pktgens_ipsec: 
-			run_count += 1
-			status = task_exec(task, pktgen_type, 1, throughput_res)
-			if status == -1:
-				fail_count += 1
-				print colored("%s %s %s fails" % (task, pktgen_type, 1), 'red')
-			else:
-				print colored("%s %s %s succeeds" % (task, pktgen_type, 1), 'green')
+	# for i in range(10):
+	# 	for task in tasks: 
+	# 		for pktgen_type in pktgens: 
+	# 			for num_queue in num_queues: 
+	# 				run_count += 1
+	# 				status = task_exec(task, pktgen_type, num_queue, throughput_res)
+	# 				if status == -1:
+	# 					fail_count += 1
+	# 					print colored("%s %s %s fails" % (task, pktgen_type, num_queue), 'red')
+	# 				else:
+	# 					print colored("%s %s %s succeeds" % (task, pktgen_type, num_queue), 'green')
+	
+	for i in range(1):
+		for task in tasks_ipsec: 
+			for pktgen_type in pktgens_ipsec: 
+				for num_queue in num_queues: 
+					run_count += 1
+					status = task_exec(task, pktgen_type, num_queue, throughput_res)
+					if status == -1:
+						fail_count += 1
+						print colored("%s %s %s fails" % (task, pktgen_type, num_queue), 'red')
+					else:
+						print colored("%s %s %s succeeds" % (task, pktgen_type, num_queue), 'green')
 
 	print colored(("success runs: %d/%d", (run_count - fail_count), run_count), 'green')
 	throughput_res.close()
