@@ -1,0 +1,9 @@
+[package]
+name = "sharedring"
+version = "0.1.0"
+authors = ["Yang Zhou"]
+license = "MPL-2.0"
+
+[dependencies]
+libc = "0.2"
+failure = "0.1"

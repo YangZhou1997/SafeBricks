@@ -7,6 +7,7 @@
 extern crate lazy_static;
 extern crate pktpuller;
 extern crate ctrlc;
+extern crate sharedring;
 
 use pktpuller::common::Result as PktResult;
 use pktpuller::config::load_config;
@@ -16,10 +17,11 @@ use pktpuller::operators::BATCH_SIZE;
 use pktpuller::packets::{Ethernet, Packet, RawPacket};
 use pktpuller::runtime::Runtime;
 use pktpuller::scheduler::Executable;
-use pktpuller::heap_ring::ring_buffer::*;
 use pktpuller::native::mbuf::MBuf;
 use pktpuller::config::{NUM_RXD, NUM_TXD};
 use pktpuller::allocators::CacheAligned;
+
+use sharedring::ring_buffer::*;
 
 use std::thread;
 use std::sync::{Arc, Mutex};
@@ -28,6 +30,9 @@ use std::fmt::Display;
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
 use std::sync::atomic::{AtomicBool, Ordering, compiler_fence};
+
+use std::io::stdout;
+use std::io::Write;
 
 const PKT_NUM: u64 = (8 * 1024 * 1024);
 const PRINT_INTER: u64 = (1024 * 1024);
@@ -102,8 +107,8 @@ where
             // push recv_pkt_num_from_nic mbuf pointers to recvq.      
             if !mbufs.my_mbufs.is_empty() {
                 let mut to_send = mbufs.my_mbufs.len();
-                while to_send > 0 {
-                    let sent = recvq_ring[i].write_at_tail(mbufs.my_mbufs.as_mut_slice());
+                while to_send > 0 && running.load(Ordering::SeqCst) {
+                    let sent = unsafe{ recvq_ring[i].write_at_tail(std::mem::transmute::<&[*mut MBuf], &[u64]>(mbufs.my_mbufs.as_slice())) };
                     to_send -= sent;
                     if to_send > 0 {
                         mbufs.my_mbufs.drain(..sent);
@@ -120,13 +125,13 @@ where
             unsafe{ mbufs.my_mbufs.set_len(BATCH_SIZE) }; 
 
             // pull packet from sendq;
-            let recv_pkt_num_from_enclave = sendq_ring[i].read_from_head(mbufs.my_mbufs.as_mut_slice());
+            let recv_pkt_num_from_enclave = unsafe{ sendq_ring[i].read_from_head(std::mem::transmute::<&mut [*mut MBuf], &mut [u64]>(mbufs.my_mbufs.as_mut_slice())) };
             unsafe{ mbufs.my_mbufs.set_len(recv_pkt_num_from_enclave) }; 
-            
+
             // Send pacekt to dpdk port;
             if !mbufs.my_mbufs.is_empty() {
                 let mut to_send = mbufs.my_mbufs.len();
-                while to_send > 0 {
+                while to_send > 0 && running.load(Ordering::SeqCst){
                     match ports[i].send(mbufs.my_mbufs.as_mut_slice()) {
                         Ok(sent) => {
                             let sent = sent as usize;
@@ -149,14 +154,14 @@ where
 
             pull_count[i] += 1;
 
-            if pkt_count_from_enclave[i] % PRINT_INTER == 0 {
-                if pkt_count_from_enclave[i] != 0 && recv_pkt_num_from_enclave != 0 {
+            // if pkt_count_from_enclave[i] % PRINT_INTER == 0 {
+                // if pkt_count_from_enclave[i] != 0 && recv_pkt_num_from_enclave != 0 {
                     let (rx, tx) = main_port.stats(0);
                     println!("Ring {} out-of-enclave: from nic {}, to sgx {}, from sgx {}, to nic {}", i, rx, pkt_count_from_nic[i], pkt_count_from_enclave[i], tx);
                     println!("  recvq: head {} vs. tail {}", recvq_ring[i].head(), recvq_ring[i].tail());
                     println!("  sendq: head {} vs. tail {}", sendq_ring[i].head(), sendq_ring[i].tail());
-                }
-            }
+                // }
+            // }
 
             // if pkt_count_from_nic >= PKT_NUM && pkt_count_from_enclave >= PKT_NUM {
             //     break;
@@ -179,6 +184,7 @@ fn main() -> PktResult<()> {
     let r = running.clone();
     ctrlc::set_handler(move || {
         r.store(false, Ordering::SeqCst);
+        println!("singnal received");
     }).expect("Error setting Ctrl-C handler");
 
     let configuration = load_config()?;
@@ -203,7 +209,6 @@ fn main() -> PktResult<()> {
 
     let mut server_count: u64 = 0;
     let mut client_count: u64 = 0;
-    let file = parse_args().unwrap();
 
     let mut recvq_ring: Vec<RingBuffer> = Vec::new();
     let mut sendq_ring: Vec<RingBuffer> = Vec::new();

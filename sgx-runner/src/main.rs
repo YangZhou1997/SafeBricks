@@ -5,28 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #[macro_use]
 extern crate lazy_static;
-extern crate netbricks;
-extern crate pktpuller;
 extern crate ctrlc;
 pub mod haproxy;
-
-use pktpuller::common::Result as PktResult;
-use pktpuller::config::load_config;
-use pktpuller::interface::{PmdPort, PacketRx, PacketTx, PortQueue};
-use pktpuller::operators::{Batch, ReceiveBatch};
-use pktpuller::operators::BATCH_SIZE;
-use pktpuller::packets::{Ethernet, Packet, RawPacket};
-use pktpuller::runtime::Runtime;
-use pktpuller::scheduler::Executable;
-use pktpuller::heap_ring::ring_buffer::*;
-use pktpuller::native::mbuf::MBuf;
-use pktpuller::config::{NUM_RXD, NUM_TXD};
-use pktpuller::allocators::CacheAligned;
-
 use haproxy::{run_client, run_server, parse_args};
-
-use netbricks::heap_ring::ring_buffer::RingBuffer as RingBufferSGX;
-use netbricks::native::mbuf::MBuf as MBufSGX;
 
 use std::thread;
 use std::sync::{Arc, Mutex};
@@ -122,6 +103,10 @@ fn main() -> PktResult<()> {
 
     println!("{} vs. {}", client_count, server_count);
     
+    loop{
+        println!("waiting for the ctrl+c");
+        thread::sleep(std::time::Duration::from_secs(1));
+    }
     // directly exit and let enclaves run.
     Ok(())
 }

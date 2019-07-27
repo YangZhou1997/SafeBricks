@@ -5,12 +5,10 @@ authors = ["Fortanix, Inc."]
 license = "MPL-2.0"
 
 [dependencies]
-aesm-client = { version = "0.1.0", path = "../rust-sgx/aesm-client", features = ["sgxs"]}
-enclave-runner = { version = "0.1.1", path = "../rust-sgx/enclave-runner"}
-sgxs-loaders = { version = "0.1.0", path = "../rust-sgx/sgxs-loaders"}
 pktpuller = {version = "0.3.0", path = "../framework-outside"}
 byteorder = "1.0"
 libc = "0.2"
 core_affinity = "0.5.9"
 lazy_static = ">= 1.3"
 ctrlc = { version = "3.0", features = ["termination"] }
+sharedring = { version = "0.1.0", path = "../sharedring" }

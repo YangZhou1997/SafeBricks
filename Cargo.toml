@@ -35,6 +35,7 @@ members = [
     # for sgx 
     "sgx-runner",
     "dpdkIO",
+    "sharedring",
 ]
 exclude = ["rust-sgx"]
 
