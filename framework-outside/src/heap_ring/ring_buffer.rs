@@ -12,9 +12,11 @@ use native::mbuf::MBuf;
 use std::sync::atomic::compiler_fence;
 use std::sync::atomic::Ordering;
 
-pub const sendq_name: &str = "safebricks_sendq";
-pub const recvq_name: &str = "safebricks_recvq";
-pub const mbufq_name: &str = "safebricks_mbufq";
+use libc::{self, c_void, close, ftruncate, mmap, munmap, shm_open, shm_unlink};
+use std::ffi::CString;
+
+pub const SENDQ_PREFIX: &str = "sb_sendq";
+pub const RECVQ_PREFIX: &str = "sb_recvq";
 
 /// Error related to the RingBuffer
 #[derive(Debug, Fail)]
@@ -58,7 +60,11 @@ pub const STOP_MARK: u32 = 0xabcdefff;
 /// A ring buffer which can be used to insert and read ordered data.
 pub struct RingBuffer {
     /// boxed ring; avoid heap memory being dropped;
-    boxed: SuperBox,
+    // boxed: SuperBox,
+    /// RingBuffer name
+    pub name: CString,
+    /// The size of the shared memory region
+    pub size: usize,
     /// Head, signifies where a consumer should read from.
     pub head: SuperUsize,
     /// Tail, signifies where a producer should write.
@@ -71,9 +77,17 @@ pub struct RingBuffer {
     vec: SuperVec,
 }
 
+// only outside ring buffer has the drop function. 
 impl Drop for RingBuffer {
     fn drop(&mut self) {
         unsafe {
+            unsafe {
+                let size = self.size;
+                let _ret = munmap(self.mem as *mut c_void, size); // Unmap pages.
+                                                                // Record munmap failure.
+                let shm_ret = shm_unlink(self.name.as_ptr());
+                assert!(shm_ret == 0, "Could not unlink shared memory region");
+            }
             println!("RingBuffer freed");
         }
     }
@@ -82,19 +96,56 @@ unsafe impl Send for RingBuffer {}
 
 #[cfg_attr(feature = "dev", allow(len_without_is_empty))]
 impl RingBuffer {
-    /// Create a new wrapping ring buffer. The ring buffer size is specified in bytes and must be a power of 2. 
-    /// bytes is the number of bytes of RingBuffer::vec
+    /// Create/attach a new wrapping ring buffer. 
+    /// The ring buffer size is specified in bytes and must be a power of 2. 
     /// we will require additional 16 bytes to store the meta-data for this ring.
-    pub unsafe fn new_in_heap(ring_size: usize) -> Result<RingBuffer>{
+    pub unsafe fn new_in_heap(ring_size: usize, name: &str) -> Result<RingBuffer>{
         if ring_size & (ring_size - 1) != 0 {
             // We need pages to be a power of 2.
             return Err(InvalidRingSize(ring_size).into());
         }
+        let size = ring_size * 8 + 16;
 
-        let temp_vec: Vec<u8> = vec![0; ring_size * 8 + 16];
-        let mut boxed: SuperBox = SuperBox{ my_box: temp_vec.into_boxed_slice(), }; // Box<[u8]> is just like &[u8];
+        // let temp_vec: Vec<u8> = vec![0; ring_size * 8 + 16];
+        // let mut boxed: SuperBox = SuperBox{ my_box: temp_vec.into_boxed_slice(), }; // Box<[u8]> is just like &[u8];
+        let name = CString::new(name).unwrap();
+        let mut fd = shm_open(
+            name.as_ptr(),
+            libc::O_CREAT | libc::O_EXCL | libc::O_RDWR,
+            0o700,
+        );
+        if fd == -1 {
+            if let Some(e) = Error::last_os_error().raw_os_error() {
+                if e == libc::EEXIST {
+                    shm_unlink(name.as_ptr());
+                    fd = shm_open(
+                        name.as_ptr(),
+                        libc::O_CREAT | libc::O_EXCL | libc::O_RDWR,
+                        0o700,
+                    );
+                }
+            }
+        };
+        assert!(fd >= 0, "Could not create shared memory segment");
+        let ftret = ftruncate(fd, size as i64);
+        assert!(ftret == 0, "Could not truncate");
+        let address = mmap(
+            ptr::null_mut(),
+            size,
+            libc::PROT_READ | libc::PROT_WRITE,
+            libc::MAP_POPULATE | libc::MAP_PRIVATE,
+            fd,
+            0,
+        );
+        if address == libc::MAP_FAILED {
+            let err_string = CString::new("mmap failed").unwrap();
+            libc::perror(err_string.as_ptr());
+            panic!("Could not mmap shared region");
+        }
+        close(fd);
 
-        let address = &mut boxed.my_box[0] as *mut u8;
+        let address = address as *mut u8;
+        // let address = &mut boxed.my_box[0] as *mut u8;
         unsafe{
             *(address as *mut usize) = 0;
             *((address as *mut usize).offset(1)) = 0;
@@ -103,7 +154,8 @@ impl RingBuffer {
         }
 
         Ok(RingBuffer {
-            boxed,
+            name,
+            size,
             head: SuperUsize{ my_usize: (address as *mut usize) },
             tail: SuperUsize{ my_usize: (address as *mut usize).offset(1) }, 
             size: SuperUsize{ my_usize: (address as *mut usize).offset(2) },
@@ -111,7 +163,6 @@ impl RingBuffer {
             vec: SuperVec{ my_vec: (address as *mut usize).offset(4) as (*mut (*mut MBuf)) },
         })
     }
-
 
     #[inline]
     pub fn head(&self) -> usize{
