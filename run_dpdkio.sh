@@ -6,7 +6,6 @@ PORT_OPTIONS="dpdk:eth_pcap0,rx_pcap=../traffic/caida18_real.pcap,tx_pcap=/tmp/o
 # PORT_OPTIONS="0000:02:00.0"
 MODE=debug
 TASK=macswap
-QUEUE="single"
 
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 BUILD_SCRIPT=$( basename "$0" )
@@ -51,11 +50,11 @@ export PATH="${BIN_DIR}:${PATH}"
 export LD_LIBRARY_PATH="${NATIVE_LIB_PATH}:${DPDK_LD_PATH}:${LD_LIBRARY_PATH}"
 # echo "sudo env PATH=\"$PATH\" LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\" LD_PRELOAD=\"$LD_PRELOAD\" $executable \"$@\""
 
-if [ "$QUEUE" == "single" ]; then
+if [ $# -eq 1 ]; then
     env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" LD_PRELOAD="$LD_PRELOAD" \
-    RUST_BACKTRACE=1 target/$MODE/dpdkIO -p $PORT_OPTIONS -c 0
+    RUST_BACKTRACE=1 target/$MODE/dpdkIO -f sgx-runner/config_$1core.toml
 else
     env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" LD_PRELOAD="$LD_PRELOAD" \
-    RUST_BACKTRACE=1 target/$MODE/dpdkIO -f sgx-runner/config.toml
+    RUST_BACKTRACE=1 target/$MODE/dpdkIO -p $PORT_OPTIONS -c 0
 fi
 

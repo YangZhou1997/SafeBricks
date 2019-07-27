@@ -12,8 +12,8 @@ use failure::Fail;
 use failure::Error;
 use libc::{self, c_void, close, ftruncate, mmap, munmap, shm_open, shm_unlink};
 
-pub const SENDQ_PREFIX: &str = "sb_sendq";
-pub const RECVQ_PREFIX: &str = "sb_recvq";
+pub const SENDQ_PREFIX: &str = "/sb_sendq";
+pub const RECVQ_PREFIX: &str = "/sb_recvq";
 
 /// Error related to the RingBuffer
 #[derive(Debug, Fail)]
@@ -56,6 +56,7 @@ impl Drop for SuperUsize {
 pub const STOP_MARK: u32 = 0xabcdefff;
 
 /// A ring buffer which can be used to insert and read ordered data.
+#[derive(Clone)]
 pub struct RingBuffer {
     /// boxed ring; avoid heap memory being dropped;
     // boxed: SuperBox,
@@ -118,10 +119,14 @@ impl RingBuffer {
         if fd == -1 {
             if let Some(e) = IOError::last_os_error().raw_os_error() {
                 if e == libc::EEXIST {
-                    shm_unlink(name.as_ptr());
+                    // println!("unlink previous shm");
+                    // shm_unlink(name.as_ptr());
+
+                    // if already exist, we just attach to it, instead of unlinking it. 
+                    println!("attach to previous shm");
                     fd = shm_open(
                         name.as_ptr(),
-                        libc::O_CREAT | libc::O_EXCL | libc::O_RDWR,
+                        libc::O_CREAT | libc::O_RDWR,
                         0o700,
                     );
                 }
@@ -134,7 +139,7 @@ impl RingBuffer {
             ptr::null_mut(),
             size,
             libc::PROT_READ | libc::PROT_WRITE,
-            libc::MAP_POPULATE | libc::MAP_PRIVATE,
+            libc::MAP_POPULATE | libc::MAP_SHARED,
             fd,
             0,
         );

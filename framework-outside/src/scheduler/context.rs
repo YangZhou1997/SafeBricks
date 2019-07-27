@@ -2,6 +2,7 @@ use allocators::CacheAligned;
 use common::*;
 use config::NetBricksConfiguration;
 use failure::Fail;
+
 use interface::dpdk::{init_system, init_thread};
 use interface::{PmdPort, PortQueue, VirtualPort, VirtualQueue};
 use scheduler::*;

@@ -1,15 +1,14 @@
-name = "macswap"
 secondary = false
 primary_core = 0
-cores = [0, 1]
+cores = [0, 1, 2, 3]
 strict = false
-pool_size = 512
+pool_size = 2048
 cache_size = 32
-duration = 0
+duration = 1800
 [[ports]]
-  name = "0000:02:00.0"
-  rx_queues = [0, 1]
-  tx_queues = [0, 1]
+  name = "0000:02:00.1"
+  rx_queues = [0, 1, 2, 3]
+  tx_queues = [0, 1, 2, 3]
   rxd = 128
   txd = 128
   loopback = false
