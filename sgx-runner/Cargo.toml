@@ -3,6 +3,8 @@ name = "sgx-runner"
 version = "0.1.0"
 authors = ["Fortanix, Inc.", "Yang Zhou"]
 license = "MPL-2.0"
+links = "mapping"
+build = "build.rs"
 
 [dependencies]
 aesm-client = { version = "0.1.0", path = "../rust-sgx/aesm-client", features = ["sgxs"]}
@@ -18,6 +20,9 @@ clap = "2.33"
 config = "0.9"
 serde = ">= 1.0"
 serde_derive = ">= 1.0"
+
+[build-dependencies]
+cc = "1.0"
 
 [lib]
 name = "mylib"

@@ -1,3 +1,5 @@
+#![feature(rustc_private)]
+
 extern crate libc;
 #[macro_use]
 extern crate lazy_static;
@@ -14,6 +16,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate sharedring;
+extern crate cc;
 
 pub mod config;
 pub mod haproxy;

@@ -9,6 +9,9 @@ extern crate lazy_static;
 extern crate sharedring;
 extern crate mylib;
 
+#[link(name="mapping", kind="static")]
+extern { fn mapping(); }
+
 use mylib::haproxy::{run_client, run_server, parse_args};
 use mylib::config::{load_config, NUM_RXD, NUM_TXD, NetBricksConfiguration};
 use sharedring::ring_buffer::*;
@@ -43,6 +46,7 @@ lazy_static!{
 // TODO: extract the config and ring_buffer from the pkupuller (separated from dpdk logic)
 // Reason: system will crash if dpdk crate co-exists with second enclave creation. 
 fn main() {
+    unsafe { mapping(); };
 
     let configuration = load_config().unwrap();
     println!("{}", configuration);
