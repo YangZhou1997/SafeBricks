@@ -20,6 +20,7 @@ clap = "2.33"
 config = "0.9"
 serde = ">= 1.0"
 serde_derive = ">= 1.0"
+tokio = "0.1"
 
 [build-dependencies]
 cc = "1.0"

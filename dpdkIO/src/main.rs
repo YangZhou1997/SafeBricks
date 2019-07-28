@@ -218,8 +218,8 @@ fn main() -> PktResult<()> {
 
     for (i, queue) in ports.iter().enumerate() {
         // Create two shared queue: recvq and sendq in shared memory with name.
-        recvq_ring.push(unsafe{RingBuffer::new_in_heap(NUM_RXD as usize, &format!("{}_{}", RECVQ_PREFIX, i))}.unwrap());
-        sendq_ring.push(unsafe{RingBuffer::new_in_heap(NUM_TXD as usize, &format!("{}_{}", SENDQ_PREFIX, i))}.unwrap());
+        recvq_ring.push(unsafe{RingBuffer::new_in_heap(NUM_RXD as usize, &format!("{}_{}", RECVQ_PREFIX, i), true)}.unwrap());
+        sendq_ring.push(unsafe{RingBuffer::new_in_heap(NUM_TXD as usize, &format!("{}_{}", SENDQ_PREFIX, i), true)}.unwrap());
 
         let recvq_addr_u64: u64 = recvq_ring[i].head.my_usize as u64; // *mut usize
         let sendq_addr_u64: u64 = sendq_ring[i].head.my_usize as u64;

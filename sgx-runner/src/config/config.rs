@@ -106,7 +106,7 @@ impl fmt::Display for PortConfiguration {
 }
 
 lazy_static! {
-    pub(crate) static ref CLI_ARGS: ArgMatches<'static> = clap_app!(app =>
+    pub static ref CLI_ARGS: ArgMatches<'static> = clap_app!(app =>
         (version: "0.3.0")
         (@arg file: -f --file +takes_value "custom configuration file")
         (@arg name: -n --name +takes_value "DPDK process name")
@@ -218,6 +218,7 @@ static DEFAULT_TOML: &'static str = r#"
     strict = false
     pool_size = 512
     cache_size = 32
+    duration = 0
     [[ports]]
         name = "0000:02:00.0"
         rx_queues = [0]
@@ -227,7 +228,6 @@ static DEFAULT_TOML: &'static str = r#"
         loopback = false
         tso = false
         csum = false
-    duration = 0
 "#;
 
 /// Loads the configuration
@@ -246,3 +246,12 @@ pub fn load_config() -> Result<NetBricksConfiguration, ConfigError> {
     config.merge(CommandLine())?; 
     config.try_into()
 }
+
+pub fn get_duration() -> u64 {
+    if CLI_ARGS.is_present("duration") {
+        println!("duration exists"); // do not know why duration does not exist...
+        return value_t!(CLI_ARGS, "duration", u64).unwrap();
+    }
+    1800
+}
+

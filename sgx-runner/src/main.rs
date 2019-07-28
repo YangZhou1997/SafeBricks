@@ -8,14 +8,18 @@
 extern crate lazy_static;
 extern crate sharedring;
 extern crate mylib;
+extern crate tokio;
+#[macro_use]
+extern crate clap;
 
 #[link(name="mapping", kind="static")]
 extern { fn mapping(); }
 
 use mylib::haproxy::{run_client, run_server, parse_args};
-use mylib::config::{load_config, NUM_RXD, NUM_TXD, NetBricksConfiguration};
+use mylib::config::{load_config, NUM_RXD, NUM_TXD, NetBricksConfiguration, get_duration};
 use sharedring::ring_buffer::*;
 
+use std::time::{Duration, Instant};
 use std::thread;
 use std::sync::{Arc, Mutex};
 use std::fmt::Display;
@@ -23,6 +27,9 @@ use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
 use std::sync::atomic::{Ordering, compiler_fence};
 use std::process;
+
+use tokio::timer::{Delay, Interval};
+type TokioRuntime = tokio::runtime::current_thread::Runtime;
 
 const PKT_NUM: u64 = (8 * 1024 * 1024);
 const PRINT_INTER: u64 = (1024 * 1024);
@@ -68,8 +75,8 @@ fn main() {
 
     for i in 0..port_num {
         // Create two shared queue: recvq and sendq; 
-        recvq_ring.push(unsafe{RingBuffer::new_in_heap((NUM_RXD) as usize, &format!("{}_{}", RECVQ_PREFIX, i))}.unwrap());
-        sendq_ring.push(unsafe{RingBuffer::new_in_heap((NUM_TXD) as usize, &format!("{}_{}", SENDQ_PREFIX, i))}.unwrap());
+        recvq_ring.push(unsafe{RingBuffer::new_in_heap((NUM_RXD) as usize, &format!("{}_{}", RECVQ_PREFIX, i), false)}.unwrap());
+        sendq_ring.push(unsafe{RingBuffer::new_in_heap((NUM_TXD) as usize, &format!("{}_{}", SENDQ_PREFIX, i), false)}.unwrap());
 
         let core_ids_sgx = core_ids[i + 1].clone();
         let file_core = file.clone();
@@ -88,7 +95,6 @@ fn main() {
 
         println!("  recvq: head {} vs. tail {}", recvq_ring[i].head(), recvq_ring[i].tail());
         println!("  sendq: head {} vs. tail {}", sendq_ring[i].head(), sendq_ring[i].tail());
-        thread::sleep(std::time::Duration::from_secs(1));// wait until server in enclave sets up;
     }
 
     let recvq_ring_r = recvq_ring.clone();
@@ -101,15 +107,22 @@ fn main() {
         process::exit(1);
     }).expect("Error setting Ctrl-C handler");
 
-    println!("{} vs. {}", client_count, server_count);
-    
-    loop{
-        for i in 0..port_num {
-            println!("waiting for the ctrl+c");
-            println!("  recvq: head {} vs. tail {}", recvq_ring[i].head(), recvq_ring[i].tail());
-            println!("  sendq: head {} vs. tail {}", sendq_ring[i].head(), sendq_ring[i].tail());
-            thread::sleep(std::time::Duration::from_secs(1));
-        }
-    }
+    let mut tokio_rt = TokioRuntime::new().unwrap();
+    let when = Instant::now() + Duration::from_secs(get_duration());
+    let main_loop = Delay::new(when);
+    let res = tokio_rt.block_on(main_loop); 
+    // seems like if sgx-runner process exits, the sgx threads will also exit: at least htop will not show them. 
+    // maybe it is because of sgx enclave property. 
+
+    // loop{
+    //     for i in 0..port_num {
+    //         println!("waiting for the ctrl+c");
+    //         println!("  recvq: head {} vs. tail {}", recvq_ring[i].head(), recvq_ring[i].tail());
+    //         println!("  sendq: head {} vs. tail {}", sendq_ring[i].head(), sendq_ring[i].tail());
+    //         thread::sleep(std::time::Duration::from_secs(1));
+    //     }
+    // }
     // directly exit and let enclaves run.
+    // No, you cannot exit, since the ringbuffer will dropped if you leave. 
+    // have fixed it in ringbuffer using shm_master bool value.
 }

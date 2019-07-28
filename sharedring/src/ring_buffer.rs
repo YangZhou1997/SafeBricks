@@ -66,7 +66,8 @@ pub struct RingBuffer {
     pub size_shm: usize,
     /// The pointer to the shared memory region;
     pub mem: *mut u8,
-    /// 
+    /// Flag for distinguishing whether this is a dpdk process or sgx-runner process
+    pub shm_master: bool,
     /// Head, signifies where a consumer should read from.
     pub head: SuperUsize,
     /// Tail, signifies where a producer should write.
@@ -82,15 +83,16 @@ pub struct RingBuffer {
 // only outside ring buffer has the drop function. 
 impl Drop for RingBuffer {
     fn drop(&mut self) {
-        unsafe {
+        // only dpdk process is responsible for munmap the ringbuffer
+        if self.shm_master {
             unsafe {
                 let size = self.size_shm;
                 let _ret = munmap(self.mem as *mut c_void, size); // Unmap pages.
                                                                 // Record munmap failure.
                 let shm_ret = shm_unlink(self.name.as_ptr());
                 assert!(shm_ret == 0, "Could not unlink shared memory region");
+                println!("RingBuffer freed");
             }
-            println!("RingBuffer freed");
         }
     }
 }
@@ -101,7 +103,7 @@ impl RingBuffer {
     /// Create/attach a new wrapping ring buffer. 
     /// The ring buffer size is specified in bytes and must be a power of 2. 
     /// we will require additional 16 bytes to store the meta-data for this ring.
-    pub unsafe fn new_in_heap(ring_size: usize, name: &str) -> Result<RingBuffer, Error>{
+    pub unsafe fn new_in_heap(ring_size: usize, name: &str, shm_master: bool) -> Result<RingBuffer, Error>{
         if ring_size & (ring_size - 1) != 0 {
             // We need pages to be a power of 2.
             return Err(InvalidRingSize(ring_size).into());
@@ -163,6 +165,7 @@ impl RingBuffer {
             name, 
             size_shm: size, 
             mem: address, 
+            shm_master, 
             head: SuperUsize{ my_usize: (address as *mut usize) },
             tail: SuperUsize{ my_usize: (address as *mut usize).offset(1) },
             size: SuperUsize{ my_usize: (address as *mut usize).offset(2) },

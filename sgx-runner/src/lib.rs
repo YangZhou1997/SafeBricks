@@ -17,6 +17,7 @@ extern crate serde;
 extern crate serde_derive;
 extern crate sharedring;
 extern crate cc;
+extern crate tokio;
 
 pub mod config;
 pub mod haproxy;
