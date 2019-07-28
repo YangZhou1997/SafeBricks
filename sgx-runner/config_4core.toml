@@ -6,7 +6,7 @@ pool_size = 2048
 cache_size = 32
 duration = 1800
 [[ports]]
-  name = "0000:02:00.1"
+  name = "0000:02:00.0"
   rx_queues = [0, 1, 2, 3]
   tx_queues = [0, 1, 2, 3]
   rxd = 128

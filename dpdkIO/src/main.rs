@@ -154,15 +154,15 @@ where
 
             pull_count[i] += 1;
 
-            // if pkt_count_from_enclave[i] % PRINT_INTER == 0 {
-                // if pkt_count_from_enclave[i] != 0 && recv_pkt_num_from_enclave != 0 {
+            if pkt_count_from_enclave[i] % PRINT_INTER == 0 {
+                if pkt_count_from_enclave[i] != 0 && recv_pkt_num_from_enclave != 0 {
                     let (rx, tx) = main_port.stats(0);
                     println!("Ring {} out-of-enclave: from nic {}, to sgx {}, from sgx {}, to nic {}", i, rx, pkt_count_from_nic[i], pkt_count_from_enclave[i], tx);
                     println!("  recvq: head {} vs. tail {}", recvq_ring[i].head(), recvq_ring[i].tail());
                     println!("  sendq: head {} vs. tail {}", sendq_ring[i].head(), sendq_ring[i].tail());
-                // }
-            // }
-        thread::sleep(std::time::Duration::from_secs(1));
+                }
+            }
+        // thread::sleep(std::time::Duration::from_secs(1));
 
             // if pkt_count_from_nic >= PKT_NUM && pkt_count_from_enclave >= PKT_NUM {
             //     break;
