@@ -10,8 +10,9 @@ use netbricks::common::Result;
 use netbricks::config::load_config;
 use netbricks::interface::{PacketRx, PacketTx};
 use netbricks::operators::{Batch, ReceiveBatch};
-use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
+use netbricks::scheduler::{initialize_system, PKT_NUM};
+use std::sync::Arc;
 use std::fmt::Display;
 // use colored::*;
 // use std::net::Ipv4Addr;
@@ -43,9 +44,9 @@ where
 }
 
 fn main() -> Result<()> {
-    let configuration = load_config()?;
+	let configuration = load_config()?;
     println!("{}", configuration);
-    let mut runtime = Runtime::init(&configuration)?;
-    runtime.add_pipeline_to_run(install);
-    runtime.execute()
+    let mut context = initialize_system(&configuration)?;
+    context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
+    Ok(())
 }

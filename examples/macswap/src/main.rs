@@ -50,10 +50,5 @@ fn main() -> Result<()> {
     println!("{}", configuration);
     let mut context = initialize_system(&configuration)?;
     context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
-    // context.start_schedulers();
-    // context.add_pipeline_to_run(Arc::new(install));
-    // context.execute();
-    // context.wait();        
-
     Ok(())
 }

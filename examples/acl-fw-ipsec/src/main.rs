@@ -11,8 +11,8 @@ use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::ip::Flow;
 use netbricks::packets::{Ethernet, Packet, Tcp, RawPacket};
-use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
+use netbricks::scheduler::{initialize_system, PKT_NUM};
 use netbricks::utils::cidr::v4::Ipv4Cidr;
 use netbricks::utils::cidr::Cidr;
 use std::collections::HashSet;
@@ -23,6 +23,8 @@ use std::sync::Arc;
 use std::sync::RwLock;
 use netbricks::utils::ipsec::*;
 use std::cell::RefCell;
+use std::fmt::Display;
+
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
@@ -123,14 +125,13 @@ impl Acl {
     }
 }
 
-fn install<S: Scheduler + Sized>(ports: Vec<CacheAligned<PortQueue>>, sched: &mut S) {
+fn install<T, S>(ports: Vec<T>, sched: &mut S)
+where
+    T: PacketRx + PacketTx + Display + Clone + 'static,
+    S: Scheduler + Sized,
+{
     for port in &ports {
-        println!(
-            "Receiving port {} rxq {} txq {}",
-            port.port.mac_address(),
-            port.rxq(),
-            port.txq()
-        );
+        println!("Receiving port {}", port);
     }
 
     let pipelines: Vec<_> = ports
@@ -159,8 +160,8 @@ fn acl_match(packet: RawPacket) -> Result<Option<Ipv4>> {
 
     let decrypted_pkt: &mut [u8] = &mut [0u8; 2000];
     // let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
-    let decrypted_pkt_len = aes_gcm128_decrypt_openssl(payload, decrypted_pkt, false).unwrap();
-    // let decrypted_pkt_len = aes_gcm128_decrypt_mbedtls(payload, decrypted_pkt, false).unwrap();
+    // let decrypted_pkt_len = aes_gcm128_decrypt_openssl(payload, decrypted_pkt, false).unwrap();
+    let decrypted_pkt_len = aes_gcm128_decrypt_mbedtls(payload, decrypted_pkt, false).unwrap();
 
     let flow = get_flow(decrypted_pkt);
     let mut match_res: bool = ACLS.with(|acls| {    
@@ -177,8 +178,8 @@ fn acl_match(packet: RawPacket) -> Result<Option<Ipv4>> {
     });
 
     // let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
-    let encrypted_pkt_len = aes_gcm128_encrypt_openssl(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
-    // let encrypted_pkt_len = aes_gcm128_encrypt_mbedtls(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    // let encrypted_pkt_len = aes_gcm128_encrypt_openssl(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    let encrypted_pkt_len = aes_gcm128_encrypt_mbedtls(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
     
     if match_res{   
         return Ok(Some(v4));
@@ -191,9 +192,9 @@ fn acl_match(packet: RawPacket) -> Result<Option<Ipv4>> {
 }
 
 fn main() -> Result<()> {
-    let configuration = load_config()?;
+	let configuration = load_config()?;
     println!("{}", configuration);
-    let mut runtime = Runtime::init(&configuration)?;
-    runtime.add_pipeline_to_run(install);
-    runtime.execute()
+    let mut context = initialize_system(&configuration)?;
+    context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
+    Ok(())
 }

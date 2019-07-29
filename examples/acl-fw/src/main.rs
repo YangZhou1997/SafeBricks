@@ -11,8 +11,8 @@ use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::ip::Flow;
 use netbricks::packets::{Ethernet, Packet, Tcp};
-use netbricks::runtime::Runtime;
 use netbricks::scheduler::Scheduler;
+use netbricks::scheduler::{initialize_system, PKT_NUM};
 use netbricks::utils::cidr::v4::Ipv4Cidr;
 use netbricks::utils::cidr::Cidr;
 use std::collections::HashSet;
@@ -20,6 +20,8 @@ use std::hash::BuildHasherDefault;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::cell::RefCell;
+use std::sync::Arc;
+use std::fmt::Display;
 
 type FnvHash = BuildHasherDefault<FnvHasher>;
 
@@ -123,15 +125,15 @@ impl Acl {
     }
 }
 
-fn install<S: Scheduler + Sized>(ports: Vec<CacheAligned<PortQueue>>, sched: &mut S) {
+fn install<T, S>(ports: Vec<T>, sched: &mut S)
+where
+    T: PacketRx + PacketTx + Display + Clone + 'static,
+    S: Scheduler + Sized,
+{
     for port in &ports {
-        println!(
-            "Receiving port {} rxq {} txq {}",
-            port.port.mac_address(),
-            port.rxq(),
-            port.txq()
-        );
+        println!("Receiving port {}", port);
     }
+
     let pipelines: Vec<_> = ports
         .iter()
         .map(|port| {
@@ -179,7 +181,7 @@ fn acl_match(p: &Tcp<Ipv4>) -> bool {
 fn main() -> Result<()> {
     let configuration = load_config()?;
     println!("{}", configuration);
-    let mut runtime = Runtime::init(&configuration)?;
-    runtime.add_pipeline_to_run(install);
-    runtime.execute()
+    let mut context = initialize_system(&configuration)?;
+    context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
+    Ok(())
 }

@@ -11,7 +11,7 @@ use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::ip::{Flow, IpPacket};
 use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
-use netbricks::runtime::Runtime;
+use netbricks::scheduler::{initialize_system, PKT_NUM};
 use netbricks::scheduler::Scheduler;
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr};
@@ -25,6 +25,8 @@ use netbricks::utils::ipsec::*;
 // use std::sync::RwLock;
 // use std::collections::HashMap;
 use std::cell::RefCell;
+use std::sync::Arc;
+
 
 
 const ENTRY_NUM: u32 = 65537;
@@ -183,8 +185,8 @@ fn lb(packet: RawPacket) -> Result<Ipv4> {
 
     let decrypted_pkt: &mut [u8] = &mut [0u8; 2000];
     // let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
-    let decrypted_pkt_len = aes_gcm128_decrypt_openssl(payload, decrypted_pkt, false).unwrap();
-    // let decrypted_pkt_len = aes_gcm128_decrypt_mbedtls(payload, decrypted_pkt, false).unwrap();
+    // let decrypted_pkt_len = aes_gcm128_decrypt_openssl(payload, decrypted_pkt, false).unwrap();
+    let decrypted_pkt_len = aes_gcm128_decrypt_mbedtls(payload, decrypted_pkt, false).unwrap();
     
     let flow = get_flow(decrypted_pkt);
     let assigned_server = LUT.with(|lut| {
@@ -195,16 +197,16 @@ fn lb(packet: RawPacket) -> Result<Ipv4> {
     // tcp.cascade();
 
     // let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
-    let encrypted_pkt_len = aes_gcm128_encrypt_openssl(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
-    // let encrypted_pkt_len = aes_gcm128_encrypt_mbedtls(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    // let encrypted_pkt_len = aes_gcm128_encrypt_openssl(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    let encrypted_pkt_len = aes_gcm128_encrypt_mbedtls(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
     
     Ok(v4)
 }
 
 fn main() -> Result<()> {
-    let configuration = load_config()?;
+	let configuration = load_config()?;
     println!("{}", configuration);
-    let mut runtime = Runtime::init(&configuration)?;
-    runtime.add_pipeline_to_run(install);
-    runtime.execute()
+    let mut context = initialize_system(&configuration)?;
+    context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
+    Ok(())
 }

@@ -11,8 +11,6 @@ use netbricks::operators::{Batch, ReceiveBatch};
 use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::ip::{Flow, IpPacket};
 use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
-use netbricks::runtime::Runtime;
-use netbricks::scheduler::Scheduler;
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr};
 // use std::io::stdout;
@@ -24,6 +22,9 @@ use std::mem;
 // use std::sync::RwLock;
 // use std::collections::HashMap;
 use std::cell::RefCell;
+use netbricks::scheduler::Scheduler;
+use netbricks::scheduler::{initialize_system, PKT_NUM};
+use std::sync::Arc;
 
 
 const ENTRY_NUM: u32 = 65537;
@@ -213,7 +214,7 @@ fn lb(packet: RawPacket) -> Result<Tcp<Ipv4>> {
 fn main() -> Result<()> {
     let configuration = load_config()?;
     println!("{}", configuration);
-    let mut runtime = Runtime::init(&configuration)?;
-    runtime.add_pipeline_to_run(install);
-    runtime.execute()
+    let mut context = initialize_system(&configuration)?;
+    context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
+    Ok(())
 }

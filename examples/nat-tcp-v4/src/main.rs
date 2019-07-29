@@ -11,8 +11,6 @@ use netbricks::packets::ip::v4::Ipv4;
 use netbricks::packets::ip::ProtocolNumbers;
 use netbricks::packets::ip::{Flow, IpPacket};
 use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
-use netbricks::runtime::Runtime;
-use netbricks::scheduler::Scheduler;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::hash::BuildHasherDefault;
@@ -21,6 +19,9 @@ use std::sync::atomic::{AtomicU16, Ordering};
 // use std::io::stdout;
 // use std::io::Write;
 use std::cell::RefCell;
+use netbricks::scheduler::Scheduler;
+use netbricks::scheduler::{initialize_system, PKT_NUM};
+use std::sync::Arc;
 
 // const MIN_PORT: u16 = 1024;
 const MAX_PORT: u16 = 65535;
@@ -158,7 +159,7 @@ fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Tcp<Ipv4>> {
 fn main() -> Result<()> {
     let configuration = load_config()?;
     println!("{}", configuration);
-    let mut runtime = Runtime::init(&configuration)?;
-    runtime.add_pipeline_to_run(install);
-    runtime.execute()
+    let mut context = initialize_system(&configuration)?;
+    context.run(Arc::new(install), PKT_NUM); // will trap in the run() and return after finish
+    Ok(())
 }
