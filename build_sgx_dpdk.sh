@@ -1,11 +1,6 @@
 #!/bin/bash
+source ./config.sh
 set -e
-
-
-PORT_OPTIONS="dpdk:eth_pcap0,rx_pcap=../traffic/caida18_real.pcap,tx_pcap=/tmp/out.pcap"
-# PORT_OPTIONS="0000:02:00.0"
-MODE=debug
-TASK=macswap
 
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 BUILD_SCRIPT=$( basename "$0" )
@@ -29,11 +24,6 @@ DPDK_CONFIG_FILE=${DPDK_CONFIG_FILE-"${DPDK_HOME}/config/common_linuxapp"}
 NATIVE_LIB_PATH="${BASE_DIR}/native"
 export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
-if [ $# -ge 1 ]; then
-    TASK=$1
-fi
-echo $TASK
-
 native () {
     make -j $proc -C $BASE_DIR/native
     make -C $BASE_DIR/native install
@@ -41,18 +31,31 @@ native () {
 
 native
 
-# Build enclave APP
-pushd examples/$TASK
+# Build custom runner
+pushd sgx-runner
 if [ "$MODE" == "debug" ]; then
-    cargo +nightly build --target=x86_64-fortanix-unknown-sgx
+    cargo +nightly build
 else
-    cargo +nightly build --target=x86_64-fortanix-unknown-sgx --release
+    cargo +nightly build --release
 fi
 popd
 
-# Convert the APP
-if [ "$MODE" == "debug" ]; then # 2a
-    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x1500000 --stack-size 0x1500000 --threads 2 --debug
-else
-    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x1500000 --stack-size 0x1500000 --threads 2
-fi
+for TASK in acl-fw dpi lpm macswap maglev monitoring nat-tcp-v4 acl-fw-ipsec dpi-ipsec lpm-ipsec macswap-ipsec maglev-ipsec monitoring-ipsec nat-tcp-v4-ipsec
+do 
+
+	# Build enclave APP
+	pushd examples/$TASK
+	if [ "$MODE" == "debug" ]; then
+	    cargo +nightly build --target=x86_64-fortanix-unknown-sgx
+	else
+	    cargo +nightly build --target=x86_64-fortanix-unknown-sgx --release
+	fi
+	popd
+
+	# Convert the APP
+	if [ "$MODE" == "debug" ]; then # 2a
+	    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x1500000 --stack-size 0x1500000 --threads 2 --debug
+	else
+	    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x1500000 --stack-size 0x1500000 --threads 2
+	fi
+done
