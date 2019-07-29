@@ -140,7 +140,9 @@ pub fn lpm(packet: RawPacket) -> Result<Ipv4> {
     esp_hdr.copy_from_slice(&payload[0..ESP_HEADER_LENGTH]);
 
     let decrypted_pkt: &mut [u8] = &mut [0u8; 2000];
-    let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
+    // let decrypted_pkt_len = aes_cbc_sha256_decrypt(payload, decrypted_pkt, false).unwrap();
+    let decrypted_pkt_len = aes_gcm128_decrypt_openssl(payload, decrypted_pkt, false).unwrap();
+    // let decrypted_pkt_len = aes_gcm128_decrypt_mbedtls(payload, decrypted_pkt, false).unwrap();
 
     let srcip = get_src_ip(decrypted_pkt);
     let port = LOOKUP_TABLE.with(|lookup_table| {
@@ -150,7 +152,9 @@ pub fn lpm(packet: RawPacket) -> Result<Ipv4> {
         (*count_ports.borrow_mut())[port as usize] += 1;
     });
 
-    let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    // let encrypted_pkt_len = aes_cbc_sha256_encrypt(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    let encrypted_pkt_len = aes_gcm128_encrypt_openssl(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
+    // let encrypted_pkt_len = aes_gcm128_encrypt_mbedtls(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
 
     Ok(v4)
 }

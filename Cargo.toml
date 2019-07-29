@@ -25,7 +25,7 @@ members = [
     # "examples/nat-tcp-v4",
     # "examples/monitoring",
     # 
-    # "examples/macswap-ipsec",
+    "examples/macswap-ipsec",
     # "examples/acl-fw-ipsec",
     # "examples/lpm-ipsec",
     # "examples/maglev-ipsec",

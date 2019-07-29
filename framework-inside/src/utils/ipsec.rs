@@ -1,18 +1,17 @@
-use openssl::symm::*;
-use openssl::hash::MessageDigest;
-use openssl::memcmp;
-use openssl::pkey::PKey;
-use openssl::sign::Signer;
-use openssl::error::ErrorStack;
+use mbedtls::cipher::raw::Cipher as CipherMbed;
+use mbedtls::cipher::raw;
+use mbedtls::cipher::raw::Operation;
 
 use std::io::stdout;
 use std::io::Write;
 
 use packets::ip::Flow;
+use packets::buffer;
 use packets::TcpHeader;
 use packets::ip::ProtocolNumbers;
 use packets::ip::v4::Ipv4Header;
 use std::net::{IpAddr, Ipv4Addr};
+use std::cell::RefCell;
 
 
 #[derive(Debug)]
@@ -35,216 +34,84 @@ pub const ESP_HMAC_LEN: usize = 12;
 pub const IP_HEADER_LENGTH: usize = 20;
 pub const ICV_LEN_SHA256: usize = 16;
 
-// pktptr points to the start of the cleartext ip header.
-// after output, output points to the start of the ESP header
-// This function will return outlen: u16
-pub fn aes_cbc_sha256_encrypt(pktptr: &[u8], esphdr: &[u8], output: &mut [u8]) -> Result<usize, CryptoError>
+pub const AES_GCM_IV_LENGTH: usize = 16;
+pub const ICV_LEN_GCM128: usize = 16;
+
+
+thread_local! {
+    pub static CIPHER_ENCRY: RefCell<CipherMbed> = {
+        let mut cipher = CipherMbed::setup(
+            raw::CipherId::Aes,
+            raw::CipherMode::GCM,
+            (AES_KEY.len() * 8) as u32,
+        ).unwrap();
+        cipher.set_key(Operation::Encrypt, AES_KEY).unwrap();
+        cipher.set_iv(AES_IV).unwrap();
+        RefCell::new(cipher)
+    };
+}
+
+thread_local! {
+    pub static CIPHER_DECRY: RefCell<CipherMbed> = {
+        let mut cipher = CipherMbed::setup(
+            raw::CipherId::Aes,
+            raw::CipherMode::GCM,
+            (AES_KEY.len() * 8) as u32,
+        ).unwrap();
+        cipher.set_key(Operation::Decrypt, AES_KEY).unwrap();
+        cipher.set_iv(AES_IV).unwrap();
+        RefCell::new(cipher)
+    };
+}
+
+pub fn aes_gcm128_encrypt_mbedtls(pktptr: &[u8], esphdr: &[u8], output: &mut [u8]) -> Result<usize, CryptoError>
 {
     let pktlen = pktptr.len();
-    if (pktlen < 16) || (pktlen%16 != 0) {
-        println!("Encrypt: packetlen is not proper");
-        stdout().flush().unwrap();
-        return Err(CryptoError::PktlenError);
-    }
-    if pktlen >(MAX_PKT_SIZE - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256) as usize
-    {
-        println!("Packet is too big to handle");
-        stdout().flush().unwrap();
-        return Err(CryptoError::PktlenError);
-    }
-    output[..ESP_HEADER_LENGTH].copy_from_slice(esphdr);
-    output[ESP_HEADER_LENGTH..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)].copy_from_slice(AES_IV);
-
-    let cipher = Cipher::aes_128_cbc();
-    let ciphertext = my_encrypt(cipher, AES_KEY, Some(AES_IV), pktptr).unwrap();
-    let ciphertext_len = ciphertext.len();
-    output[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)].copy_from_slice(&ciphertext[..]);
-    if ciphertext_len != pktlen
-    {
-        println!("cleartext pktlen: {} vs. ciphertext pktlen: {}", pktptr.len(), ciphertext_len);
-        println!("AES encryption errors");
-        stdout().flush().unwrap();
-        return Err(CryptoError::AESEncryptError);
-    }
-
-    let key = PKey::hmac(SHA_KEY).unwrap();
-    let mut signer = Signer::new(MessageDigest::sha256(), &key).unwrap();
-    signer.update(&output[..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)]).unwrap();
-    let hmac = signer.sign_to_vec().unwrap();
-    output[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len + ICV_LEN_SHA256)].copy_from_slice(&hmac[..ICV_LEN_SHA256]);
+    // if pktlen >(MAX_PKT_SIZE - ESP_HEADER_LENGTH - AES_GCM_IV_LENGTH - ICV_LEN_GCM128) as usize
+    // {
+    //     println!("Packet is too big to handle");
+    //     stdout().flush().unwrap();
+    //     return Err(CryptoError::PktlenError);
+    // }
+    let hmac: &mut [u8] = &mut [0u8; 16];
+    let aad: &mut [u8] = &mut [0u8; (ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH)];
+    aad[..ESP_HEADER_LENGTH].copy_from_slice(esphdr);
+    aad[ESP_HEADER_LENGTH..(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH)].copy_from_slice(AES_IV);
     
-    Ok(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len + ICV_LEN_SHA256)
-}
-
-
-// pktptr points to the start of the cleartext ip header.
-// after output, output points to the start of the ESP header
-// This function will return outlen: u16
-pub fn aes_cbc_sha256_encrypt_opt(pktptr: &mut [u8], esphdr: &[u8]) -> Result<usize, CryptoError>
-{
-     // decrypted_pkt_len + ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ICV_LEN_SHA256
-    let pktlen = pktptr.len() - ICV_LEN_SHA256 - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH;
-    if (pktlen < 16) || (pktlen%16 != 0) {
-        println!("Encrypt: packetlen is not proper");
-        stdout().flush().unwrap();
-        return Err(CryptoError::PktlenError);
-    }
-    if pktlen >(MAX_PKT_SIZE - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256) as usize
-    {
-        println!("Packet is too big to handle");
-        stdout().flush().unwrap();
-        return Err(CryptoError::PktlenError);
-    }
-
-    let cipher = Cipher::aes_128_cbc();
-    let ciphertext = my_encrypt(cipher, AES_KEY, Some(AES_IV), pktptr).unwrap();
-    let ciphertext_len = ciphertext.len();
-
-    pktptr[..ESP_HEADER_LENGTH].copy_from_slice(esphdr);
-    pktptr[ESP_HEADER_LENGTH..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)].copy_from_slice(AES_IV);
-    pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)].copy_from_slice(&ciphertext[..]);
+    CIPHER_ENCRY.with(|cipher| {
+        let mut cipher_lived = cipher.borrow_mut();
+        cipher_lived.encrypt_auth(aad, pktptr, 
+            &mut output[(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH)..(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH + pktlen)], hmac).unwrap();
+    });
     
-    if ciphertext_len != pktlen
-    {
-        println!("cleartext pktlen: {} vs. ciphertext pktlen: {}", pktlen, ciphertext_len);
-        println!("AES encryption errors");
-        stdout().flush().unwrap();
-        return Err(CryptoError::AESEncryptError);
-    }
-
-    let key = PKey::hmac(SHA_KEY).unwrap();
-    let mut signer = Signer::new(MessageDigest::sha256(), &key).unwrap();
-    signer.update(&pktptr[..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)]).unwrap();
-    let hmac = signer.sign_to_vec().unwrap();
-    pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len + ICV_LEN_SHA256)].copy_from_slice(&hmac[..ICV_LEN_SHA256]);
+    output[..(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH)].copy_from_slice(aad);
+    output[(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH + pktlen)..].copy_from_slice(hmac);
     
-    Ok(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len + ICV_LEN_SHA256)
+    Ok(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH + pktlen + ICV_LEN_GCM128)
 }
 
-
-#[inline]
-fn my_cipher(
-    t: Cipher,
-    mode: Mode,
-    key: &[u8],
-    iv: Option<&[u8]>,
-    data: &[u8],
-) -> Result<Vec<u8>, ErrorStack> {
-    let mut c = Crypter::new(t, mode, key, iv)?;
-    c.pad(false);
-    let mut out = vec![0; data.len() + t.block_size()];
-    let count = c.update(data, &mut out)?;
-    let rest = c.finalize(&mut out[count..])?;
-    out.truncate(count + rest);
-    Ok(out)
-}
-
-
-#[inline]
-pub fn my_decrypt(
-    t: Cipher,
-    key: &[u8],
-    iv: Option<&[u8]>,
-    data: &[u8],
-) -> Result<Vec<u8>, ErrorStack> {
-    my_cipher(t, Mode::Decrypt, key, iv, data)
-}
-
-#[inline]
-pub fn my_encrypt(
-    t: Cipher,
-    key: &[u8],
-    iv: Option<&[u8]>,
-    data: &[u8],
-) -> Result<Vec<u8>, ErrorStack> {
-    my_cipher(t, Mode::Encrypt, key, iv, data)
-}
-
-// pktptr points to the start of the ESP header
-// after calling, output points to the start of the decrypted ip header.
-// This function will return outlen: u16
-pub fn aes_cbc_sha256_decrypt(pktptr: &[u8], output: &mut [u8], compdigest: bool) -> Result<usize, CryptoError> 
+pub fn aes_gcm128_decrypt_mbedtls(pktptr: &[u8], output: &mut [u8], compdigest: bool) -> Result<usize, CryptoError>
 {
     let pktlen = pktptr.len();    
-    if pktlen < (ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ICV_LEN_SHA256) {
-        println!("Decrypt: Packet length is not proper");
-        stdout().flush().unwrap();
-        return Err(CryptoError::PktlenError);
-    }
-    let key = PKey::hmac(SHA_KEY).unwrap();
-    let mut signer = Signer::new(MessageDigest::sha256(), &key).unwrap();
-    signer.update(&pktptr[..(pktlen - ICV_LEN_SHA256)]).unwrap();
-    let hmac = signer.sign_to_vec().unwrap();
-    if compdigest
-    {
-        if !memcmp::eq(&hmac[..ICV_LEN_SHA256], &pktptr[(pktlen - ICV_LEN_SHA256)..])
+    // if pktlen < (ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH + ICV_LEN_GCM128) {
+    //     println!("Decrypt: Packet length is not proper");
+    //     stdout().flush().unwrap();
+    //     return Err(CryptoError::PktlenError);
+    // }
+    CIPHER_DECRY.with(|cipher| {
+        let mut cipher = cipher.borrow_mut();
+        if let Ok(_plain_text) = cipher.decrypt_auth(&pktptr[0..(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH)], &pktptr[(ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH)..(pktlen - ICV_LEN_GCM128)],
+            &mut output[..(pktlen - (ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH + ICV_LEN_GCM128))], &pktptr[(pktlen - ICV_LEN_GCM128)..])
         {
-            println!("INBOUND Mac Mismatch");
-            stdout().flush().unwrap();
-            return Err(CryptoError::HmacMismatch);
+            let cleartext_len = pktlen - ESP_HEADER_LENGTH - AES_GCM_IV_LENGTH - ICV_LEN_GCM128;
+            return Ok(cleartext_len + ESP_HEADER_LENGTH + AES_GCM_IV_LENGTH);
         }
-    }
-
-    let cipher = Cipher::aes_128_cbc();
-    // let cleartext = decrypt(cipher, AES_KEY, Some(AES_IV), &pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(pktlen - ICV_LEN_SHA256)]).unwrap();
-    let cleartext = my_decrypt(cipher, AES_KEY, Some(AES_IV), &pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(pktlen - ICV_LEN_SHA256)]).unwrap();
-    
-    let cleartext_len = cleartext.len();
-    if cleartext_len != pktlen - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256
-    {
-        println!("ciphertext pktlen: {} vs. cleartext pktlen: {}", pktlen - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256, cleartext_len);
-        println!("AES decryption errors");
-        stdout().flush().unwrap();
-        return Err(CryptoError::AESDecryptError);
-    }
-    output[..(cleartext_len)].copy_from_slice(&cleartext[..]);
-
-    Ok(cleartext_len + ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)
+        return Ok(pktlen - ICV_LEN_GCM128);  
+    })
 }
 
 
 
-// pktptr points to the start of the ESP header
-// after calling, output points to the start of the decrypted ip header.
-// This function will return outlen: u16
-pub fn aes_cbc_sha256_decrypt_opt(pktptr: &mut [u8], compdigest: bool) -> Result<usize, CryptoError> 
-{
-    let pktlen = pktptr.len();    
-    if pktlen < (ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ICV_LEN_SHA256) {
-        println!("Decrypt: Packet length is not proper");
-        stdout().flush().unwrap();
-        return Err(CryptoError::PktlenError);
-    }
-    let key = PKey::hmac(SHA_KEY).unwrap();
-    let mut signer = Signer::new(MessageDigest::sha256(), &key).unwrap();
-    signer.update(&pktptr[..(pktlen - ICV_LEN_SHA256)]).unwrap();
-    let hmac = signer.sign_to_vec().unwrap();
-    if compdigest
-    {
-        if !memcmp::eq(&hmac[..ICV_LEN_SHA256], &pktptr[(pktlen - ICV_LEN_SHA256)..])
-        {
-            println!("INBOUND Mac Mismatch");
-            stdout().flush().unwrap();
-            return Err(CryptoError::HmacMismatch);
-        }
-    }
-
-    let cipher = Cipher::aes_128_cbc();
-    // let cleartext = decrypt(cipher, AES_KEY, Some(AES_IV), &pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(pktlen - ICV_LEN_SHA256)]).unwrap();
-    let cleartext = my_decrypt(cipher, AES_KEY, Some(AES_IV), &pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(pktlen - ICV_LEN_SHA256)]).unwrap();
-    
-    let cleartext_len = cleartext.len();
-    if cleartext_len != pktlen - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256
-    {
-        println!("ciphertext pktlen: {} vs. cleartext pktlen: {}", pktlen - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256, cleartext_len);
-        println!("AES decryption errors");
-        stdout().flush().unwrap();
-        return Err(CryptoError::AESDecryptError);
-    }
-    pktptr[..(cleartext_len)].copy_from_slice(&cleartext[..]);
-
-    Ok(cleartext_len + ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)
-}
 
 #[inline]
 pub fn get_flow(pkt: &[u8]) -> Flow{
