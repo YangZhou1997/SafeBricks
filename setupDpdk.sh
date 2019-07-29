@@ -28,7 +28,11 @@ build_dpdk_hugepage_mon () {
 
 # This is used when you normally want to rebuild dpdk in case that you made some modification.
 build_dpdk_normal () {
-    echo "Just build!"
+    if [ ! -d "dpdk-stable-17.08.1" ]; then
+        curl -sSf https://fast.dpdk.org/rel/dpdk-17.08.1.tar.xz | tar -xJv
+    else
+        echo "Just build!"
+    fi
 }
 
 cd ~/tools
