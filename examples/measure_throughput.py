@@ -3,9 +3,11 @@ import time
 from termcolor import colored
 import datetime
 
-CmdNetBricks = {
-	'start': './run_real.sh {task} {num_queue} 2>/dev/null &',
-	'kill': 'sudo pkill {task}'
+CmdSafeBricks = {
+	'startdpdk': 'cd .. && ./run_dpdk.sh {num_queue} 2>/dev/null &',
+	'startsgx': 'cd .. && ./run_sgx.sh {task} {num_queue} 2>/dev/null &',
+	'killdpdk': 'sudo pkill run_dpdk.sh'	
+	'killsgx': 'sudo pkill {task}'
 }
 
 CmdPktgen = {
@@ -17,34 +19,60 @@ start_string = 'pkt sent, '
 end_string = ' Mpps'
 
 
-def task_exec(task, pktgen_type, num_queue, throughput_res):
-	print "start task %s" % (task,)
-	os.system(CmdNetBricks['start'].format(task=task, num_queue=num_queue))
-	time.sleep(5) # wait for task gets actually started
+def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
+	# repeat the booting until succeeding
+	fail_count_inner = 0
+	test_pktgen = pktgen_types[0]
+	while(1):
+		print "start task %s" % (task,)
+		os.system(CmdSafeBricks['start'].format(task=task, num_queue=num_queue))
+		time.sleep(5) # wait for task gets actually started
+	
+		print "start pktgen %s" % (test_pktgen,)
+		pktgen_results = os.popen(CmdPktgen['start'].format(type=test_pktgen)).read()
+		print "end pktgen %s" % (test_pktgen,)
 
-	print "start pktgen %s" % (pktgen_type,)
-	pktgen_results = os.popen(CmdPktgen['start'].format(type=pktgen_type)).read()
-	print "end pktgen %s" % (pktgen_type,)
+		print pktgen_results
+		start_index = pktgen_results.find(start_string) + len(start_string) 
+		# this task executes error. 
+		if start_index == -1:
+			print colored("%s %s %s fails" % (task, test_pktgen, num_queue), 'red')
+			fail_count_inner += 1
+			os.system(CmdSafeBricks['kill'].format(task=task))
+			time.sleep(5) # wait for the port being restored.
+			continue
+		end_index = pktgen_results.find(end_string, start_index)
+		if end_index == -1:
+			print colored("%s %s %s fails" % (task, test_pktgen, num_queue), 'red')
+			os.system(CmdSafeBricks['kill'].format(task=task))
+			time.sleep(5) # wait for the port being restored.
+			fail_count_inner += 1
+			continue
+		
+		if fail_count_inner > 5:
+			return -1
+		else:
+			break
 
-	print pktgen_results
-	start_index = pktgen_results.find(start_string) + len(start_string) 
-	# this task executes error. 
-	if start_index == -1:
-		return -1 
-	end_index = pktgen_results.find(end_string, start_index)
-	if end_index == -1:
-		return -1 
+	for i in range(repeat_num):
+		for pktgen_type in pktgen_types:
+			print "start pktgen %s" % (pktgen_type,)
+			pktgen_results = os.popen(CmdPktgen['start'].format(type=pktgen_type)).read()
+			print "end pktgen %s" % (pktgen_type,)
 
-	throughput_val = pktgen_results[start_index: end_index]
-	throughput_val = float(throughput_val)
+			print pktgen_results
+			start_index = pktgen_results.find(start_string) + len(start_string) 
+			end_index = pktgen_results.find(end_string, start_index)
 
-	os.system(CmdNetBricks['kill'].format(task=task))
-	print "kill task %s" % (task,)
-	time.sleep(5) # wait for the port being restored.
+			throughput_val = pktgen_results[start_index: end_index]
+			throughput_val = float(throughput_val)
 
-	print colored("throughput_val: %lf" % (throughput_val,), 'blue')
-	throughput_res.write(task + "," + pktgen_type + "," + str(num_queue) + "," + str(throughput_val) + "\n")
-	throughput_res.flush()
+			print colored("throughput_val: %lf" % (throughput_val,), 'blue')
+			throughput_res.write(task + "," + pktgen_type + "," + str(num_queue) + "," + str(throughput_val) + "\n")
+			throughput_res.flush()
+
+	os.system(CmdSafeBricks['kill'].format(task=task))
+
 	return 0
 
 tasks = ["acl-fw", "dpi", "lpm", "maglev", "monitoring", "nat-tcp-v4"]
@@ -59,32 +87,27 @@ num_queues = [1, 2, 3, 4, 5, 6]
 if __name__ == '__main__':
 	now = datetime.datetime.now()
 	throughput_res = open("./throughput-eva/throughput.txt_" + now.isoformat(), 'w')
+	fail_cases = list()
 
 	run_count = 0
 	fail_count = 0
-	# for i in range(10):
-	# 	for task in tasks: 
-	# 		for pktgen_type in pktgens: 
-	# 			for num_queue in num_queues: 
-	# 				run_count += 1
-	# 				status = task_exec(task, pktgen_type, num_queue, throughput_res)
-	# 				if status == -1:
-	# 					fail_count += 1
-	# 					print colored("%s %s %s fails" % (task, pktgen_type, num_queue), 'red')
-	# 				else:
-	# 					print colored("%s %s %s succeeds" % (task, pktgen_type, num_queue), 'green')
-	
-	for i in range(1):
-		for task in tasks_ipsec: 
-			for pktgen_type in pktgens_ipsec: 
-				for num_queue in num_queues: 
-					run_count += 1
-					status = task_exec(task, pktgen_type, num_queue, throughput_res)
-					if status == -1:
-						fail_count += 1
-						print colored("%s %s %s fails" % (task, pktgen_type, num_queue), 'red')
-					else:
-						print colored("%s %s %s succeeds" % (task, pktgen_type, num_queue), 'green')
+	for task in tasks:
+		for num_queue in num_queues:
+			run_count += 1
+			status = task_exec(task, pktgens, num_queue, 10, throughput_res)
+			if status == -1:
+				fail_count += 1
+				fail_cases.append(task + " " + num_queue)
 
+	
+	for task in tasks_ipsec:
+		for num_queue in num_queues:
+			run_count += 1
+			status = task_exec(task, pktgens_ipsec, num_queue, 10, throughput_res)
+			if status == -1:
+				fail_count += 1
+				fail_cases.append(task + " " + num_queue)
+
+	
 	print colored(("success runs: %d/%d", (run_count - fail_count), run_count), 'green')
 	throughput_res.close()
