@@ -30,7 +30,7 @@ type FnvHash = BuildHasherDefault<FnvHasher>;
 
 thread_local! {
     pub static PORT_MAP: RefCell<HashMap<Flow, Flow, FnvHash>> = {
-        let m = HashMap::with_capacity_and_hasher(65536, Default::default());
+        let m = HashMap::with_capacity_and_hasher(65537, Default::default());
         RefCell::new(m)
     };
 }
@@ -128,7 +128,7 @@ fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Tcp<Ipv4>> {
             None => {
                 drop(port_map_lived);
 
-                if NEXT_PORT.load(Ordering::Relaxed) < MAX_PORT {
+                if NEXT_PORT.load(Ordering::Relaxed) <= MAX_PORT {
                     let assigned_port = NEXT_PORT.fetch_add(1, Ordering::Relaxed);
                     FLOW_VEC.with(|flow_vec| {
                         let mut flow_vec_lived = flow_vec.borrow_mut();

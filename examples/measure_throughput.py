@@ -6,8 +6,8 @@ import datetime
 CmdSafeBricks = {
 	'startdpdk': 'cd .. && ./run_dpdk.sh {num_queue} 2>/dev/null &',
 	'startsgx': 'cd .. && ./run_sgx.sh {task} {num_queue} 2>/dev/null &',
-	'killdpdk': 'sudo pkill run_dpdk.sh'	
-	'killsgx': 'sudo pkill {task}'
+	'killdpdk': 'sudo pkill dpdkIO', 
+	'killsgx': 'sudo pkill sgx',
 }
 
 CmdPktgen = {
@@ -25,9 +25,12 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 	test_pktgen = pktgen_types[0]
 	while(1):
 		print "start task %s" % (task,)
-		os.system(CmdSafeBricks['start'].format(task=task, num_queue=num_queue))
-		time.sleep(5) # wait for task gets actually started
-	
+		os.system(CmdSafeBricks['startdpdk'].format(num_queue=num_queue))
+		time.sleep(5) # wait for dpdk gets actually started
+		os.system(CmdSafeBricks['startsgx'].format(task=task, num_queue=num_queue))
+		time.sleep(5 * num_queue) # wait for task gets actually started
+
+
 		print "start pktgen %s" % (test_pktgen,)
 		pktgen_results = os.popen(CmdPktgen['start'].format(type=test_pktgen)).read()
 		print "end pktgen %s" % (test_pktgen,)
@@ -38,13 +41,17 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 		if start_index == -1:
 			print colored("%s %s %s fails" % (task, test_pktgen, num_queue), 'red')
 			fail_count_inner += 1
-			os.system(CmdSafeBricks['kill'].format(task=task))
+			os.system(CmdSafeBricks['killdpdk'])
+			time.sleep(5) # wait for the port being restored.
+			os.system(CmdSafeBricks['killsgx'])
 			time.sleep(5) # wait for the port being restored.
 			continue
 		end_index = pktgen_results.find(end_string, start_index)
 		if end_index == -1:
 			print colored("%s %s %s fails" % (task, test_pktgen, num_queue), 'red')
-			os.system(CmdSafeBricks['kill'].format(task=task))
+			os.system(CmdSafeBricks['killdpdk'])
+			time.sleep(5) # wait for the port being restored.
+			os.system(CmdSafeBricks['killsgx'])
 			time.sleep(5) # wait for the port being restored.
 			fail_count_inner += 1
 			continue
@@ -71,7 +78,10 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 			throughput_res.write(task + "," + pktgen_type + "," + str(num_queue) + "," + str(throughput_val) + "\n")
 			throughput_res.flush()
 
-	os.system(CmdSafeBricks['kill'].format(task=task))
+	os.system(CmdSafeBricks['killdpdk'])
+	time.sleep(5) # wait for the port being restored.
+	os.system(CmdSafeBricks['killsgx'])
+	time.sleep(5) # wait for the port being restored.
 
 	return 0
 
@@ -80,7 +90,7 @@ pktgens = ["ICTF", "CAIDA64", "CAIDA256", "CAIDA512", "CAIDA1024"]
 tasks_ipsec = ["acl-fw-ipsec", "dpi-ipsec", "lpm-ipsec", "maglev-ipsec", "monitoring-ipsec", "nat-tcp-v4-ipsec"]
 pktgens_ipsec = ["ICTF_IPSEC", "CAIDA64_IPSEC", "CAIDA256_IPSEC", "CAIDA512_IPSEC", "CAIDA1024_IPSEC"]
 
-num_queues = [1, 2, 3, 4, 5, 6]
+num_queues = [1, 2, 3, 4, 5]
 # ps -ef | grep release
 # sudo kill -9 ####
 

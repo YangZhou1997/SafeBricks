@@ -109,7 +109,7 @@ thread_local! {
         let mut rng = thread_rng();
         let mut lpm_table = IPLookup::new();
 
-        for _ in 1..100 {
+        for _ in 0..16000 {
             let a: u8 = rng.sample(Uniform::new_inclusive(0, 255));
             let b: u8 = rng.sample(Uniform::new_inclusive(0, 255));
             let c: u8 = rng.sample(Uniform::new_inclusive(0, 255));
