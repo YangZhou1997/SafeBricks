@@ -52,7 +52,6 @@ impl<Rx: PacketRx> Batch for ReceiveBatch<Rx> {
             self.buffers.set_len(capacity);
             match self.port.recv(self.buffers.as_mut_slice()) {
                 Ok(received) => {
-                    // println!("receive0 {}", received); stdout().flush().unwrap();
                     self.buffers.set_len(received as usize);
                 },
                 // the underlying DPDK method `rte_eth_rx_burst` will

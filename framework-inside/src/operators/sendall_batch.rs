@@ -5,6 +5,9 @@ use packets::Packet;
 use scheduler::Executable;
 use interface::PacketTx;
 
+use std::io::stdout;
+use std::io::Write;
+
 /// SendAll operator
 /// Send all packets not matter whether it has been set to drop in the previous Filter operators. 
 ///

@@ -5,6 +5,8 @@ use std::sync::mpsc::{sync_channel, Receiver, RecvError, SyncSender};
 use std::sync::Arc;
 use std::thread;
 use utils;
+use std::io::stdout;
+use std::io::Write;
 
 /// Used to keep stats about each pipeline and eventually grant tokens, etc.
 struct Runnable {
@@ -64,7 +66,7 @@ impl Default for StandaloneScheduler {
 impl Scheduler for StandaloneScheduler {
     /// Add a task to the current scheduler.
     fn add_task<T: Executable + 'static>(&mut self, task: T) -> Result<usize> {
-        self.run_q.push(Runnable::from_task(task));
+		self.run_q.push(Runnable::from_task(task));
         Ok(self.run_q.len())
     }
 }
@@ -97,7 +99,7 @@ impl StandaloneScheduler {
 
     #[inline]
     fn execute_internal(&mut self, begin: u64) -> u64 {
-        let time = {
+		let time = {
             let task = &mut (&mut self.run_q[self.next_task]);
             self.npkts += task.task.execute() as u64;
             let end = utils::rdtsc_unsafe();

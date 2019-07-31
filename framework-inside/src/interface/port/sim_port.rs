@@ -84,7 +84,8 @@ impl PacketRx for SimulateQueue {
         let update = self.stats_rx.stats.load(Ordering::Relaxed) + alloced as usize;
         self.stats_rx.stats.store(update, Ordering::Relaxed);
         // println!("rx {}, tx {}", self.stats_rx.stats.load(Ordering::Relaxed), self.stats_tx.stats.load(Ordering::Relaxed)); stdout().flush().unwrap();
-        Ok(alloced as u32)
+        
+		Ok(alloced as u32)
     }
 }
 

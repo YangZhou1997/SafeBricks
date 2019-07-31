@@ -11,7 +11,6 @@ use std::fmt::Display;
 // use std::io::Write;
 use std::sync::Arc;
 
-
 // This "ports" is essentially "queues"
 fn install<T, S>(ports: Vec<T>, sched: &mut S)
 where

@@ -75,9 +75,9 @@ where
     }
 
     let mut mbufs = MbufVec{ my_mbufs: Vec::<*mut MBuf>::with_capacity(BATCH_SIZE) };
-    let mut pull_count: [u64; 4] = [0u64; 4];
-    let mut pkt_count_from_nic: [u64; 4] = [0u64; 4];
-    let mut pkt_count_from_enclave: [u64; 4] = [0u64; 4];
+    let mut pull_count: [u64; 5] = [0u64; 5];
+    let mut pkt_count_from_nic: [u64; 5] = [0u64; 5];
+    let mut pkt_count_from_enclave: [u64; 5] = [0u64; 5];
 
     while running.load(Ordering::SeqCst) {
         for (index, queue) in ports.iter().enumerate() {
@@ -204,7 +204,7 @@ fn main() -> PktResult<()> {
 
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("core_affinity detect: # available cores: {}", core_ids.len());
-    assert!(core_ids.len() >= ports.len() + 1 + 1, "# available cores is not enough"); 
+    assert!(core_ids.len() >= ports.len() + 1, "# available cores is not enough"); 
     // one core for pktpuller, one core for normal linux monitoring.
     core_affinity::set_for_current(core_ids[0].clone());
 

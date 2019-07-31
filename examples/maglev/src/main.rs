@@ -13,8 +13,8 @@ use netbricks::packets::ip::{Flow, IpPacket};
 use netbricks::packets::{Ethernet, Packet, RawPacket, Tcp};
 use std::fmt::Display;
 use std::net::{IpAddr, Ipv4Addr};
-// use std::io::stdout;
-// use std::io::Write;
+use std::io::stdout;
+use std::io::Write;
 use std::hash::{BuildHasherDefault, BuildHasher, Hash, Hasher};
 use twox_hash::XxHash;
 use std::slice;
@@ -158,7 +158,7 @@ where
 
     let pipelines: Vec<_> = ports
         .iter()
-        .map(move |port| {
+        .map(|port| {
             ReceiveBatch::new(port.clone())
                 .map(|p| lb(p))
                 .sendall(port.clone())
@@ -173,12 +173,11 @@ where
 
 fn lb(packet: RawPacket) -> Result<Tcp<Ipv4>> {
 // fn lb(packet: RawPacket) -> Result<Ethernet> {
-    let mut ethernet = packet.parse::<Ethernet>()?;
-    ethernet.swap_addresses();
-    let v4 = ethernet.parse::<Ipv4>()?;
-    let mut tcp = v4.parse::<Tcp<Ipv4>>()?;
+	let mut ethernet = packet.parse::<Ethernet>()?;
+	ethernet.swap_addresses();
+	let v4 = ethernet.parse::<Ipv4>()?;
+	let mut tcp = v4.parse::<Tcp<Ipv4>>()?;
     let flow = tcp.flow(); // new a Flow structure
-
     let assigned_server = LUT.with(|lut| {
         lut.borrow().lookup(&flow) as u32
     });

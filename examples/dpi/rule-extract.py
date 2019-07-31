@@ -7,13 +7,13 @@ rulesetnames = ["community-snort2.9.rules", "community-snort3.rules", "emerging-
 if __name__ == "__main__":
     sentense_ruleset = []
     word_ruleset = []
-        
+
     for rulesetname in rulesetnames:
         f = open("./rawrules/" + rulesetname, "r")
         for rule in f:
             if "alert" not in rule:
                 continue
-            
+
             content_start_str = "content:\""
             content_end_str = "\""
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
                 content = rule[content_start: content_end]
                 sentense_ruleset.append(content)
                 word_ruleset += content.split()
-                
+
                 content_start = content_end + len(content_end_str)
                 content_start = rule.find(content_start_str, content_start) + len(content_start_str)
                 content_end = rule.find(content_end_str, content_start)
@@ -49,7 +49,17 @@ if __name__ == "__main__":
     f.close()
 
     f = open("./wordrules/word.rules", "w")
+    f_sgx = open("./wordrules/dpirules.rs", "w")
+    cnt = 0
     for i in word_ruleset:
         f.write(i + "\n")
+        if cnt == 0:
+            f_sgx.write("pub const DPIRULES: [&str; %d] = [r#\"" % (len(word_ruleset),) + i + "\"#, ")
+        elif cnt == len(word_ruleset) - 1:
+            f_sgx.write("r#\"" + i + "\"#];")
+        else:
+            f_sgx.write("r#\"" + i + "\"#, ")
+        cnt += 1
     f.close()
+    f_sgx.close()
 

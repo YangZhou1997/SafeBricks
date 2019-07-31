@@ -63,7 +63,7 @@ fn main() {
 
     let core_ids = core_affinity::get_core_ids().unwrap();
     println!("core_affinity detect: # available cores: {}", core_ids.len());
-    assert!(core_ids.len() >= port_num, "# available cores is not enough"); 
+    assert!(core_ids.len() >= port_num + 1, "# available cores is not enough"); 
     // one core for pktpuller, one core for normal linux monitoring.
 
     let mut server_count: u64 = 0;

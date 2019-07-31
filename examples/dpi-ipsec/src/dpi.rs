@@ -10,6 +10,7 @@ use aho_corasick::AhoCorasick;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::cell::RefCell;
+use netbricks::utils::DPIRULES;
 
 const RULE_NUM: usize = (1 << 30); 
 
@@ -22,15 +23,13 @@ thread_local! {
     pub static AC: RefCell<AhoCorasick> = {
         let mut rules = vec![];
 
-        let file = File::open("./dpi/wordrules/word.rules").expect("cannot open file");
-        let file = BufReader::new(file);
-        for line in file.lines().filter_map(|result| result.ok()){
-            // println!("{}", line);
+        for line in DPIRULES.iter() {
             rules.push(line);
-            if rules.len() == RULE_NUM {
-                break;
-            }
         }
+        if RULE_NUM < rules.len() {
+            rules.truncate(RULE_NUM);
+        }
+        println!("dpi rules length: {}", rules.len());
 
         //let patterns = &["This is", "Yang", "abcedf"];
         let patterns = &rules;

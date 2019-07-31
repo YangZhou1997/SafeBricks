@@ -12,6 +12,7 @@ use native::mbuf::MBuf;
 use std::sync::atomic::compiler_fence;
 use std::sync::atomic::Ordering;
 use std::process;
+use std::io::stdout;
 
 pub const sendq_name: &str = "safebricks_sendq";
 pub const recvq_name: &str = "safebricks_recvq";
@@ -157,7 +158,7 @@ impl RingBuffer {
     /// Read from the buffer, incrementing the read head. Returns bytes read.
     #[inline]
     pub fn read_from_head(&self, mbufs: &mut [*mut MBuf]) -> usize {
-        let ring_size = self.size();
+		let ring_size = self.size();
         if ring_size == STOP_MARK as usize {
             process::exit(1);
         }

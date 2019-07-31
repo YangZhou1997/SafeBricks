@@ -1,10 +1,12 @@
 pub use self::asm::*;
 pub use self::atom::*;
 pub use self::ipsec::*;
+pub use self::dpirules::*;
 mod asm;
 mod atom;
 pub mod ipsec;
 pub mod cidr;
+pub mod dpirules;
 
 pub const PAGE_SIZE: usize = 4096; // Page size in bytes, not using huge pages here.
 
