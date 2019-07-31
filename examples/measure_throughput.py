@@ -7,7 +7,7 @@ CmdSafeBricks = {
 	'startdpdk': 'cd .. && ./run_dpdk.sh {num_queue} 2>/dev/null &',
 	'startsgx': 'cd .. && ./run_sgx.sh {task} {num_queue} 2>/dev/null &',
 	'killdpdk': 'sudo pkill dpdkIO', 
-	'killsgx': 'sudo pkill sgx',
+	'killsgx': 'sudo pkill sgx-runner',
 }
 
 CmdPktgen = {
@@ -68,7 +68,7 @@ def task_exec_reboot(task, pktgen_types, num_queue, repeat_num, throughput_res):
 				os.system(CmdSafeBricks['killdpdk'])
 				time.sleep(5) # wait for the port being restored.
 				os.system(CmdSafeBricks['killsgx'])
-				time.sleep(5) # wait for the port being restored.
+				time.sleep(10) # wait for the port being restored.
 
 	return 0
 
@@ -135,7 +135,7 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 	os.system(CmdSafeBricks['killdpdk'])
 	time.sleep(5) # wait for the port being restored.
 	os.system(CmdSafeBricks['killsgx'])
-	time.sleep(5) # wait for the port being restored.
+	time.sleep(10) # wait for the port being restored.
 
 	return 0
 
@@ -147,8 +147,11 @@ tasks_ipsec_reboot = ["acl-fw-ipsec", "monitoring-ipsec", "nat-tcp-v4-ipsec"]
 pktgens_ipsec = ["ICTF_IPSEC", "CAIDA64_IPSEC", "CAIDA256_IPSEC", "CAIDA512_IPSEC", "CAIDA1024_IPSEC"]
 
 num_queues = [1, 2, 3, 4, 5]
+
 # ps -ef | grep release
 # sudo kill -9 ####
+
+TIMES = 1
 
 if __name__ == '__main__':
 	now = datetime.datetime.now()
@@ -160,7 +163,7 @@ if __name__ == '__main__':
 	for task in tasks_nonreboot:
 		for num_queue in num_queues:
 			run_count += 1
-			status = task_exec(task, pktgens, num_queue, 10, throughput_res)
+			status = task_exec(task, pktgens, num_queue, TIMES, throughput_res)
 			if status == -1:
 				fail_count += 1
 				fail_cases.append(task + " " + num_queue)
@@ -168,7 +171,7 @@ if __name__ == '__main__':
 	for task in tasks_reboot:
 		for num_queue in num_queues:
 			run_count += 1
-			status = task_exec_reboot(task, pktgens, num_queue, 10, throughput_res)
+			status = task_exec_reboot(task, pktgens, num_queue, TIMES, throughput_res)
 			if status == -1:
 				fail_count += 1
 				fail_cases.append(task + " " + num_queue)
@@ -176,7 +179,7 @@ if __name__ == '__main__':
 	for task in tasks_ipsec_nonreboot:
 		for num_queue in num_queues:
 			run_count += 1
-			status = task_exec(task, pktgens_ipsec, num_queue, 10, throughput_res)
+			status = task_exec(task, pktgens_ipsec, num_queue, TIMES, throughput_res)
 			if status == -1:
 				fail_count += 1
 				fail_cases.append(task + " " + num_queue)
@@ -184,7 +187,7 @@ if __name__ == '__main__':
 	for task in tasks_ipsec_reboot:
 		for num_queue in num_queues:
 			run_count += 1
-			status = task_exec_reboot(task, pktgens_ipsec, num_queue, 10, throughput_res)
+			status = task_exec_reboot(task, pktgens_ipsec, num_queue, TIMES, throughput_res)
 			if status == -1:
 				fail_count += 1
 				fail_cases.append(task + " " + num_queue)
