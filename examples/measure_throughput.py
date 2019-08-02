@@ -61,14 +61,26 @@ def task_exec_reboot(task, pktgen_types, num_queue, repeat_num, throughput_res):
 				throughput_val = pktgen_results[start_index: end_index]
 				throughput_val = float(throughput_val)
 
-				print colored("throughput_val: %lf" % (throughput_val,), 'blue')
-				throughput_res.write(task + "," + pktgen_type + "," + str(num_queue) + "," + str(throughput_val) + "\n")
+				start_index = pktgen_results.find("avg_latency: ") + len("avg_latency: ") 
+				end_index = pktgen_results.find(", tail_latency: ", start_index)
+				avg_latency_val = pktgen_results[start_index: end_index]
+				avg_latency_val = float(avg_latency_val)
+
+				start_index = pktgen_results.find(", tail_latency: ") + len(", tail_latency: ") 
+				end_index = pktgen_results.find("\n", start_index)
+				tail_latency_val = pktgen_results[start_index: end_index]
+				tail_latency_val = float(tail_latency_val)
+
+				print colored("throughput_val: %lf, avg_latency_val: %lf, tail_latency_val: %lf" % (throughput_val, avg_latency_val, tail_latency_val), 'blue')
+				throughput_res.write(task + "," + pktgen_type + "," + str(num_queue) + "," + str(throughput_val) + "," + str(avg_latency_val) + "," + str(tail_latency_val) + "\n")
 				throughput_res.flush()
 
 				os.system(CmdSafeBricks['killdpdk'])
 				time.sleep(5) # wait for the port being restored.
 				os.system(CmdSafeBricks['killsgx'])
 				time.sleep(10) # wait for the port being restored.
+
+				break
 
 	return 0
 
@@ -128,8 +140,18 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 			throughput_val = pktgen_results[start_index: end_index]
 			throughput_val = float(throughput_val)
 
-			print colored("throughput_val: %lf" % (throughput_val,), 'blue')
-			throughput_res.write(task + "," + pktgen_type + "," + str(num_queue) + "," + str(throughput_val) + "\n")
+			start_index = pktgen_results.find("avg_latency: ") + len("avg_latency: ") 
+			end_index = pktgen_results.find(", tail_latency: ", start_index)
+			avg_latency_val = pktgen_results[start_index: end_index]
+			avg_latency_val = float(avg_latency_val)
+
+			start_index = pktgen_results.find(", tail_latency: ") + len(", tail_latency: ") 
+			end_index = pktgen_results.find("\n", start_index)
+			tail_latency_val = pktgen_results[start_index: end_index]
+			tail_latency_val = float(tail_latency_val)
+
+			print colored("throughput_val: %lf, avg_latency_val: %lf, tail_latency_val: %lf" % (throughput_val, avg_latency_val, tail_latency_val), 'blue')
+			throughput_res.write(task + "," + pktgen_type + "," + str(num_queue) + "," + str(throughput_val) + "," + str(avg_latency_val) + "," + str(tail_latency_val) + "\n")
 			throughput_res.flush()
 
 	os.system(CmdSafeBricks['killdpdk'])
