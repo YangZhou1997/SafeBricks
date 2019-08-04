@@ -55,4 +55,8 @@ sudo $DPDK_HOME/usertools/dpdk-devbind.py --force -b igb_uio 0000:02:00.0 0000:0
 
 bash ~/NetBricks/setupDpdkCopy.sh
 
+# hugepages setup on numa node
+echo 2048 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+echo 2048 | sudo tee /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages
+
 echo "please rebuild NetBricks to make dpdk changes valid"

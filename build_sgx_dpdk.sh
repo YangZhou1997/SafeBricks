@@ -63,8 +63,8 @@ do
 
 	# Convert the APP
 	if [ "$MODE" == "debug" ]; then # 2a
-	    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x5d80000 --stack-size 0x5d80000 --threads 2 --debug
+	    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x5d80000 --stack-size 0x5d80000 --threads 6 --debug
 	else
-	    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x5d80000 --stack-size 0x5d80000 --threads 2
+	    ftxsgx-elf2sgxs target/x86_64-fortanix-unknown-sgx/$MODE/$TASK --heap-size 0x5d80000 --stack-size 0x5d80000 --threads 6
 	fi
 done

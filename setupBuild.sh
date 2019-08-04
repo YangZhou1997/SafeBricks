@@ -9,7 +9,3 @@ rustup default nightly
 
 #dependencies for netbricks
 sudo apt-get -y install clang libclang-dev libsctp-dev libssl-dev cmake
-
-# hugepages setup on numa node
-echo 2048 | sudo tee /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-echo 2048 | sudo tee /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages

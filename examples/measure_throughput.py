@@ -162,7 +162,8 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 	return 0
 
 tasks_nonreboot = [ "lpm", "dpi", "maglev"]
-tasks_reboot = ["acl-fw", "monitoring", "nat-tcp-v4"]
+# tasks_reboot = ["acl-fw", "monitoring", "nat-tcp-v4"]
+tasks_reboot = ["acl-fw"]
 pktgens = ["ICTF", "CAIDA64", "CAIDA256", "CAIDA512", "CAIDA1024"]
 tasks_ipsec_nonreboot = ["lpm-ipsec", "dpi-ipsec", "maglev-ipsec"]
 tasks_ipsec_reboot = ["acl-fw-ipsec", "monitoring-ipsec", "nat-tcp-v4-ipsec"]
@@ -182,13 +183,13 @@ if __name__ == '__main__':
 
 	run_count = 0
 	fail_count = 0
-	for task in tasks_nonreboot:
-		for num_queue in num_queues:
-			run_count += 1
-			status = task_exec(task, pktgens, num_queue, TIMES, throughput_res)
-			if status == -1:
-				fail_count += 1
-				fail_cases.append(task + " " + num_queue)
+	# for task in tasks_nonreboot:
+	# 	for num_queue in num_queues:
+	# 		run_count += 1
+	# 		status = task_exec(task, pktgens, num_queue, TIMES, throughput_res)
+	# 		if status == -1:
+	# 			fail_count += 1
+	# 			fail_cases.append(task + " " + num_queue)
 
 	for task in tasks_reboot:
 		for num_queue in num_queues:
@@ -198,21 +199,21 @@ if __name__ == '__main__':
 				fail_count += 1
 				fail_cases.append(task + " " + num_queue)
 	
-	for task in tasks_ipsec_nonreboot:
-		for num_queue in num_queues:
-			run_count += 1
-			status = task_exec(task, pktgens_ipsec, num_queue, TIMES, throughput_res)
-			if status == -1:
-				fail_count += 1
-				fail_cases.append(task + " " + num_queue)
+	# for task in tasks_ipsec_nonreboot:
+	# 	for num_queue in num_queues:
+	# 		run_count += 1
+	# 		status = task_exec(task, pktgens_ipsec, num_queue, TIMES, throughput_res)
+	# 		if status == -1:
+	# 			fail_count += 1
+	# 			fail_cases.append(task + " " + num_queue)
 
-	for task in tasks_ipsec_reboot:
-		for num_queue in num_queues:
-			run_count += 1
-			status = task_exec_reboot(task, pktgens_ipsec, num_queue, TIMES, throughput_res)
-			if status == -1:
-				fail_count += 1
-				fail_cases.append(task + " " + num_queue)
+	# for task in tasks_ipsec_reboot:
+	# 	for num_queue in num_queues:
+	# 		run_count += 1
+	# 		status = task_exec_reboot(task, pktgens_ipsec, num_queue, TIMES, throughput_res)
+	# 		if status == -1:
+	# 			fail_count += 1
+	# 			fail_cases.append(task + " " + num_queue)
 
 	
 	print colored(("success runs: %d/%d", (run_count - fail_count), run_count), 'green')
