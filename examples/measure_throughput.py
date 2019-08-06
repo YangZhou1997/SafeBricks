@@ -169,7 +169,8 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 	return 0
 
 tasks_nonreboot = [ "lpm", "dpi", "maglev"]
-tasks_reboot = ["acl-fw", "monitoring", "nat-tcp-v4"]
+# tasks_reboot = ["acl-fw", "monitoring", "nat-tcp-v4"]
+tasks_reboot = ["nat-tcp-v4"]
 pktgens = ["ICTF", "CAIDA64", "CAIDA256", "CAIDA512", "CAIDA1024"]
 pktgens_acl = ["ICTF_ACL", "CAIDA64_ACL", "CAIDA256_ACL", "CAIDA512_ACL", "CAIDA1024_ACL"]
 

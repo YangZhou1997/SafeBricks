@@ -38,7 +38,7 @@ thread_local! {
 
 thread_local! {
     pub static FLOW_VEC: RefCell<Vec<FlowUsed>> = {
-        let m = (0..65536).map(|_| Default::default()).collect();
+        let m = (0..65537).map(|_| Default::default()).collect();
         RefCell::new(m)
     };
 }
@@ -141,7 +141,7 @@ fn nat(packet: RawPacket, nat_ip: Ipv4Addr) -> Result<Ipv4> {
             None => {
                 drop(port_map_lived);
 
-                if NEXT_PORT.load(Ordering::Relaxed) <= MAX_PORT {
+                if NEXT_PORT.load(Ordering::Relaxed) < MAX_PORT {
                     let assigned_port = NEXT_PORT.fetch_add(1, Ordering::Relaxed);
                     FLOW_VEC.with(|flow_vec| {
                         let mut flow_vec_lived = flow_vec.borrow_mut();
