@@ -32,6 +32,14 @@ members = [
     "examples/dpi-ipsec",
     "examples/nat-tcp-v4-ipsec",
     "examples/monitoring-ipsec",
+    # 
+    "examples/macswap-ipsec-sha",
+    "examples/acl-fw-ipsec-sha",
+    "examples/lpm-ipsec-sha",
+    "examples/maglev-ipsec-sha",
+    "examples/dpi-ipsec-sha",
+    "examples/nat-tcp-v4-ipsec-sha",
+    "examples/monitoring-ipsec-sha",
     # for sgx 
     "sgx-runner",
     "dpdkIO",
