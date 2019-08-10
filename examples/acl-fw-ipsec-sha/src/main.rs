@@ -158,6 +158,7 @@ fn acl_match(packet: RawPacket) -> Result<Option<Ipv4>> {
     // let decrypted_pkt_len = aes_gcm128_decrypt_mbedtls(payload, decrypted_pkt, false).unwrap();
 
     let flow = get_flow(decrypted_pkt);
+    // println!("{}", flow);
     let mut match_res: bool = FLOW_CACHE2.with(|flow_cache2| {
 		let flow_cache2_lived = flow_cache2.borrow();
 		if let Some(s) = flow_cache2_lived.get(&flow) {

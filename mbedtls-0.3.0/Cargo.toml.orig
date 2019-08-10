@@ -1,0 +1,103 @@
+[package]
+name = "mbedtls"
+version = "0.3.0"
+authors = ["Jethro Beekman <jethro@fortanix.com>"]
+build = "build.rs"
+license = "Apache-2.0/GPL-2.0+"
+description = """
+Idiomatic Rust wrapper for MbedTLS, allowing you to use MbedTLS with only safe
+code while being able to use such great Rust features like error handling and
+closures.
+
+Building on MbedTLS's focus on embedded use, this crate can be used in a no_std
+environment."""
+readme = "../README.md"
+repository = "https://github.com/fortanix/rust-mbedtls"
+documentation = "https://docs.rs/mbedtls/"
+keywords = ["MbedTLS","mbed","TLS","SSL","cryptography"]
+
+[dependencies]
+bitflags = "0.7.0"
+core_io = { version = "0.1", features = ["collections"], optional = true }
+spin = { version = "0.4.0", default-features = false, optional = true }
+serde = { version = "1.0.7", default-features = false }
+serde_derive = "1.0.7"
+byteorder = "1.0.0"
+
+[target.x86_64-fortanix-unknown-sgx.dependencies]
+rs-libc = "0.1.0"
+
+[dependencies.mbedtls-sys-auto]
+version = "2.12.0"
+default-features = false
+features = ["custom_printf"]
+path = "../mbedtls-sys"
+
+[dev-dependencies]
+libc = "0.2.0"
+rand = "0.4.0"
+serde_cbor = "0.6"
+
+[build-dependencies]
+cc = "1.0"
+
+[features]
+# Features are documented in the README
+default = ["std", "aesni", "time", "padlock", "legacy_protocols"]
+std = ["mbedtls-sys-auto/std","serde/std"]
+threading = []
+pthread = ["threading","std","mbedtls-sys-auto/pthread"]
+spin_threading = ["threading","spin","mbedtls-sys-auto/custom_threading"]
+sgx = ["std", "rust_threading", "rdrand", "force_aesni_support"]
+rust_threading = ["threading", "mbedtls-sys-auto/custom_threading", "std"]
+force_aesni_support = ["mbedtls-sys-auto/custom_has_support","aesni"]
+rdrand = []
+aesni = ["mbedtls-sys-auto/aesni"]
+zlib = ["mbedtls-sys-auto/zlib"]
+time = ["mbedtls-sys-auto/time"]
+padlock = ["mbedtls-sys-auto/padlock"]
+legacy_protocols = ["mbedtls-sys-auto/legacy_protocols"]
+
+[[example]]
+name = "client"
+path = "examples/client.rs"
+required-features = ["std"]
+
+[[example]]
+name = "server"
+path = "examples/server.rs"
+required-features = ["std"]
+
+[[test]]
+name = "client_server"
+path = "tests/client_server.rs"
+required-features = ["std"]
+
+[[test]]
+name = "ec"
+path = "tests/ec.rs"
+
+[[test]]
+name = "pbkdf"
+path = "tests/pbkdf.rs"
+
+[[test]]
+name = "mbedtls_self_tests"
+path = "tests/mbedtls_self_tests.rs"
+
+[[test]]
+name = "bignum"
+path = "tests/bignum.rs"
+
+[[test]]
+name = "rsa"
+path = "tests/rsa.rs"
+
+[[test]]
+name = "save_restore"
+path = "tests/save_restore.rs"
+
+[[test]]
+name = "ssl_conf_verify"
+path = "tests/ssl_conf_verify.rs"
+required-features = ["std"]

@@ -45,7 +45,7 @@ members = [
     "dpdkIO",
     "sharedring",
 ]
-exclude = ["rust-sgx"]
+exclude = ["rust-sgx", "mbedtls-0.3.0"]
 
 [profile.release]
 opt-level = 3
