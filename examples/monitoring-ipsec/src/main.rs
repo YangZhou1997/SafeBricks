@@ -16,8 +16,8 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::hash::BuildHasherDefault;
 use netbricks::utils::ipsec::*;
-// use std::io::stdout;
-// use std::io::Write;
+use std::io::stdout;
+use std::io::Write;
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -70,6 +70,7 @@ fn monitoring(packet: RawPacket) -> Result<Ipv4> {
 
     let flow = get_flow(decrypted_pkt);
     FLOW_MAP.with(|flow_map| {
+        // println!("{}", flow);stdout().flush().unwrap();
         *((*flow_map.borrow_mut()).entry(flow).or_insert(0)) += 1;
     });
 

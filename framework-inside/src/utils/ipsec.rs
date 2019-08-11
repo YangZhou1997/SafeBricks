@@ -6,7 +6,6 @@ use mbedtls::hash::Type;
 
 use std::io::stdout;
 use std::io::Write;
-use std::cmp::Eq;
 
 use packets::ip::Flow;
 use packets::buffer;
@@ -74,12 +73,13 @@ thread_local! {
 pub fn aes_cbc_sha256_encrypt_mbedtls(pktptr: &[u8], esphdr: &[u8], output: &mut [u8]) -> Result<usize, CryptoError>
 {
     let pktlen = pktptr.len();
+
     if (pktlen < 16) || (pktlen%16 != 0) {
         println!("Encrypt: packetlen is not proper");
         stdout().flush().unwrap();
         return Err(CryptoError::PktlenError);
     }
-    if pktlen >(MAX_PKT_SIZE - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256) as usize
+    if pktlen > (MAX_PKT_SIZE - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH - ICV_LEN_SHA256) as usize
     {
         println!("Packet is too big to handle");
         stdout().flush().unwrap();
@@ -88,24 +88,36 @@ pub fn aes_cbc_sha256_encrypt_mbedtls(pktptr: &[u8], esphdr: &[u8], output: &mut
     output[..ESP_HEADER_LENGTH].copy_from_slice(esphdr);
     output[ESP_HEADER_LENGTH..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)].copy_from_slice(AES_IV);
 
-    CIPHER_ENCRY_CBC_SHA.with(|cipher| {
-        let mut cipher_lived = cipher.borrow_mut();
+    // CIPHER_ENCRY_CBC_SHA.with(|cipher| {
+    //     let mut cipher_lived = cipher.borrow_mut();
+        let mut cipher_lived = CipherMbed::setup(
+            raw::CipherId::Aes,
+            raw::CipherMode::CBC,
+            (AES_KEY.len() * 8) as u32,
+        ).unwrap();
+        cipher_lived.set_key(Operation::Encrypt, AES_KEY).unwrap();
+        cipher_lived.set_iv(AES_IV).unwrap();
+        cipher_lived.set_padding(raw::CipherPadding::None).unwrap();
+   
         // In cbc mode, you much have 16 B block size reserverd.
-        let ciphertext_len = cipher_lived.encrypt(pktptr, 
-            &mut output[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + 16 + pktlen)]).unwrap();
-        if ciphertext_len != pktlen
+        if let Ok(ciphertext_len) = cipher_lived.encrypt(pktptr, 
+            &mut output[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + 16 + pktlen)])
         {
-            println!("cleartext pktlen: {} vs. ciphertext pktlen: {}", pktptr.len(), ciphertext_len);
-            println!("AES encryption errors");
-            stdout().flush().unwrap();
-            return Err(CryptoError::AESEncryptError);
+            if ciphertext_len != pktlen
+            {
+                println!("cleartext pktlen: {} vs. ciphertext pktlen: {}", pktptr.len(), ciphertext_len);
+                println!("AES encryption errors");
+                stdout().flush().unwrap();
+                return Err(CryptoError::AESEncryptError);
+            }
         }
+        let ciphertext_len = pktlen;
         let hmac: &mut [u8] = &mut [0u8; 32];
         Md::hmac(Type::Sha256, SHA_KEY, &output[..(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)], hmac).unwrap();
 
         output[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len)..].copy_from_slice(&hmac[..ICV_LEN_SHA256]);
         Ok(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ciphertext_len + ICV_LEN_SHA256)
-    })
+    // })
 }
 
 // pktptr points to the start of the ESP header
@@ -121,7 +133,7 @@ pub fn aes_cbc_sha256_decrypt_mbedtls(pktptr: &[u8], output: &mut [u8], compdige
         return Err(CryptoError::PktlenError);
     }
     let hmac: &mut [u8] = &mut [0u8; 32];
-
+    
     Md::hmac(Type::Sha256, SHA_KEY, &pktptr[..(pktlen - ICV_LEN_SHA256)], hmac).unwrap();
 
     if compdigest
@@ -134,10 +146,20 @@ pub fn aes_cbc_sha256_decrypt_mbedtls(pktptr: &[u8], output: &mut [u8], compdige
             return Err(CryptoError::HmacMismatch);
         }
     }
+    // println!("d4");stdout().flush().unwrap();
+    // Not sure why, but you cannot put it in local_thread, seems some state changes inside.
+    // CIPHER_DECRY_CBC_SHA.with(|cipher| {
+        // let mut cipher = cipher.borrow_mut();
+        let mut cipher = CipherMbed::setup(
+            raw::CipherId::Aes,
+            raw::CipherMode::CBC,
+            (AES_KEY.len() * 8) as u32,
+        ).unwrap();
+        cipher.set_key(Operation::Decrypt, AES_KEY).unwrap();
+        cipher.set_iv(AES_IV).unwrap();
+        cipher.set_padding(raw::CipherPadding::None).unwrap();
 
-    CIPHER_DECRY_CBC_SHA.with(|cipher| {
-        let mut cipher = cipher.borrow_mut();
-        // In cbc mode, you much have 16 B block size reserverd.
+        // In cbc mode, you must have 16 B block size reserverd.
         if let Ok(cleartext_len) = cipher.decrypt(&pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(pktlen - ICV_LEN_SHA256)],
             &mut output[..(pktlen - (ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ICV_LEN_SHA256) + 16)])
         {
@@ -151,7 +173,7 @@ pub fn aes_cbc_sha256_decrypt_mbedtls(pktptr: &[u8], output: &mut [u8], compdige
             return Ok(cleartext_len + ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH);
         }
         return Ok(pktlen - ICV_LEN_SHA256);  
-    })
+    // })
 }
 
 

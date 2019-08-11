@@ -169,7 +169,7 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 	return 0
 
 tasks_ipsec_nonreboot = ["lpm-ipsec-sha", "dpi-ipsec-sha", "maglev-ipsec-sha"]
-tasks_ipsec_reboot = ["acl-fw-ipsec-sha", "monitoring-ipsec-sha", "nat-tcp-v4-ipsec-sha"]
+tasks_ipsec_reboot = ["monitoring-ipsec-sha", "acl-fw-ipsec-sha", "nat-tcp-v4-ipsec-sha"]
 pktgens_ipsec = ["ICTF_IPSEC_SHA", "CAIDA64_IPSEC_SHA", "CAIDA256_IPSEC_SHA", "CAIDA512_IPSEC_SHA", "CAIDA1024_IPSEC_SHA"]
 pktgens_ipsec_acl = ["ICTF_IPSEC_ACL_SHA", "CAIDA64_IPSEC_ACL_SHA", "CAIDA256_IPSEC_ACL_SHA", "CAIDA512_IPSEC_ACL_SHA", "CAIDA1024_IPSEC_ACL_SHA"]
 
@@ -191,7 +191,7 @@ if __name__ == '__main__':
 	for task in tasks_ipsec_reboot:
 		for num_queue in num_queues:
 			run_count += 1
-			if task == "acl-fw-ipsec-acl":
+			if task == "acl-fw-ipsec-sha":
 				status = task_exec_reboot(task, pktgens_ipsec_acl, num_queue, TIMES, throughput_res)
 			else:
 				status = task_exec_reboot(task, pktgens_ipsec, num_queue, TIMES, throughput_res)

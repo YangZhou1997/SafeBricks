@@ -16,8 +16,8 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::hash::BuildHasherDefault;
 use netbricks::utils::ipsec::*;
-// use std::io::stdout;
-// use std::io::Write;
+use std::io::stdout;
+use std::io::Write;
 use std::cell::RefCell;
 use std::sync::Arc;
 
@@ -68,10 +68,14 @@ fn monitoring(packet: RawPacket) -> Result<Ipv4> {
     // let decrypted_pkt_len = aes_gcm128_decrypt_openssl(payload, decrypted_pkt, false).unwrap();
     // let decrypted_pkt_len = aes_gcm128_decrypt_mbedtls(payload, decrypted_pkt, false).unwrap();
 
+    // println!("before flow_map");stdout().flush().unwrap();
     let flow = get_flow(decrypted_pkt);
     FLOW_MAP.with(|flow_map| {
+        // println!("inside flow_map");stdout().flush().unwrap();
+        // println!("{}", flow);stdout().flush().unwrap();
         *((*flow_map.borrow_mut()).entry(flow).or_insert(0)) += 1;
     });
+    // println!("after flow_map");stdout().flush().unwrap();
 
     let encrypted_pkt_len = aes_cbc_sha256_encrypt_mbedtls(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
     // let encrypted_pkt_len = aes_gcm128_encrypt_openssl(&decrypted_pkt[..(decrypted_pkt_len - ESP_HEADER_LENGTH - AES_CBC_IV_LENGTH)], &(*esp_hdr), payload).unwrap();
