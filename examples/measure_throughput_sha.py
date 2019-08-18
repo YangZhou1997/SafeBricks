@@ -43,7 +43,7 @@ def task_exec_reboot(task, pktgen_types, num_queue, repeat_num, throughput_res):
 					os.system(CmdSafeBricks['killdpdk'])
 					time.sleep(5) # wait for the port being restored.
 					os.system(CmdSafeBricks['killsgx'])
-					os.system(CmdSafeBricks['killsgx'])
+					# os.system(CmdSafeBricks['killsgx'])
 					time.sleep(5) # wait for the port being restored.
 					continue
 				end_index = pktgen_results.find(end_string, start_index)
@@ -52,7 +52,7 @@ def task_exec_reboot(task, pktgen_types, num_queue, repeat_num, throughput_res):
 					os.system(CmdSafeBricks['killdpdk'])
 					time.sleep(5) # wait for the port being restored.
 					os.system(CmdSafeBricks['killsgx'])
-					os.system(CmdSafeBricks['killsgx'])
+					# os.system(CmdSafeBricks['killsgx'])
 					time.sleep(5) # wait for the port being restored.
 					fail_count_inner += 1
 					continue
@@ -80,7 +80,7 @@ def task_exec_reboot(task, pktgen_types, num_queue, repeat_num, throughput_res):
 				os.system(CmdSafeBricks['killdpdk'])
 				time.sleep(5) # wait for the port being restored.
 				os.system(CmdSafeBricks['killsgx'])
-				os.system(CmdSafeBricks['killsgx'])
+				# os.system(CmdSafeBricks['killsgx'])
 				time.sleep(10) # wait for the port being restored.
 
 
@@ -114,7 +114,7 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 			os.system(CmdSafeBricks['killdpdk'])
 			time.sleep(5) # wait for the port being restored.
 			os.system(CmdSafeBricks['killsgx'])
-			os.system(CmdSafeBricks['killsgx'])
+			# os.system(CmdSafeBricks['killsgx'])
 			time.sleep(5) # wait for the port being restored.
 			continue
 		end_index = pktgen_results.find(end_string, start_index)
@@ -123,7 +123,7 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 			os.system(CmdSafeBricks['killdpdk'])
 			time.sleep(5) # wait for the port being restored.
 			os.system(CmdSafeBricks['killsgx'])
-			os.system(CmdSafeBricks['killsgx'])
+			# os.system(CmdSafeBricks['killsgx'])
 			time.sleep(5) # wait for the port being restored.
 			fail_count_inner += 1
 			continue
@@ -163,13 +163,14 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 	os.system(CmdSafeBricks['killdpdk'])
 	time.sleep(5) # wait for the port being restored.
 	os.system(CmdSafeBricks['killsgx'])
-	os.system(CmdSafeBricks['killsgx'])
+	# os.system(CmdSafeBricks['killsgx'])
 	time.sleep(10) # wait for the port being restored.
 
 	return 0
 
-tasks_ipsec_nonreboot = ["lpm-ipsec-sha", "dpi-ipsec-sha", "maglev-ipsec-sha"]
-tasks_ipsec_reboot = ["monitoring-ipsec-sha", "acl-fw-ipsec-sha", "nat-tcp-v4-ipsec-sha"]
+tasks_ipsec_nonreboot = []
+# tasks_ipsec_reboot = ["lpm-ipsec-sha", "maglev-ipsec-sha", "monitoring-ipsec-sha", "dpi-ipsec-sha", "acl-fw-ipsec-sha", "nat-tcp-v4-ipsec-sha"]
+tasks_ipsec_reboot = ["monitoring-ipsec-sha", "dpi-ipsec-sha", "acl-fw-ipsec-sha", "nat-tcp-v4-ipsec-sha"]
 pktgens_ipsec = ["ICTF_IPSEC_SHA", "CAIDA64_IPSEC_SHA", "CAIDA256_IPSEC_SHA", "CAIDA512_IPSEC_SHA", "CAIDA1024_IPSEC_SHA"]
 pktgens_ipsec_acl = ["ICTF_IPSEC_ACL_SHA", "CAIDA64_IPSEC_ACL_SHA", "CAIDA256_IPSEC_ACL_SHA", "CAIDA512_IPSEC_ACL_SHA", "CAIDA1024_IPSEC_ACL_SHA"]
 
@@ -178,7 +179,7 @@ num_queues = [1, 2, 3, 4, 5]
 # ps -ef | grep release
 # sudo kill -9 ####
 
-TIMES = 1
+TIMES = 10
 
 if __name__ == '__main__':
 	now = datetime.datetime.now()

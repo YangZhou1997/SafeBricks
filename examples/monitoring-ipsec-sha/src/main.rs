@@ -70,6 +70,7 @@ fn monitoring(packet: RawPacket) -> Result<Ipv4> {
 
     // println!("before flow_map");stdout().flush().unwrap();
     let flow = get_flow(decrypted_pkt);
+    // println!("{}", flow);
     FLOW_MAP.with(|flow_map| {
         // println!("inside flow_map");stdout().flush().unwrap();
         // println!("{}", flow);stdout().flush().unwrap();
