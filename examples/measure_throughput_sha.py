@@ -170,6 +170,7 @@ def task_exec(task, pktgen_types, num_queue, repeat_num, throughput_res):
 
 tasks_ipsec_nonreboot = []
 tasks_ipsec_reboot = ["lpm-ipsec-sha", "maglev-ipsec-sha", "monitoring-ipsec-sha", "dpi-ipsec-sha", "acl-fw-ipsec-sha", "nat-tcp-v4-ipsec-sha"]
+# tasks_ipsec_reboot = ["monitoring-ipsec-sha", "dpi-ipsec-sha", "acl-fw-ipsec-sha", "nat-tcp-v4-ipsec-sha"]
 pktgens_ipsec = ["ICTF_IPSEC_SHA", "CAIDA64_IPSEC_SHA"]
 pktgens_ipsec_acl = ["ICTF_IPSEC_ACL_SHA", "CAIDA64_IPSEC_ACL_SHA"]
 

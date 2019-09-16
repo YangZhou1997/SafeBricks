@@ -90,6 +90,9 @@ pub fn aes_cbc_sha256_encrypt_mbedtls(pktptr: &[u8], esphdr: &[u8], output: &mut
 
     CIPHER_ENCRY_CBC_SHA.with(|cipher| {
         let mut cipher_lived = cipher.borrow_mut();
+        cipher_lived.set_iv(AES_IV).unwrap();
+        cipher_lived.set_padding(raw::CipherPadding::None).unwrap();
+   
         // let mut cipher_lived = CipherMbed::setup(
         //     raw::CipherId::Aes,
         //     raw::CipherMode::CBC,
@@ -148,8 +151,12 @@ pub fn aes_cbc_sha256_decrypt_mbedtls(pktptr: &[u8], output: &mut [u8], compdige
     }
     // println!("d4");stdout().flush().unwrap();
     // Not sure why, but you cannot put it in local_thread, seems some state changes inside.
+    // unless you reset iv and padding as follows.
     CIPHER_DECRY_CBC_SHA.with(|cipher| {
         let mut cipher = cipher.borrow_mut();
+        cipher.set_iv(AES_IV).unwrap();
+        cipher.set_padding(raw::CipherPadding::None).unwrap();
+
         // let mut cipher = CipherMbed::setup(
         //     raw::CipherId::Aes,
         //     raw::CipherMode::CBC,
@@ -160,6 +167,7 @@ pub fn aes_cbc_sha256_decrypt_mbedtls(pktptr: &[u8], output: &mut [u8], compdige
         // cipher.set_padding(raw::CipherPadding::None).unwrap();
 
         // In cbc mode, you must have 16 B block size reserverd.
+        // decrypt() does reset() inside. 
         if let Ok(cleartext_len) = cipher.decrypt(&pktptr[(ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH)..(pktlen - ICV_LEN_SHA256)],
             &mut output[..(pktlen - (ESP_HEADER_LENGTH + AES_CBC_IV_LENGTH + ICV_LEN_SHA256) + 16)])
         {
