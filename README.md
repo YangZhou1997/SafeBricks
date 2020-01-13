@@ -21,7 +21,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
    repositories into the same parent directory.
    ```shell
-   host$ for repo in utils moonGen; do \
+   host$ for repo in utils moonGen NetBricks; do \
            git clone --recurse-submodules git@github.com:YangZhou1997/${repo}.git; \
          done
    ```
@@ -39,6 +39,8 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
 3. After step 2, you machine meets the basic requirements of running NetBricks. Now you need to build and bind DPDK using [setupDpdk.sh](./setupDpdk.sh). 
     ```shell
+    host$ mkdir $HOME/trash
+    host$ mkdir $HOME/tools
     host$ ./setupDpdk.sh
     ```
     
@@ -71,7 +73,6 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     ```shell
     host$ sudo su
     root$ ./setupBuild.sh 
-    root$ source ~/.cargo/env
     ```
     
     [setupBuild.sh](./setupBuild.sh) will install the rust nightly, clang, and etc for running NetBricks. 
@@ -84,7 +85,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
 3. After step 2, you need to set ```RTE_SDK``` to the dpdk directory, and load cargo environment. Then you'll be able to compile and test NetBricks:
    ```shell
-    root$ export RTE_SDK=/home/yangz/tools/dpdk-stable-17.08.1 # for instance.
+    root$ export RTE_SDK=$HOME/tools/dpdk-stable-17.08.1 # for instance.
     root$ source $HOME/.cargo/env
     root$ make build
     ...
@@ -112,8 +113,8 @@ make -j16
 
 Enable SGX in your machine which set **Software Controlled**: 
 ```shell
-gcc enable_sgx.cpp -o enable_sgx -L/home/yangz/linux-sgx/sdk/libcapable/linux -lsgx_capable -I/home/yangz/linux-sgx/common/inc/
-sudo LD_LIBRARY_PATH=/home/yangz/linux-sgx/sdk/libcapable/linux ./enable_sgx
+gcc enable_sgx.cpp -o enable_sgx -L$HOME/linux-sgx/sdk/libcapable/linux -lsgx_capable -I$HOME/linux-sgx/common/inc/
+sudo LD_LIBRARY_PATH=$HOME/linux-sgx/sdk/libcapable/linux ./enable_sgx
 ```
 
 From https://github.com/intel/linux-sgx/issues/354: 
@@ -122,160 +123,3 @@ If so, then status should come back a 1 also, which means "SGX_DISABLED_REBOOT_R
 Yes! Zero means "SGX_ENABLED". :-) 
 
 Install SGX driver and Fortanix EDP following: https://edp.fortanix.com/docs/installation/guide/. 
-
-## Creating a Developer environment with `vagrant`
-
-1. Clone our [utils](//github.com/YangZhou1997/utils) and [moonGen](//github.com/YangZhou1997/MoonGen)
-   repositories into the same parent directory.
-   ```shell
-   host$ for repo in utils moonGen; do \
-           git clone --recurse-submodules git@github.com:YangZhou1997/${repo}.git; \
-         done
-   ```
-
-2. [Install Vagrant](https://www.vagrantup.com/docs/installation/) and
-   [VirtualBox](https://www.virtualbox.org/wiki/Downloads). You can check this [Google Doc](https://docs.google.com/document/d/1_QD0dZPr8JploJ-0CrKMJVc1TbGH7HhAFG96mzDXhPc/edit?usp=sharing) if any error happens.
-
-3. Install the `vagrant-disksize` (required) and `vagrant-vbguest` (recommended)
-   `vagrant-reload` (required) plugins:
-   ```shell
-   host$ vagrant plugin install vagrant-disksize vagrant-vbguest vagrant-reload
-   ```
-
-4. Symlink the Vagrantfile into the parent directory.
-   ```shell
-   host$ ln -s utils/Vagrantfile
-   ```
-
-**Note**: If you want, you can update the VirtualBox machine name (`vb.name`) or any other
-VM settings within the `Vagrantfile` once it has been symlinked.
-
-5. Boot the VM:
-   ```shell
-   host$ vagrant up
-   ```
-
-6. SSH into the running Vagrant VM,
-   ```shell
-   host$ vagrant ssh
-   ```
-
-7. Once you're within the Vagrant instance, run the `sandbox` container from NetBricks/ within Vagrant:
-   ```shell
-   vagrant$ make -f docker.mk run
-   ```
-
-8. After step 6, you'll be in the container and then can compile and test NetBricks via
-   ```shell
-   docker$ cd netbricks
-   docker$ make build
-   ...
-   docker$ make test
-   ...
-   ```
-
-For faster setup, you can run `make init` to handle steps *0* and *1* and *4*
-for you.
-
-The above steps will prepare your virtual machine with all of the appropriate
-DPDK settings (multiple secondary NICs, install kernel modules, enable huge
-pages, bind the extra interfaces to DPDK drivers) and install
-[Containernet](https://containernet.github.io/) if you want to set up
-simulations with your NFs.
-
-If you have utils and MoonGen cloned as described in the steps above, those
-repositories will be shared into the VM at `/vagrant/utils` and
-`/vagrant/moongen` respectively.
-
-## Developing with NetBricks within a Docker container
-
-For development of NFs with NetBricks, we use a set of Docker containers to
-install and bind ports use with DPDK, as well other dependencies. All of this
-exists in our [utils sandbox](//github.com/YangZhou1997/utils), which can be
-cloned accordingly and is part of our Developer environment above. As mentioned
-in steps 6 and 7 above, you can run our sandbox container and develop and test
-NetBricks via
-
-```shell
-$ make -f docker.mk run
-```
-
-and
-
-```shell
-docker$ cd netbricks
-docker$ make build
-...
-docker$ make test
-...
-```
-
-And you can run an example via:
-
-```shell
-docker$ make -e EXAMPLE=mtu-too-big run
-`****
-
-**Note**: Though be aware some of the examples contain `asserts` for testing NFs.
-
-From within the container, you can also use [cargo-watch](https://github.com/passcod/cargo-watch) to handle compilation changes as you are developing:
-
-```shell
-docker$ cargo watch -x build --poll -c
-```
-
-Note: you can open additional terminals by getting the running container's container ID from `sudo docker ps`, and then get to the container with
-
-```shell
-$ docker exec -it <CONTAINER_ID> /bin/bash
-```
-
-## Environment
-
-If you will be doing development work in this repo, you will need to have [Rust](https://www.rust-lang.org/en-US/install.html) and [rustfmt](https://github.com/rust-lang-nursery/rustfmt) (latest with nightly) installed, as well as [clang](https://clang.llvm.org/get_started.html) and [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
-
-Install these by doing the following:
-
-```shell
-host$ brew install clang-format rustup && \
-  rustup-init -y && \
-  rustup default nightly && \
-  rustup component add rustfmt-preview --toolchain nightly
-```
-
-Then add the git pre-commit hook to your cloned repo for automatic source code formatting (if you didn't run `make init` earlier).
-
-```shell
-host$ mkdir -p .git/hooks && ln -s -f .hooks/pre-commit $(BASE_DIR)/.git/hooks/pre-commit
-```
-
-Dependencies
---------------
-
-Building NetBricks requires the following dependency packages (on Debian):
-
-```
-apt-get install libcurl4-gnutls-dev libgnutls30 libgnutls-openssl-dev tcpdump libclang-dev libpcap-dev libnuma-dev
-```
-
-NetBricks also supports using SCTP as a control protocol. SCTP support requires
-the use of `libsctp` (this is an optional dependency) which can be installed on
-Debian using:
-
-```
-apt-get install libsctp-dev
-```
-
-Look further at the our [utils README](//github.com/williamofockham/utils/blob/master/README.md)
-to understand the layout of our sandbox and design of our Docker images. If
-you're building NetBricks locally, take a look at how we set out or [development VM](https://github.com/williamofockham/utils/blob/master/vm-setup.sh)
-around transparent hugepages and the loading of modules. Read more about how
-different PMDs (poll-mode drivers) require varying kernel drivers on the [DPDK site](https://doc.dpdk.org/guides/linux_gsg/linux_drivers.html).
-
-Tuning
-------
-Changing some Linux parameters, including disabling C-State, and P-State; and isolating CPUs can greatly benefit NF
-performance. In addition to these boot-time settings, runtime settings (e.g., disabling uncore frequency scaling and
-setting the appropriate flags for Linux power management QoS) can greatly improve performance. The
-[energy.sh](scripts/tuning/energy.sh) in [scripts/tuning](scripts/tuning) will set these parameter appropriately, and
-it is recommended you run this before running the system.

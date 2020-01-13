@@ -27,7 +27,7 @@ serde = ">= 1.0"
 serde_derive = ">= 1.0"
 twox-hash = ">= 1.2"
 # enclave can only use mbedtls for crypto.
-mbedtls = {version="0.5.1", default-features = false, features = ["sgx"]}
+mbedtls = {version="0.5. 1", default-features = false, features = ["sgx"]}
 # mbedtls = {version="0.3.0", path="../mbedtls-0.3.0/", default-features = false, features = ["sgx"]}
 
 [features]
