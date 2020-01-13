@@ -18,6 +18,9 @@ target/
 /native/*.so
 framework/core
 
+# contains the NIC port config
+setupDpdk.sh
+
 # Remove rustfmt backups
 *.rs.bk
 *.o

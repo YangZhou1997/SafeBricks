@@ -41,7 +41,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
     ```shell
     host$ mkdir $HOME/trash
     host$ mkdir $HOME/tools
-    host$ ./setupDpdk.sh
+    host$ ./setupDpdk.sh # in user
     ```
     
     **Note**: you need to change the dpdk device number in the last line of setupDpdk.sh.
@@ -66,7 +66,7 @@ done for you. We also include the [MoonGen](//github.com/williamofockham/MoonGen
 
 1. Make sure that you have gone though step 1-3 of last section successfully. Current version of NetBricks will read some DPDK lib from /opt/dpdk/build/ during runtime, you need to copy include/ and lib/ directory from $RTE_SDK/build to /opt/dpdk/build/. Note that soft links need to be considered carefully. We provide [setupDpdkCopy.sh](./setupDpdkCopy.sh) for that (actually, `setupDpdkCopy.sh` has been executed in `setupDpdk.sh`): 
     ```shell
-    host$ ./setupDpdkCopy.sh
+    host$ ./setupDpdkCopy.sh # in user
     ```
 
 2. As far as I know, NetBricks assumes you are root when running it. So you need to switch to root now. 
@@ -123,3 +123,5 @@ If so, then status should come back a 1 also, which means "SGX_DISABLED_REBOOT_R
 Yes! Zero means "SGX_ENABLED". :-) 
 
 Install SGX driver and Fortanix EDP following: https://edp.fortanix.com/docs/installation/guide/. 
+
+**Note**: when you encountered some `No such file or directory` error, try to reinstall SGX driver and Fortanix EDP. 
