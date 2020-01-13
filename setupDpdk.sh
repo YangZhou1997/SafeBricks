@@ -51,7 +51,7 @@ sudo make install
 
 sudo insmod $DPDK_HOME/build/kmod/igb_uio.ko
 
-sudo $DPDK_HOME/usertools/dpdk-devbind.py --force -b igb_uio 0000:02:00.0 0000:02:00.1
+sudo $DPDK_HOME/usertools/dpdk-devbind.py --force -b igb_uio 0000:02:00.0 0000:02:00.1 0000:02:00.2 0000:02:00.3
 
 bash ~/NetBricks/setupDpdkCopy.sh
 
