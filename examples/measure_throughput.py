@@ -194,24 +194,24 @@ if __name__ == '__main__':
 	run_count = 0
 	fail_count = 0
 
-	# for task in tasks_reboot:
-	# 	for num_queue in num_queues:
-	# 		run_count += 1
-	# 		if task == "acl-fw":
-	# 			status = task_exec_reboot(task, pktgens_acl, num_queue, TIMES, throughput_res)
-	# 		else:
-	# 			status = task_exec_reboot(task, pktgens, num_queue, TIMES, throughput_res)
-	# 		if status == -1:
-	# 			fail_count += 1
-	# 			fail_cases.append(task + " " + num_queue)
+	for task in tasks_reboot:
+		for num_queue in num_queues:
+			run_count += 1
+			if task == "acl-fw":
+				status = task_exec_reboot(task, pktgens_acl, num_queue, TIMES, throughput_res)
+			else:
+				status = task_exec_reboot(task, pktgens, num_queue, TIMES, throughput_res)
+			if status == -1:
+				fail_count += 1
+				fail_cases.append(task + " " + num_queue)
 
-	# for task in tasks_nonreboot:
-	# 	for num_queue in num_queues:
-	# 		run_count += 1
-	# 		status = task_exec(task, pktgens, num_queue, TIMES, throughput_res)
-	# 		if status == -1:
-	# 			fail_count += 1
-	# 			fail_cases.append(task + " " + num_queue)	
+	for task in tasks_nonreboot:
+		for num_queue in num_queues:
+			run_count += 1
+			status = task_exec(task, pktgens, num_queue, TIMES, throughput_res)
+			if status == -1:
+				fail_count += 1
+				fail_cases.append(task + " " + num_queue)	
 
 	for task in tasks_ipsec_reboot:
 		for num_queue in num_queues:
