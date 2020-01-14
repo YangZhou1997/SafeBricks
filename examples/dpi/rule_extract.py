@@ -85,10 +85,10 @@ if __name__ == "__main__":
 
     f_sgx = open("./rules/dpirules.rs", "w")
     cnt = 0
-    for i in word_ruleset:
+    for i in sente_ruleset:
         if cnt == 0:
-            f_sgx.write("pub const DPIRULES: [&str; %d] = [r#\"" % (len(word_ruleset),) + i + "\"#, ")
-        elif cnt == len(word_ruleset) - 1:
+            f_sgx.write("pub const DPIRULES: [&str; %d] = [r#\"" % (len(sente_ruleset),) + i + "\"#, ")
+        elif cnt == len(sente_ruleset) - 1:
             f_sgx.write("r#\"" + i + "\"#];")
         else:
             f_sgx.write("r#\"" + i + "\"#, ")
@@ -96,8 +96,8 @@ if __name__ == "__main__":
     f_sgx.close()
 
     f_hs = open("./rules/hs.rules", "w")
-    lite_word_ruleset = []
-    for i, rule in enumerate(word_ruleset):
+    lite_sente_ruleset = []
+    for i, rule in enumerate(sente_ruleset):
         new_rule = ''
         for c in rule:
             if c in ['[', ']', '(', ')', '{', '}', '-', '*', '+', '\\', '|', '/', ':', '^', '.', '$', '?']:
@@ -109,17 +109,17 @@ if __name__ == "__main__":
             #     re.compile(new_rule)
             # except:
             #     print(new_rule)
-            lite_word_ruleset.append(new_rule)
+            lite_sente_ruleset.append(new_rule)
         f_hs.write(f'{i}:/{new_rule}/\n')
     f_hs.close()
 
 
     f_hs_sgx = open("./rules/dpihsrules.rs", "w")
     cnt = 0
-    for i in lite_word_ruleset:
+    for i in lite_sente_ruleset:
         if cnt == 0:
-            f_hs_sgx.write("pub const HSDPIRULES: [&str; %d] = [r#\"" % (len(lite_word_ruleset),) + i + "\"#, ")
-        elif cnt == len(lite_word_ruleset) - 1:
+            f_hs_sgx.write("pub const HSDPIRULES: [&str; %d] = [r#\"" % (len(lite_sente_ruleset),) + i + "\"#, ")
+        elif cnt == len(lite_sente_ruleset) - 1:
             f_hs_sgx.write("r#\"" + i + "\"#];")
         else:
             f_hs_sgx.write("r#\"" + i + "\"#, ")
