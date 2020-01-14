@@ -22,6 +22,7 @@ members = [
    	"examples/lpm",
    	"examples/maglev",
    	"examples/dpi",
+   	"examples/dpi-hs",
    	"examples/nat-tcp-v4",
    	"examples/monitoring",
     # 

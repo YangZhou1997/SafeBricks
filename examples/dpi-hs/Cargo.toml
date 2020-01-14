@@ -1,0 +1,23 @@
+[package]
+name = "dpi-hs"
+version = "0.1.0"
+authors = ["Aurojit Panda <apanda@cs.berkeley.edu>", "William of Ockham <Occam_Engineering@comcast.com>", "Yang Zhou <yangzhou@g.harvard.edu"]
+description = "Example: dpi"
+license = "..."
+repository = "https://github.com/yangzhou1997/NetBricks/tree/master/examples/dpi"
+readme = "..."
+keywords = ["netbricks", "network-functions", "nfs", "packet-processing"]
+categories = ["network-functions", "framework"]
+
+[dependencies]
+colored = ">= 1.6"
+fnv = ">= 1.0"
+lazy_static = ">= 1.3"
+aho-corasick = "0.7"
+rand = "0.6"
+netbricks = { path = "../../framework-inside" }
+hyperscan = { version = "0.1.8", path = "../../hyperscan-0.1.8"}
+
+[features]
+default = []
+print = []
