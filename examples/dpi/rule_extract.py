@@ -109,7 +109,7 @@ if __name__ == "__main__":
             #     re.compile(new_rule)
             # except:
             #     print(new_rule)
-            lite_sente_ruleset.append(new_rule)
+        lite_sente_ruleset.append(new_rule)
         f_hs.write(f'{i}:/{new_rule}/\n')
     f_hs.close()
 
