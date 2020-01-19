@@ -178,8 +178,8 @@ tasks_ipsec_reboot = ["lpm-ipsec", "maglev-ipsec", "acl-fw-ipsec", "dpi-ipsec", 
 pktgens_ipsec = ["ICTF_IPSEC", "CAIDA64_IPSEC", "CAIDA256_IPSEC", "CAIDA512_IPSEC", "CAIDA1024_IPSEC"]
 pktgens_ipsec_acl = ["ICTF_IPSEC_ACL", "CAIDA64_IPSEC_ACL", "CAIDA256_IPSEC_ACL", "CAIDA512_IPSEC_ACL", "CAIDA1024_IPSEC_ACL"]
 
-# num_queues = [1, 2, 3, 4, 5]
-num_queues = [1]
+num_queues = [1, 2, 4]
+# num_queues = [1]
 
 # ps -ef | grep release
 # sudo kill -9 ####

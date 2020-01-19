@@ -173,8 +173,8 @@ tasks_ipsec_reboot = ["lpm-ipsec-sha", "maglev-ipsec-sha", "monitoring-ipsec-sha
 pktgens_ipsec = ["ICTF_IPSEC_SHA", "CAIDA64_IPSEC_SHA", "CAIDA256_IPSEC_SHA", "CAIDA512_IPSEC_SHA", "CAIDA1024_IPSEC_SHA"]
 pktgens_ipsec_acl = ["ICTF_IPSEC_ACL_SHA", "CAIDA64_IPSEC_ACL_SHA",  "CAIDA256_IPSEC_ACL_SHA",  "CAIDA512_IPSEC_ACL_SHA", "CAIDA1024_IPSEC_ACL_SHA"]
 
-# num_queues = [1, 2, 3, 4, 5]
-num_queues = [1]
+num_queues = [1, 2, 4]
+# num_queues = [1]
 
 
 # ps -ef | grep release
