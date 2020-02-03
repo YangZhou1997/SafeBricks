@@ -180,7 +180,7 @@ num_queues = [1, 2, 4]
 # ps -ef | grep release
 # sudo kill -9 ####
 
-TIMES = 1
+TIMES = 10
 
 if __name__ == '__main__':
 	now = datetime.datetime.now()
